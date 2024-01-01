@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "368526576075",
+    "project_id": "sync-realtimecontentwriting",
+    "storage_bucket": "sync-realtimecontentwriting.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:368526576075:android:0a1a0176d61591c8698e4e",
+        "android_client_info": {
+          "package_name": "com.bhaskarblur.sync_realtimecontentwriting"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9cybMYB_z6_LFFidju4cqil0s1g9LwvY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
