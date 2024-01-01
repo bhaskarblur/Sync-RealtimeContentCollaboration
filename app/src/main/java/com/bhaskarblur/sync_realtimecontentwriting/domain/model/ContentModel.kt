@@ -4,5 +4,5 @@ import javax.annotation.concurrent.Immutable
 
 data class ContentModel(
     val documentId : String,
-    val content : String
+    var content : String
 )

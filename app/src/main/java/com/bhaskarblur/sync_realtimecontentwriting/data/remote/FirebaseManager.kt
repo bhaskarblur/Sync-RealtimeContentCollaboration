@@ -1,6 +1,9 @@
 package com.bhaskarblur.sync_realtimecontentwriting.data.remote
 
 import android.content.Context
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import com.bhaskarblur.sync_realtimecontentwriting.R
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.ColorHelper
@@ -11,6 +14,7 @@ import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.UserModelDto
 import com.bhaskarblur.sync_realtimecontentwriting.data.repository.UserRepositoryImpl
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.DocumentModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.UserModel
+import com.bhaskarblur.sync_realtimecontentwriting.domain.repository.IUserRepository
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -23,13 +27,14 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class FirebaseManager @Inject constructor(
-
     private val database: FirebaseDatabase,
     private val documentRef: DatabaseReference,
     private val usersModelRef: DatabaseReference,
-    private val usersRepo: UserRepositoryImpl,
+    private val usersRepo: IUserRepository,
 ) {
 
+    private val _documentDetails = mutableStateOf(DocumentModel(null, null, null))
+    val documentDetails: MutableState<DocumentModel> get() = _documentDetails
     companion object {
         fun DB_URL(context: Context,) : String {
             return context.getString(R.string.DB_URL)
@@ -199,33 +204,48 @@ class FirebaseManager @Inject constructor(
         return flag
     }
 
-    suspend fun liveChangesListener(documentId: String): ChildEventListener {
-        lateinit var listener: ChildEventListener
+    suspend fun liveChangesListener(documentId: String) : Unit {
         withContext(Dispatchers.IO) {
-
-            listener =
-                documentRef.child(documentId)
+            documentRef.child(documentId)
                     .addChildEventListener(object : ChildEventListener {
                         override fun onChildAdded(
                             snapshot: DataSnapshot,
                             previousChildName: String?
                         ) {
+                            if(snapshot.exists()) {
+                                val value = snapshot.getValue(DocumentModelDto::class.java)
+                                value?.let {
+                                    _documentDetails.value = value.toDocumentModel()
+                                }
 
+                            }
                         }
 
                         override fun onChildChanged(
                             snapshot: DataSnapshot,
                             previousChildName: String?
                         ) {
+                            val value = snapshot.getValue(DocumentModelDto::class.java)
+                            value?.let {
+                                _documentDetails.value = value.toDocumentModel()
+                            }
                         }
 
                         override fun onChildRemoved(snapshot: DataSnapshot) {
+                            val value = snapshot.getValue(DocumentModelDto::class.java)
+                            value?.let {
+                                _documentDetails.value = value.toDocumentModel()
+                            }
                         }
 
                         override fun onChildMoved(
                             snapshot: DataSnapshot,
                             previousChildName: String?
                         ) {
+                            val value = snapshot.getValue(DocumentModelDto::class.java)
+                            value?.let {
+                                _documentDetails.value = value.toDocumentModel()
+                            }
                         }
 
                         override fun onCancelled(error: DatabaseError) {
@@ -233,7 +253,5 @@ class FirebaseManager @Inject constructor(
 
                     })
         }
-
-        return listener
     }
 }

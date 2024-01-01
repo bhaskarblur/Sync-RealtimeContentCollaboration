@@ -1,5 +1,7 @@
 package com.bhaskarblur.sync_realtimecontentwriting.data.repository
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import com.bhaskarblur.dictionaryapp.core.utils.Resources
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.FirebaseManager
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.DocumentModel
@@ -13,6 +15,7 @@ class DocumentRepositoryImpl @Inject constructor(
     private val firebaseManager: FirebaseManager
 ) : IDocumentRepository {
 
+    override var documentDetails: MutableState<DocumentModel> = firebaseManager.documentDetails
     override fun updateContent(documentId: String, content: String): Flow<Boolean>  = flow {
         emit(firebaseManager.updateDocumentContent(documentId, content))
     }
@@ -22,6 +25,7 @@ class DocumentRepositoryImpl @Inject constructor(
 
         val documentData = firebaseManager.getDocumentDetails(documentId)
         if(documentData.documentId != null) {
+            documentDetails.value = documentData
             emit(Resources.Success(data = documentData))
         }
         else {
@@ -37,8 +41,8 @@ class DocumentRepositoryImpl @Inject constructor(
         emit(firebaseManager.switchUserToOnline(documentId, userId))
     }
 
-    override fun liveChangesListener(documentId: String): Flow<ChildEventListener> = flow {
-        emit(firebaseManager.liveChangesListener(documentId))
+    override fun liveChangesListener(documentId: String): Flow<Unit> = flow {
+        firebaseManager.liveChangesListener(documentId)
     }
 
 

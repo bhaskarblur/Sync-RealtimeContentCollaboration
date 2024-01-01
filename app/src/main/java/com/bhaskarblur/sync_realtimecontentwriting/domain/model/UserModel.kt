@@ -5,6 +5,6 @@ import javax.annotation.concurrent.Immutable
 @Immutable
 data class UserModel(
     val id : String? = "",
-    val userName : String?,
-    val fullName : String?
+    val userName : String? = "",
+    val fullName : String? =""
 )
