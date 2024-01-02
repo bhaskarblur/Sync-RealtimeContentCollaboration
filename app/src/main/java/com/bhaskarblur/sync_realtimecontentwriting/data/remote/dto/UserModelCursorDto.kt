@@ -6,12 +6,12 @@ import com.bhaskarblur.sync_realtimecontentwriting.domain.model.UserModelCursor
 
 @Stable
 data class UserModelCursorDto(
-    val userDetails : UserModelDto,
-    val color : Color,
-    val position : Int?
+    val userDetails : UserModelDto? = UserModelDto("","",""),
+    val color : Int = 0,
+    val position : Int? = 0
 ) {
 
     fun toUserModelCursor() : UserModelCursor {
-        return UserModelCursor(userDetails.toUserModel(), color, position)
+        return UserModelCursor(userDetails?.toUserModel(), Color(color), position)
     }
 }

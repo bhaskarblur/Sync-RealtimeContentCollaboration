@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -83,12 +84,14 @@ fun SignUpPage(viewModel: SignUpViewModel) {
             })
         Spacer(Modifier.height(24.dp))
         Button(
+            modifier = Modifier.fillMaxWidth().height(56.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF6105E2),
+                disabledContainerColor = Color(0xFF6105E2),
+            ),
             onClick = {
                 viewModel.signUpUser(userName.value, fullName.value)
             },
-            Modifier
-                .fillMaxWidth()
-                .height(56.dp)
         ) {
             Text("Create account", fontSize = 16.sp)
 

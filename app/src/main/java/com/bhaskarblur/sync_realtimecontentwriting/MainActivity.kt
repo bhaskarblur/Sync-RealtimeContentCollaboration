@@ -31,10 +31,11 @@ import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    lateinit var documentViewModel : DocumentViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val userViewModel by viewModels<SignUpViewModel>()
-        val documentViewModel by viewModels<DocumentViewModel>()
+        documentViewModel = viewModels<DocumentViewModel>().value
         setContent {
             val scaffoldState = remember { SnackbarHostState() }
             var loggedData by userViewModel.userState
@@ -68,5 +69,16 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d("resumed","Yes")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d("onStop","Yes")
+        documentViewModel.switchUserOff()
     }
 }

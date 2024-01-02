@@ -6,8 +6,8 @@ import javax.annotation.concurrent.Immutable
 @Immutable
 data class UserModelDto(
     val id : String? = "",
-    val userName : String?,
-    val fullName : String?
+    val userName : String? = "",
+    val fullName : String? = ""
 ) {
 
     fun toUserModel() : UserModel {

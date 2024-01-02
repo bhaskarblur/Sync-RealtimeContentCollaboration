@@ -6,7 +6,7 @@ import javax.annotation.concurrent.Immutable
 
 @Stable
 data class UserModelCursor(
-    val userDetails : UserModel,
+    val userDetails : UserModel?,
     val color : Color,
     val position : Int?
 )

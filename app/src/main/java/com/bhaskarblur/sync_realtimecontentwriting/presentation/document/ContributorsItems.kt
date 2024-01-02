@@ -32,7 +32,7 @@ fun ContributorsItems(item : UserModelCursor) {
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically) {
 
-        Text(item.userDetails.fullName?.get(0).toString().uppercase(), fontSize = 15.sp,
+        Text(item.userDetails?.fullName?.get(0).toString().uppercase(), fontSize = 15.sp,
             fontWeight = FontWeight.SemiBold, color = Color.White)
 
     }
