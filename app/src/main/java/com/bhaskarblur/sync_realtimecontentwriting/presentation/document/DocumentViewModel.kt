@@ -1,15 +1,12 @@
-package com.bhaskarblur.sync_realtimecontentwriting.presentation.signUp
+package com.bhaskarblur.sync_realtimecontentwriting.presentation.document
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bhaskarblur.dictionaryapp.core.utils.Resources
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.DocumentModel
-import com.bhaskarblur.sync_realtimecontentwriting.domain.model.UserModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.use_case.DocumentUseCase
-import com.bhaskarblur.sync_realtimecontentwriting.domain.use_case.UserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -35,6 +32,9 @@ class DocumentViewModel @Inject constructor(
 
     private var updateJob : Job? = null
 
+    fun observeContentChanges() {
+
+    }
     fun getDocumentData(documentId : String) {
         viewModelScope.launch {
         documentUseCase.getDocumentDetails(documentId).collectLatest {

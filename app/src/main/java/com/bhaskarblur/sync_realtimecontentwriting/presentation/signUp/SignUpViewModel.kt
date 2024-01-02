@@ -1,5 +1,6 @@
 package com.bhaskarblur.sync_realtimecontentwriting.presentation.signUp
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -19,12 +20,12 @@ class SignUpViewModel @Inject constructor(
 ) : ViewModel() {
 
     private var _userState = mutableStateOf(UserModel())
-    var userState : State<UserModel> = mutableStateOf(UserModel())
+    var userState = _userState
 
     fun signUpUser(userName: String, fullName : String) {
         viewModelScope.launch {
             userUseCase.createUser(userName, fullName).collectLatest { user ->
-                user.id?.let {
+                if(!user.id.isNullOrEmpty()) {
                     _userState.value = user
                 }
             }
@@ -34,15 +35,17 @@ class SignUpViewModel @Inject constructor(
     fun isUserLogged() : Boolean {
         var flag = false
         viewModelScope.launch {
-            userUseCase.getUserDetails().collectLatest {
-
-                if(it.id != null) {
-                    if(it.id.isNotBlank()) {
+            userUseCase.getUserDetails().collectLatest { user ->
+                Log.d("userData", user.toString())
+                if(user.id != null) {
+                    if(user.id.isNotBlank()) {
                         flag = true
+                        _userState.value = user
                     }
                 }
             }
         }
+        Log.d("isLogged", flag.toString())
         return flag
     }
 

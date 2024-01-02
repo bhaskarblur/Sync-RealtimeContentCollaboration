@@ -37,18 +37,18 @@ class AppModules {
 
     @Provides
     @Singleton
-    fun providesFirebaseManager(context: Context, firebaseDatabase: FirebaseDatabase,
+    fun providesFirebaseManager(firebaseDatabase: FirebaseDatabase,
                               @Named("docsRef") databaseReference: DatabaseReference,
                               @Named("usersRef") usersRef: DatabaseReference,
-                                userRepository: IUserRepository
+                                sharedPreferencesManager: SharedPreferencesManager
                                 ) : FirebaseManager {
-        return FirebaseManager(providesFirebaseDatabase(context),
-            databaseReference, usersRef, userRepository)
+        return FirebaseManager(firebaseDatabase,
+            databaseReference, usersRef, sharedPreferencesManager)
     }
 
     @Provides
     @Singleton
-    fun providesFirebaseDatabase( context: Context) : FirebaseDatabase {
+    fun providesFirebaseDatabase(context: Context) : FirebaseDatabase {
         return FirebaseDatabase.getInstance(FirebaseManager.DB_URL(context))
     }
 
@@ -65,7 +65,7 @@ class AppModules {
 
     @Provides
     @Singleton
-    fun providesUserUseCase(context: Context, userRepository: IUserRepository) : UserUseCase {
+    fun providesUserUseCase(userRepository: IUserRepository) : UserUseCase {
         return UserUseCase(userRepository)
     }
 

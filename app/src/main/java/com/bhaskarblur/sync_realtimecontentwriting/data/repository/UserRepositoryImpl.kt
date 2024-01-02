@@ -1,5 +1,6 @@
 package com.bhaskarblur.sync_realtimecontentwriting.data.repository
 
+import android.util.Log
 import com.bhaskarblur.sync_realtimecontentwriting.data.local.SharedPreferencesManager
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.FirebaseManager
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.UserModelDto
@@ -18,12 +19,14 @@ class UserRepositoryImpl @Inject constructor(
     override fun signupUser(userName: String, fullName: String): Flow<UserModel> = flow {
         val user = firebaseManager.createUser(userName, fullName)
 
-        if(user.id != null) {
+        if(!user.id.isNullOrEmpty()) {
+            Log.d("FirebaseUserToBeStored", user.toString())
             spManager.storeSession(UserModelDto(user.id, user.userName, user.fullName))
             emit(user)
         }
-
-        emit(UserModel(null, null, null))
+        else {
+            emit(UserModel(null, null, null))
+        }
 
     }.flowOn(Dispatchers.IO)
 

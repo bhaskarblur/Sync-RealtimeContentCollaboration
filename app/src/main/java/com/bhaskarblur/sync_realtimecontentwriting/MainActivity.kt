@@ -1,46 +1,72 @@
 package com.bhaskarblur.sync_realtimecontentwriting
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.DocumentPage
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.DocumentViewModel
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.signUp.SignUpPage
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.signUp.SignUpViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.SyncRealtimeContentWritingTheme
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val userViewModel by viewModels<SignUpViewModel>()
+        val documentViewModel by viewModels<DocumentViewModel>()
         setContent {
-            SyncRealtimeContentWritingTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+            val scaffoldState = remember { SnackbarHostState() }
+            var loggedData by userViewModel.userState
+
+            LaunchedEffect(key1 = true) {
+                userViewModel.isUserLogged()
+                documentViewModel.eventFlow.collectLatest { event ->
+                    when (event) {
+                        is DocumentViewModel.UIEvents.ShowSnackbar -> {
+                            scaffoldState.showSnackbar(message = event.message)
+                        }
+                    }
+                }
+                loggedData = userViewModel.userState.value
+                Log.d("user", userViewModel.userState.value.toString())
+            }
+            Scaffold(
+                snackbarHost = { SnackbarHost(hostState = scaffoldState) }) {
+                it
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(Color(0xff1b1b1c))
+
                 ) {
-                    Greeting("Android")
+                    if (!loggedData.id.isNullOrEmpty()) {
+                        DocumentPage(viewModel = documentViewModel)
+                    } else {
+                        SignUpPage(viewModel = userViewModel)
+                    }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    SyncRealtimeContentWritingTheme {
-        Greeting("Android")
     }
 }

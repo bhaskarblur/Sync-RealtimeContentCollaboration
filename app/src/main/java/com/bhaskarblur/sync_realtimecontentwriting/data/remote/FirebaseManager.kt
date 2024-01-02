@@ -1,20 +1,17 @@
 package com.bhaskarblur.sync_realtimecontentwriting.data.remote
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.Color
 import com.bhaskarblur.sync_realtimecontentwriting.R
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.ColorHelper
+import com.bhaskarblur.sync_realtimecontentwriting.data.local.SharedPreferencesManager
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.DocumentModelDto
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.UserModelCursorDto
-import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.UserModelCursorListDto
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.UserModelDto
-import com.bhaskarblur.sync_realtimecontentwriting.data.repository.UserRepositoryImpl
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.DocumentModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.UserModel
-import com.bhaskarblur.sync_realtimecontentwriting.domain.repository.IUserRepository
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -22,15 +19,15 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.withContext
+import java.lang.Exception
 import javax.inject.Inject
 
 class FirebaseManager @Inject constructor(
     private val database: FirebaseDatabase,
     private val documentRef: DatabaseReference,
     private val usersModelRef: DatabaseReference,
-    private val usersRepo: IUserRepository,
+    private val shpRepo: SharedPreferencesManager,
 ) {
 
     private val _documentDetails = mutableStateOf(DocumentModel(null, null, null))
@@ -42,19 +39,26 @@ class FirebaseManager @Inject constructor(
     }
 
     suspend fun createUser(userName: String, fullName: String): UserModel {
-        var user: UserModelDto = UserModelDto(userName = userName, fullName = fullName)
-        val key = usersModelRef.push().key
+        var user: UserModelDto = UserModelDto(
+            id =  usersModelRef.push().key,
+            userName = userName, fullName = fullName)
 
         withContext(Dispatchers.IO) {
-            usersModelRef.child(key ?: "").setValue(
+            usersModelRef.child(user.id ?: "").setValue(
                 UserModelDto(
-                    id = key ?: "",
+                    id = user.id ?: "",
                     userName, fullName
                 )
             ).addOnCompleteListener {
+                try {
+                Log.d("taskResult",it.isSuccessful.toString())
+                Log.d("taskResult",it.isComplete.toString())
+                } catch (e : Exception) {
+                    e.printStackTrace()
+                }
                 if (it.isSuccessful) {
                     user = UserModelDto(
-                        id = key ?: "",
+                        id = user.id,
                         userName, fullName
                     )
                     return@addOnCompleteListener
@@ -62,7 +66,7 @@ class FirebaseManager @Inject constructor(
 
             }
         }
-
+        Log.d("FirebaseUserCreated", user.toUserModel().toString())
         return user.toUserModel()
     }
 
@@ -166,10 +170,7 @@ class FirebaseManager @Inject constructor(
         var flag = false
 
         withContext(Dispatchers.IO) {
-            lateinit  var userData : UserModelDto
-            usersRepo.getUserDetails().collectLatest {
-                userData = UserModelDto(it.id, it.userName, it.fullName)
-            }
+            val userData = shpRepo.getSession()
 
             documentRef.child(documentId).child("liveCollaborators")
                 .child(userId)
@@ -188,10 +189,8 @@ class FirebaseManager @Inject constructor(
         var flag = false
 
         withContext(Dispatchers.IO) {
-            lateinit  var userData : UserModelDto
-            usersRepo.getUserDetails().collectLatest {
-                userData = UserModelDto(it.id, it.userName, it.fullName)
-            }
+            val userData = shpRepo.getSession()
+
 
             documentRef.child(documentId).child("liveCollaborators")
                 .child(userId)
