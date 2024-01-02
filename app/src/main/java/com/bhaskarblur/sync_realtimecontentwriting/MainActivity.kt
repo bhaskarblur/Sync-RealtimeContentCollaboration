@@ -63,7 +63,8 @@ class MainActivity : ComponentActivity() {
 
                 ) {
                     if (!loggedData.id.isNullOrEmpty()) {
-                        DocumentPage(viewModel = documentViewModel)
+                        DocumentPage(documentViewModel,
+                            userViewModel)
                     } else {
                         SignUpPage(viewModel = userViewModel)
                     }
@@ -77,9 +78,19 @@ class MainActivity : ComponentActivity() {
         Log.d("resumed","Yes")
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        documentViewModel.switchUserOff()
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        documentViewModel.switchUserOff()
+    }
     override fun onStop() {
         super.onStop()
         Log.d("onStop","Yes")
         documentViewModel.switchUserOff()
+
     }
 }

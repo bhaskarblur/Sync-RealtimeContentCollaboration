@@ -27,16 +27,18 @@ fun ContributorsItems(item : UserModelCursor) {
         Modifier
             .background(item.color, RoundedCornerShape(90.dp))
             .border(1.5.dp, color = Color.White, shape = RoundedCornerShape(90.dp))
-            .width(32.dp)
-            .height(32.dp),
+            .width(36.dp)
+            .height(36.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically) {
 
         item.userDetails?.fullName?.let {
-            Text(
-                item.userDetails.fullName!![0].toString().uppercase(), fontSize = 15.sp,
-                fontWeight = FontWeight.SemiBold, color = Color.White
-            )
+            if((item.userDetails.fullName?.length ?: 0) > 0) {
+                Text(
+                    item.userDetails.fullName!![0].toString().uppercase(), fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold, color = Color.White
+                )
+            }
         }
     }
 

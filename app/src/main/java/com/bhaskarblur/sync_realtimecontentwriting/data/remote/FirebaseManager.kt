@@ -31,8 +31,8 @@ class FirebaseManager @Inject constructor(
     private val shpRepo: SharedPreferencesManager,
 ) {
 
-    private val _documentDetails = mutableStateOf(DocumentModel(null, null,null, null))
-    val documentDetails : MutableState<DocumentModel>  = _documentDetails
+    private val _documentDetails = mutableStateOf(DocumentModel(null, null, null, null))
+    val documentDetails: MutableState<DocumentModel> = _documentDetails
 
     companion object {
         fun DB_URL(context: Context): String {
@@ -105,16 +105,18 @@ class FirebaseManager @Inject constructor(
                         if (snapshot.exists()) {
                             val value = snapshot.getValue(DocumentModelDtoNoList::class.java)!!
                             val contributorsList = arrayListOf<UserModelCursorDto>()
-                            snapshot.child("liveCollaborators").children.forEach{
+                            snapshot.child("liveCollaborators").children.forEach {
                                 val child = it.getValue(UserModelCursorDto::class.java)!!
                                 Log.d("docData", child.toString())
                                 contributorsList.add(child)
                             }
                             Log.d("documentExists", value.toString())
-                            document = DocumentModelDto(documentId = value.documentId,
+                            document = DocumentModelDto(
+                                documentId = value.documentId,
                                 value.documentName,
                                 value.content,
-                                contributorsList)
+                                contributorsList
+                            )
                             _documentDetails.value = document.toDocumentModel()
                         } else {
                             documentRef.child(documentId).setValue(
@@ -145,19 +147,18 @@ class FirebaseManager @Inject constructor(
 
     fun updateDocumentContent(documentId: String, content: String): Boolean {
         var flag = false
-            documentRef.child(documentId).child("content")
-                .child("content").setValue(content).addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        flag = true
-                    }
-        }
+        documentRef.child(documentId).child("content")
+            .child("content").setValue(content).addOnCompleteListener {
+                if (it.isSuccessful) {
+                    flag = true
+                }
+            }
         return flag
     }
 
     fun updateDocumentTitle(documentId: String, title: String): Boolean {
         var flag = false
-        documentRef.child(documentId).
-        child("documentName")
+        documentRef.child(documentId).child("documentName")
             .setValue(title).addOnCompleteListener {
                 if (it.isSuccessful) {
                     flag = true
@@ -195,14 +196,44 @@ class FirebaseManager @Inject constructor(
 
     fun switchUserToOffline(documentId: String, userId: String): Boolean {
         var flag = false
-            Log.d("switchOffFirebase", userId)
+        Log.d("switchOffFirebase", userId)
+        documentRef.child(documentId).child("liveCollaborators")
+            .child(userId).addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    Log.d("switchedOff", snapshot.toString())
+                    if (snapshot.exists()) {
+                        documentRef.child(documentId).child("liveCollaborators")
+                            .child(userId).removeValue().addOnCompleteListener {
+                                if (it.isSuccessful) {
+                                    flag = true
+                                }
+                            }
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    error.toException().printStackTrace()
+                }
+            })
+        return flag
+    }
+
+    fun switchUserToOnline(documentId: String, userId: String): Boolean {
+        var flag = false
+        val userData = shpRepo.getSession()
+        if (userId.isNotEmpty()) {
             documentRef.child(documentId).child("liveCollaborators")
-                .child(userId).addListenerForSingleValueEvent(object : ValueEventListener{
+                .child(userId).addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         Log.d("switchedOff", snapshot.toString())
-                        if(snapshot.exists()) {
+                        if (!snapshot.exists()) {
                             documentRef.child(documentId).child("liveCollaborators")
-                                .child(userId).removeValue().addOnCompleteListener {
+                                .child(userId)
+                                .setValue(
+                                    UserModelCursorDto(
+                                        userData, ColorHelper.generateColor(), -1
+                                    )
+                                ).addOnCompleteListener {
                                     if (it.isSuccessful) {
                                         flag = true
                                     }
@@ -213,37 +244,7 @@ class FirebaseManager @Inject constructor(
                     override fun onCancelled(error: DatabaseError) {
                         error.toException().printStackTrace()
                     }
-                } )
-        return flag
-    }
-
-    fun switchUserToOnline(documentId: String, userId: String): Boolean {
-        var flag = false
-        val userData = shpRepo.getSession()
-            if(userId.isNotEmpty()) {
-                documentRef.child(documentId).child("liveCollaborators")
-                    .child(userId).addListenerForSingleValueEvent(object : ValueEventListener{
-                        override fun onDataChange(snapshot: DataSnapshot) {
-                            Log.d("switchedOff", snapshot.toString())
-                            if(!snapshot.exists()) {
-                                documentRef.child(documentId).child("liveCollaborators")
-                                    .child(userId)
-                                    .setValue(
-                                        UserModelCursorDto(
-                                            userData, ColorHelper.generateColor(), -1
-                                        )
-                                    ).addOnCompleteListener {
-                                        if (it.isSuccessful) {
-                                            flag = true
-                                        }
-                                    }
-                            }
-                        }
-
-                        override fun onCancelled(error: DatabaseError) {
-                            error.toException().printStackTrace()
-                        }
-                    }  )
+                })
         }
         return flag
     }
@@ -254,14 +255,14 @@ class FirebaseManager @Inject constructor(
         position: Int
     ): Boolean {
         var flag = false
-            val userData = shpRepo.getSession()
-            documentRef.child(documentId).child("liveCollaborators")
-                .child(userId)
-                .child("position").setValue(position).addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        flag = true
-                    }
-        }
+        val userData = shpRepo.getSession()
+        documentRef.child(documentId).child("liveCollaborators")
+            .child(userId)
+            .child("position").setValue(position).addOnCompleteListener {
+                if (it.isSuccessful) {
+                    flag = true
+                }
+            }
         return flag
     }
 

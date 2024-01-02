@@ -6,6 +6,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bhaskarblur.dictionaryapp.core.utils.Resources
@@ -34,8 +35,8 @@ class DocumentViewModel @Inject constructor(
     private val _documentData = documentUseCase._documentDetails
     val documentData: State<DocumentModel> = _documentData
     private val _changeHistory = mutableListOf<String>()
-    val undoStack: Stack<String> = Stack()
-    val redoStack: Stack<String> = Stack()
+    val undoStack by mutableStateOf(Stack<String>())
+    var redoStack by mutableStateOf(Stack<String>())
 
     private val _eventFlow = MutableSharedFlow<UIEvents>()
     val eventFlow = _eventFlow
@@ -84,6 +85,22 @@ class DocumentViewModel @Inject constructor(
         }
     }
 
+    fun undoChanges() {
+        if(undoStack.size > 0) {
+            Log.d("calledForUndo", undoStack.peek().toString())
+            updateContent(undoStack.peek(), undoStack.peek().length-1)
+            redoStack.push(undoStack.peek())
+            undoStack.pop()
+        }
+    }
+
+    fun redoChanges() {
+        if(redoStack.size > 0) {
+            Log.d("calledForRedo", redoStack.peek())
+            updateContent(redoStack.peek(), redoStack.peek().length-1)
+            redoStack.pop()
+        }
+    }
     fun switchUserOff() {
         viewModelScope.launch(Dispatchers.IO) {
             documentUseCase.switchUserToOffline(
@@ -93,6 +110,17 @@ class DocumentViewModel @Inject constructor(
         }
     }
 
+    fun handleUndoRedoStack(content: String) {
+        viewModelScope.launch {
+            delay(200)
+            undoStack.push(content)
+            try {
+                redoStack = Stack()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
     fun updateContent(content: String, cursorPosition: Int) {
         updateJob?.cancel()
         updateJob = viewModelScope.launch {
