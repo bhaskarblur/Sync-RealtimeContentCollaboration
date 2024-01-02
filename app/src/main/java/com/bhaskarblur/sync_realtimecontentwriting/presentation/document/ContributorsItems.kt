@@ -22,7 +22,7 @@ import com.bhaskarblur.sync_realtimecontentwriting.domain.model.UserModelCursor
 
 @Composable
 fun ContributorsItems(item : UserModelCursor) {
-
+    Spacer(modifier = Modifier.width(8.dp))
     Row(
         Modifier
             .background(item.color, RoundedCornerShape(90.dp))
@@ -32,9 +32,12 @@ fun ContributorsItems(item : UserModelCursor) {
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically) {
 
-        Text(item.userDetails?.fullName?.get(0).toString().uppercase(), fontSize = 15.sp,
-            fontWeight = FontWeight.SemiBold, color = Color.White)
-
+        item.userDetails?.fullName?.let {
+            Text(
+                item.userDetails.fullName!![0].toString().uppercase(), fontSize = 15.sp,
+                fontWeight = FontWeight.SemiBold, color = Color.White
+            )
+        }
     }
 
 }

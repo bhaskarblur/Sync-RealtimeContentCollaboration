@@ -18,6 +18,10 @@ class DocumentUseCase(
         return documentRepository.updateContent(documentId, content)
     }
 
+    fun updateDocumentTitle(documentId : String, title : String) : Flow<Boolean> {
+        return documentRepository.updateTitle(documentId, title)
+    }
+
     fun updateCursorPosition(documentId : String, position: Int, userId: String) : Flow<Boolean> {
         return documentRepository.updateCursorPosition(documentId, position, userId)
     }
@@ -38,8 +42,5 @@ class DocumentUseCase(
             userId = userId)
     }
 
-    fun listenToLiveChanges(documentId : String) : Flow<Unit> {
-       return documentRepository.liveChangesListener(documentId)
-    }
 
 }

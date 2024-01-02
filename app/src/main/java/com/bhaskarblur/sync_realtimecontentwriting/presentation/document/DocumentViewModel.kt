@@ -33,7 +33,6 @@ class DocumentViewModel @Inject constructor(
 
     private val _documentData = documentUseCase._documentDetails
     val documentData: State<DocumentModel> = _documentData
-
     private val _changeHistory = mutableListOf<String>()
     val undoStack: Stack<String> = Stack()
     val redoStack: Stack<String> = Stack()
@@ -77,8 +76,6 @@ class DocumentViewModel @Inject constructor(
                 }
             }
         }
-
-        documentUseCase.listenToLiveChanges(documentId)
     }
 
     fun switchUserOn(userId: String, documentId: String) {
@@ -97,10 +94,8 @@ class DocumentViewModel @Inject constructor(
     }
 
     fun updateContent(content: String, cursorPosition: Int) {
-        _documentData.value.content?.content = content
         updateJob?.cancel()
         updateJob = viewModelScope.launch {
-            delay(300)
             documentUseCase.updateContent(_documentData.value.documentId!!,
                 content)
             documentUseCase.updateCursorPosition(
@@ -108,6 +103,15 @@ class DocumentViewModel @Inject constructor(
                 position = cursorPosition, userDetails.value.id!!
             )
 
+        }
+    }
+
+    fun updateTitle(title: String) {
+        updateJob?.cancel()
+        updateJob = viewModelScope.launch {
+            documentUseCase.updateDocumentTitle(
+                _documentData.value.documentId!!,
+                title)
         }
     }
 

@@ -42,6 +42,7 @@ class MainActivity : ComponentActivity() {
 
             LaunchedEffect(key1 = true) {
                 userViewModel.isUserLogged()
+                documentViewModel.initDocument("Playground")
                 documentViewModel.eventFlow.collectLatest { event ->
                     when (event) {
                         is DocumentViewModel.UIEvents.ShowSnackbar -> {

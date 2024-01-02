@@ -15,5 +15,5 @@ interface IDocumentRepository {
     fun switchUserToOffline(userId : String, documentId : String) : Flow<Boolean>
     fun switchUserToOnline(userId : String, documentId : String) : Flow<Boolean>
     fun liveChangesListener(documentId : String) : Flow<Unit>
-
+    fun updateTitle(documentId: String, content: String): Flow<Boolean>
 }

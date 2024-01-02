@@ -20,23 +20,51 @@ class DocumentRepositoryImpl @Inject constructor(
 
     override var documentDetails: MutableState<DocumentModel> = firebaseManager.documentDetails
 
-    override fun updateContent(documentId: String, content: String): Flow<Boolean>  = flow {
-        emit(firebaseManager.updateDocumentContent(documentId, content))
+    override fun updateContent(documentId: String, content: String): Flow<Boolean>  {
+        firebaseManager.updateDocumentContent(documentId, content)
+        return flow {
+            emit(
+                true
+            )
+        }
     }
 
-    override fun updateCursorPosition(documentId: String, position: Int, userId: String): Flow<Boolean> = flow{
-        emit(firebaseManager.changeUserCursorPosition(documentId, position = position, userId = userId ))
+    override fun updateTitle(documentId: String, content: String): Flow<Boolean>  {
+        firebaseManager.updateDocumentTitle(documentId, content)
+        return flow {
+            emit(
+                true
+            )
+        }
+    }
+    override fun updateCursorPosition(
+        documentId: String,
+        position: Int,
+        userId: String
+    ): Flow<Boolean> {
+        firebaseManager.changeUserCursorPosition(
+            documentId,
+            position = position,
+            userId = userId
+        )
+        return flow {
+            emit(
+               true
+            )
+        }
     }
 
-    override fun getDocumentDetails(documentId: String, userId: String): Flow<Resources<DocumentModel>> = flow {
+    override fun getDocumentDetails(
+        documentId: String,
+        userId: String
+    ): Flow<Resources<DocumentModel>> = flow {
         emit(Resources.Loading())
         val documentData = firebaseManager.getDocumentDetails(documentId)
         Log.d("docDataInRepo", documentData.toString())
-        if(documentData.documentId != null) {
+        if (documentData.documentId != null) {
             documentDetails.value = documentData
             emit(Resources.Success(data = documentData))
-        }
-        else {
+        } else {
             emit(Resources.Error(message = "", data = null))
         }
     }
@@ -49,7 +77,7 @@ class DocumentRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun switchUserToOnline(userId: String, documentId: String): Flow<Boolean>  {
+    override fun switchUserToOnline(userId: String, documentId: String): Flow<Boolean> {
         firebaseManager.switchUserToOnline(documentId, userId)
         Log.d("switchOnRepository", "Yes")
         return flow {
@@ -58,7 +86,6 @@ class DocumentRepositoryImpl @Inject constructor(
     }
 
     override fun liveChangesListener(documentId: String): Flow<Unit> = flow {
-        firebaseManager.liveChangesListener(documentId)
     }
 
 
