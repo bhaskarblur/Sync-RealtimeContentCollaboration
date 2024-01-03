@@ -5,7 +5,7 @@ import com.bhaskarblur.sync_realtimecontentwriting.domain.model.DocumentModel
 data class DocumentModelDto(
     val documentId : String = "",
     val documentName : String = "",
-    val content : ContentModelDto? = ContentModelDto(null, null),
+    var content : ContentModelDto? = ContentModelDto(null, null),
     val liveCollaborators : List<UserModelCursorDto>? = listOf()
 ) {
 

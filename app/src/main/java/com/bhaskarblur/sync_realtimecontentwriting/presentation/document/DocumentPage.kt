@@ -1,6 +1,7 @@
 package com.bhaskarblur.sync_realtimecontentwriting.presentation.document
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -270,16 +271,22 @@ fun DocumentPage(
                             ),
                         suffix = {
                             Icon(
-                                Icons.Filled.Send,
+                                Icons.Filled.AddCircle,
                                 contentDescription = "Add to Text",
                                 tint = Color.White,
                                 modifier = Modifier
                                     .height(24.dp)
                                     .clickable {
                                         if (gptData.content.isNotEmpty()) {
+                                            val tempContent = content.value.text.substring(0,
+                                                content.value.selection.start
+                                            ).plus(gptData.content).
+                                                plus(content.value.text.substring(
+                                                    content.value.selection.start,
+                                                    content.value.text.length
+                                                ))
                                             content.value =
-                                                TextFieldValue(
-                                                    content.value.text.plus(gptData.content),
+                                                TextFieldValue(tempContent,
                                                     TextRange(content.value.text.length)
                                                 )
                                             viewModel.handleUndoRedoStack(content.value.text)
@@ -362,6 +369,9 @@ fun DocumentPage(
                             Text(
                                 text = "✨ AI",
                                 color = Color.White,
+                                style = TextStyle(
+                                    fontWeight = FontWeight.Medium
+                                ),
                                 modifier = Modifier
                                     .background(
                                         Color(0xFF6105E2),
@@ -495,12 +505,13 @@ fun DocumentPage(
                                 value = content.value,
                                 onValueChange = { value ->
                                     content.value = value
+                                    Log.d("cursorPos", value.selection.start.toString())
                                     val position = findFirstDifferenceIndex(
                                         content.value.text, data.content?.content ?: ""
                                     )
                                     if (position > 0) {
                                         viewModel.handleUndoRedoStack(value.text)
-                                        viewModel.updateContent(value.text, position)
+                                        viewModel.updateContent(value.text, value.selection.start)
                                     } else {
                                         viewModel.handleUndoRedoStack(value.text)
                                         viewModel.updateContent(

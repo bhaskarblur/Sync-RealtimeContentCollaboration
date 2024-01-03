@@ -24,28 +24,55 @@ fun buildAnnotatedStringWithColors(items : List<UserModelCursor>, text : String)
                     if (text.length >= cursor.position) {
                         try {
                             builder.withStyle(style = SpanStyle(color = cursor.color)) {
-                                if (text.length >= cursor.position + 1) {
-//                                    Log.d("Span", "1")
-                                    addStyle(
-                                        style = SpanStyle(
-                                            fontWeight = FontWeight.SemiBold,
-                                            fontSize = 17.sp,
-                                            background = cursor.color,
-                                        ),
-                                        cursor.position,
-                                        cursor.position + 1
-                                    )
+                                if (text.length >= cursor.position) {
+                                    if(cursor.position-1 >= 0) {
+                                        Log.d("Span", "1")
+                                        addStyle(
+                                            style = SpanStyle(
+                                                fontWeight = FontWeight.SemiBold,
+                                                fontSize = 17.sp,
+                                                background = cursor.color,
+                                            ),
+                                            cursor.position - 1,
+                                            cursor.position
+                                        )
+                                    }
+                                    else {
+                                        addStyle(
+                                            style = SpanStyle(
+                                                fontWeight = FontWeight.SemiBold,
+                                                fontSize = 17.sp,
+                                                background = cursor.color,
+                                            ),
+                                            cursor.position,
+                                            cursor.position +1
+                                        )
+                                    }
                                 } else {
-//                                    Log.d("Span", "2")
-                                    addStyle(
-                                        style = SpanStyle(
-                                            fontWeight = FontWeight.SemiBold,
-                                            fontSize = 17.sp,
-                                            background = cursor.color,
-                                        ),
-                                        cursor.position,
-                                        cursor.position
-                                    )
+                                    Log.d("Span", "2")
+
+                                    if(cursor.position-1 >= 0) {
+                                        addStyle(
+                                            style = SpanStyle(
+                                                fontWeight = FontWeight.SemiBold,
+                                                fontSize = 17.sp,
+                                                background = cursor.color,
+                                            ),
+                                            cursor.position - 1,
+                                            cursor.position
+                                        )
+                                    }
+                                    else {
+                                        addStyle(
+                                            style = SpanStyle(
+                                                fontWeight = FontWeight.SemiBold,
+                                                fontSize = 17.sp,
+                                                background = cursor.color,
+                                            ),
+                                            cursor.position,
+                                            cursor.position +1
+                                        )
+                                    }
                                 }
 
                             }
@@ -55,7 +82,7 @@ fun buildAnnotatedStringWithColors(items : List<UserModelCursor>, text : String)
                     } else {
                         try {
                             builder.withStyle(style = SpanStyle(color = cursor.color)) {
-//                                Log.d("Span", "3")
+                                Log.d("Span", "3")
                                 addStyle(
                                     style = SpanStyle(
                                         fontWeight = FontWeight.SemiBold,

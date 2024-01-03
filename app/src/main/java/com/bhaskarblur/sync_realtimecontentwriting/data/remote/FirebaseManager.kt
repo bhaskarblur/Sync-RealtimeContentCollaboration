@@ -34,6 +34,7 @@ class FirebaseManager @Inject constructor(
     private val _documentDetails = mutableStateOf(DocumentModel(null, null, null, null))
     val documentDetails: MutableState<DocumentModel> = _documentDetails
     private lateinit var changeListener : ValueEventListener
+    private var userDetails : UserModelDto = UserModelDto()
 
     companion object {
         fun DB_URL(context: Context): String {
@@ -99,6 +100,7 @@ class FirebaseManager @Inject constructor(
             null,
             null
         )
+        userDetails = shpRepo.getSession()
         withContext(Dispatchers.IO) {
             changeListener = documentRef.child(documentId)
                 .addValueEventListener(object : ValueEventListener {
@@ -118,7 +120,23 @@ class FirebaseManager @Inject constructor(
                                 value.content,
                                 contributorsList
                             )
-                            _documentDetails.value = document.toDocumentModel()
+                            if(value.content?.changedBy != null) {
+                                if (value.content.changedBy == userDetails.id!!) {
+                                    Log.d("hitIf", _documentDetails.value.content?.content.isNullOrEmpty().toString())
+                                    if(_documentDetails.value.content?.content.isNullOrEmpty() ||
+                                        _documentDetails.value.content?.content == null) {
+                                        _documentDetails.value = document.toDocumentModel()
+                                    }
+                                }
+                                else {
+                                    Log.d("hitElse", "yes")
+                                    _documentDetails.value = document.toDocumentModel()
+                                }
+                            }
+                            else {
+                                Log.d("hitElse", "yes")
+                                _documentDetails.value = document.toDocumentModel()
+                            }
                         } else {
                             documentRef.child(documentId).setValue(
                                 DocumentModelDto(
@@ -152,6 +170,8 @@ class FirebaseManager @Inject constructor(
             .child("content").setValue(content).addOnCompleteListener {
                 if (it.isSuccessful) {
                     flag = true
+                    documentRef.child(documentId).child("content")
+                        .child("changedBy").setValue(userDetails.id?:"")
                 }
             }
         return flag
@@ -260,7 +280,7 @@ class FirebaseManager @Inject constructor(
         position: Int
     ): Boolean {
         var flag = false
-        val userData = shpRepo.getSession()
+        Log.d("cursorPosition",position.toString())
         documentRef.child(documentId).child("liveCollaborators")
             .child(userId).addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -270,6 +290,8 @@ class FirebaseManager @Inject constructor(
                             .child("position").setValue(position).addOnCompleteListener {
                                 if (it.isSuccessful) {
                                     flag = true
+                                    documentRef.child(documentId).child("content")
+                                        .child("changedBy").setValue(userDetails.id?:"")
                                 }
                             }
                     }

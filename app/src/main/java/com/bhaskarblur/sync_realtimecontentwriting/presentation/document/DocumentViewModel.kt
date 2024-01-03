@@ -13,6 +13,7 @@ import com.bhaskarblur.dictionaryapp.core.utils.Resources
 import com.bhaskarblur.gptbot.models.GptBody
 import com.bhaskarblur.gptbot.models.GptMessageModel
 import com.bhaskarblur.gptbot.models.MessageBody
+import com.bhaskarblur.sync_realtimecontentwriting.domain.model.ContentModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.DocumentModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.UserModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.repository.IUserRepository
@@ -108,10 +109,12 @@ class DocumentViewModel @Inject constructor(
     fun switchUserOff() {
         viewModelScope.launch(Dispatchers.IO) {
             if(!userDetails.value.id.isNullOrEmpty()) {
-                documentUseCase.switchUserToOffline(
-                    documentData.value.documentId!!,
-                    userDetails.value.id!!
-                )
+                if(!documentData.value.documentId.isNullOrEmpty()) {
+                    documentUseCase.switchUserToOffline(
+                        documentData.value.documentId!!,
+                        userDetails.value.id!!
+                    )
+                }
             }
         }
     }
@@ -120,6 +123,14 @@ class DocumentViewModel @Inject constructor(
     fun undoChanges() {
         if(undoStack.size > 0) {
             Log.d("calledForUndo", undoStack.peek().toString())
+            _documentData.value = DocumentModel(
+                    documentId = _documentData.value.documentId,
+            _documentData.value.documentName,
+            ContentModel(_documentData.value.documentId,
+                content = undoStack.peek().toString(),
+                changedBy = userDetails.value.id),
+            _documentData.value.liveCollaborators
+            )
             updateContent(undoStack.peek(), undoStack.peek().length-1)
             redoStack.push(undoStack.peek())
             undoStack.pop()
@@ -129,6 +140,14 @@ class DocumentViewModel @Inject constructor(
     fun redoChanges() {
         if(redoStack.size > 0) {
             Log.d("calledForRedo", redoStack.peek())
+            _documentData.value = DocumentModel(
+                documentId = _documentData.value.documentId,
+                _documentData.value.documentName,
+                ContentModel(_documentData.value.documentId,
+                    content = redoStack.peek().toString(),
+                    changedBy = userDetails.value.id),
+                _documentData.value.liveCollaborators
+            )
             updateContent(redoStack.peek(), redoStack.peek().length-1)
             undoStack.push(redoStack.peek())
             redoStack.pop()
@@ -136,7 +155,7 @@ class DocumentViewModel @Inject constructor(
     }
     fun handleUndoRedoStack(content: String) {
         viewModelScope.launch {
-            delay(200)
+            delay(800)
             undoStack.push(content)
             try {
                 redoStack = Stack()
