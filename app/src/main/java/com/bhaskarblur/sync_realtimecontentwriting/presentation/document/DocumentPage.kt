@@ -184,7 +184,6 @@ fun DocumentPage(
         },
     ) {
         it
-
         BottomSheetScaffold(
             sheetContent = {
                 Column(
@@ -198,15 +197,16 @@ fun DocumentPage(
                         text = "Write with AI", color = Color.White,
                         style = TextStyle(
                             fontSize = 18.sp,
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.Bold
                         )
                     )
 
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Use AI to generate content & use it in your document.",
+                        text = "Use AI to generate content & use it in your board.",
                         color = Color.Gray,
                         style = TextStyle(
-                            fontSize = 14.sp
+                            fontSize = 13.sp
                         )
                     )
 
