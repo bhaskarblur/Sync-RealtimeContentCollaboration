@@ -7,6 +7,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -103,6 +105,9 @@ fun DocumentPage(
     val content = remember {
         mutableStateOf(TextFieldValue(data.content?.content ?: ""))
     }
+    val contentSource = remember {
+        MutableInteractionSource()
+    }
     val promptFieldText = remember {
         mutableStateOf("")
     }
@@ -116,6 +121,7 @@ fun DocumentPage(
         )
     )
     val keyboardController = LocalSoftwareKeyboardController.current
+
     LaunchedEffect(key1 = viewModel.redoStack) {
         redoStack.value = viewModel.redoStack
 
@@ -278,15 +284,21 @@ fun DocumentPage(
                                     .height(24.dp)
                                     .clickable {
                                         if (gptData.content.isNotEmpty()) {
-                                            val tempContent = content.value.text.substring(0,
-                                                content.value.selection.start
-                                            ).plus(gptData.content).
-                                                plus(content.value.text.substring(
-                                                    content.value.selection.start,
-                                                    content.value.text.length
-                                                ))
+                                            val tempContent = content.value.text
+                                                .substring(
+                                                    0,
+                                                    content.value.selection.start
+                                                )
+                                                .plus(gptData.content)
+                                                .plus(
+                                                    content.value.text.substring(
+                                                        content.value.selection.start,
+                                                        content.value.text.length
+                                                    )
+                                                )
                                             content.value =
-                                                TextFieldValue(tempContent,
+                                                TextFieldValue(
+                                                    tempContent,
                                                     TextRange(content.value.text.length)
                                                 )
                                             viewModel.handleUndoRedoStack(content.value.text)
@@ -498,6 +510,7 @@ fun DocumentPage(
                             )
 
                             TextField(
+                                interactionSource = contentSource,
                                 modifier = Modifier
                                     .fillMaxHeight()
                                     .fillMaxWidth()
@@ -534,6 +547,7 @@ fun DocumentPage(
                                         } ?: listOf(), content.value.text),
                                         OffsetMapping.Identity
                                     )
+
                                 },
                                 colors = TextFieldDefaults.colors(
                                     focusedContainerColor = Color.Transparent,
