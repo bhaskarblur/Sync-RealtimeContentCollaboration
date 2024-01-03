@@ -90,15 +90,17 @@ class DocumentViewModel @Inject constructor(
 
     fun switchUserOn() {
         viewModelScope.launch(Dispatchers.IO) {
-            if (!userDetails.value.id.isNullOrEmpty()) {
+            userDetails.value.userName?.let {
+            if (!userDetails.value.userName.isNullOrEmpty()) {
                 viewModelScope.launch(Dispatchers.IO) {
                     if(documentData.value.documentId != null) {
                         documentUseCase.switchUserToOnline(
                             documentData.value.documentId!! ,
-                            userDetails.value.id!!
+                            userDetails.value.id.toString()
                         )
                     }
                 }
+            }
             }
         }
     }
@@ -128,6 +130,7 @@ class DocumentViewModel @Inject constructor(
         if(redoStack.size > 0) {
             Log.d("calledForRedo", redoStack.peek())
             updateContent(redoStack.peek(), redoStack.peek().length-1)
+            undoStack.push(redoStack.peek())
             redoStack.pop()
         }
     }

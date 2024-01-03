@@ -223,23 +223,26 @@ class FirebaseManager @Inject constructor(
     fun switchUserToOnline(documentId: String, userId: String): Boolean {
         var flag = false
         val userData = shpRepo.getSession()
+        Log.d("localUserData", userData.toString())
         if (userId.isNotEmpty()) {
             documentRef.child(documentId).child("liveCollaborators")
                 .child(userId).addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         Log.d("switchedOn", snapshot.toString())
                         if (!snapshot.exists()) {
-                            documentRef.child(documentId).child("liveCollaborators")
-                                .child(userId)
-                                .setValue(
-                                    UserModelCursorDto(
-                                        userData, ColorHelper.generateColor(), -1
-                                    )
-                                ).addOnCompleteListener {
-                                    if (it.isSuccessful) {
-                                        flag = true
+                            if(userData.id != null) {
+                                documentRef.child(documentId).child("liveCollaborators")
+                                    .child(userData.id?:userId)
+                                    .setValue(
+                                        UserModelCursorDto(
+                                            userData, ColorHelper.generateColor(), -1
+                                        )
+                                    ).addOnCompleteListener {
+                                        if (it.isSuccessful) {
+                                            flag = true
+                                        }
                                     }
-                                }
+                            }
                         }
                     }
 
@@ -259,12 +262,24 @@ class FirebaseManager @Inject constructor(
         var flag = false
         val userData = shpRepo.getSession()
         documentRef.child(documentId).child("liveCollaborators")
-            .child(userId)
-            .child("position").setValue(position).addOnCompleteListener {
-                if (it.isSuccessful) {
-                    flag = true
+            .child(userId).addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if(snapshot.exists()) {
+                        documentRef.child(documentId).child("liveCollaborators")
+                            .child(userId)
+                            .child("position").setValue(position).addOnCompleteListener {
+                                if (it.isSuccessful) {
+                                    flag = true
+                                }
+                            }
+                    }
                 }
-            }
+
+                override fun onCancelled(error: DatabaseError) {
+                    error.toException().printStackTrace()
+                }
+
+            })
         return flag
     }
 

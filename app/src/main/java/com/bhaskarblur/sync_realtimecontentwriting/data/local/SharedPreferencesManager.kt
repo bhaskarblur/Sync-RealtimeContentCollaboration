@@ -28,7 +28,7 @@ class SharedPreferencesManager @Inject constructor(
     fun getSession() : UserModelDto {
       val id = sharedPreferences.getString("id","")?: ""
       val userName = sharedPreferences.getString("userName","")
-      val fullName = sharedPreferences.getString("fullName","")
+        val fullName = sharedPreferences.getString("fullName","")
         return UserModelDto(
             id, userName, fullName
         )

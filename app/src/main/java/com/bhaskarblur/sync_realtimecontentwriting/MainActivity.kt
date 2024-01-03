@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.DocumentPage
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.DocumentViewModel
@@ -27,18 +28,21 @@ import com.bhaskarblur.sync_realtimecontentwriting.presentation.signUp.SignUpPag
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.signUp.SignUpViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.SyncRealtimeContentWritingTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     lateinit var documentViewModel : DocumentViewModel
+    lateinit var userViewModel : SignUpViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val userViewModel by viewModels<SignUpViewModel>()
+        userViewModel = viewModels<SignUpViewModel>().value
         documentViewModel = viewModels<DocumentViewModel>().value
         setContent {
             val scaffoldState = remember { SnackbarHostState() }
             var loggedData by userViewModel.userState
+            var context = LocalContext.current
 
             LaunchedEffect(key1 = true) {
                 userViewModel.isUserLogged()
@@ -64,7 +68,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     if (!loggedData.id.isNullOrEmpty()) {
                         DocumentPage(documentViewModel,
-                            userViewModel)
+                            userViewModel, context)
                     } else {
                         SignUpPage(viewModel = userViewModel)
                     }
@@ -76,7 +80,9 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         Log.d("resumed","Yes")
-        documentViewModel.switchUserOn()
+        if(userViewModel.isUserLogged()) {
+            documentViewModel.switchUserOn()
+        }
     }
 
     override fun onDestroy() {

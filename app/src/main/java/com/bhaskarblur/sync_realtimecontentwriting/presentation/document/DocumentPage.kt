@@ -1,5 +1,7 @@
 package com.bhaskarblur.sync_realtimecontentwriting.presentation.document
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
@@ -20,9 +22,13 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -46,9 +52,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
@@ -69,11 +77,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.w3c.dom.Text
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun DocumentPage(
     viewModel: DocumentViewModel,
-    userViewModel: SignUpViewModel
+    userViewModel: SignUpViewModel,
+    context : Context
 ) {
     val configuration = LocalConfiguration.current
     val data by viewModel.documentData
@@ -105,6 +114,7 @@ fun DocumentPage(
             initialValue = SheetValue.Hidden
         )
     )
+    val keyboardController = LocalSoftwareKeyboardController.current
     LaunchedEffect(key1 = viewModel.redoStack) {
         redoStack.value = viewModel.redoStack
 
@@ -180,12 +190,14 @@ fun DocumentPage(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(Color(0xFF151516))
+                        .verticalScroll(rememberScrollState())
                         .padding(horizontal = 18.dp, vertical = 12.dp)
                 ) {
                     Text(
                         text = "Write with AI", color = Color.White,
                         style = TextStyle(
-                            fontSize = 18.sp
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold
                         )
                     )
 
@@ -258,13 +270,37 @@ fun DocumentPage(
                             ),
                         suffix = {
                             Icon(
-                                Icons.Filled.AddCircle,
+                                Icons.Filled.Send,
                                 contentDescription = "Add to Text",
                                 tint = Color.White,
                                 modifier = Modifier
                                     .height(24.dp)
                                     .clickable {
-
+                                        if (gptData.content.isNotEmpty()) {
+                                            content.value =
+                                                TextFieldValue(
+                                                    content.value.text.plus(gptData.content),
+                                                    TextRange(content.value.text.length)
+                                                )
+                                            viewModel.handleUndoRedoStack(content.value.text)
+                                            viewModel.updateContent(
+                                                content.value.text,
+                                                content.value.selection.start
+                                            )
+                                            Toast
+                                                .makeText(
+                                                    context, "Text pasted to board",
+                                                    Toast.LENGTH_SHORT
+                                                )
+                                                .show()
+                                            ctnScope.launch {
+                                                sheetState.bottomSheetState.hide()
+                                                TextFieldValue(
+                                                    content.value.text,
+                                                    content.value.selection
+                                                )
+                                            }
+                                        }
                                     }
                             )
                         },
@@ -333,6 +369,7 @@ fun DocumentPage(
                                     )
                                     .clickable {
                                         ctnScope.launch {
+                                            keyboardController?.hide()
                                             if (sheetState.bottomSheetState.currentValue != SheetValue.Expanded) {
                                                 sheetState.bottomSheetState.expand()
                                             } else {
@@ -506,7 +543,7 @@ fun DocumentPage(
                                 ),
                             )
 
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(12.dp))
                         }
                     }
                 } else {
