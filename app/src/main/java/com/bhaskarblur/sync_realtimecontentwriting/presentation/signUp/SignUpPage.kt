@@ -56,7 +56,8 @@ fun SignUpPage(viewModel: SignUpViewModel) {
                 .fillMaxWidth()
                 .background(shape = RoundedCornerShape(90.dp), color = Color(0xFF151516)),
             onValueChange = { value ->
-                userName.value = value
+                userName.value = value.lowercase()
+                    .trim()
             },
             placeholder = {
                 Text("Enter username")

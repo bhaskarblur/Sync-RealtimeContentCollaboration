@@ -354,7 +354,7 @@ fun DocumentPage(
                                 .fillMaxWidth()
                                 .height(62.dp)
                                 .background(Color(0xFF151516))
-                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                                .padding(horizontal = 18.dp, vertical = 12.dp),
                             horizontalArrangement = Arrangement.Absolute.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
