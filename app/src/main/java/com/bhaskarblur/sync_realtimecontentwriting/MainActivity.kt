@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val scaffoldState = remember { SnackbarHostState() }
             var loggedData by userViewModel.userState
-            var context = LocalContext.current
+            val context = LocalContext.current
 
             LaunchedEffect(key1 = true) {
                 userViewModel.isUserLogged()
