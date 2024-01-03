@@ -33,6 +33,7 @@ class FirebaseManager @Inject constructor(
 
     private val _documentDetails = mutableStateOf(DocumentModel(null, null, null, null))
     val documentDetails: MutableState<DocumentModel> = _documentDetails
+    private lateinit var changeListener : ValueEventListener
 
     companion object {
         fun DB_URL(context: Context): String {
@@ -99,7 +100,7 @@ class FirebaseManager @Inject constructor(
             null
         )
         withContext(Dispatchers.IO) {
-            documentRef.child(documentId)
+            changeListener = documentRef.child(documentId)
                 .addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         if (snapshot.exists()) {
@@ -200,8 +201,9 @@ class FirebaseManager @Inject constructor(
         documentRef.child(documentId).child("liveCollaborators")
             .child(userId).addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    Log.d("switchedOff", snapshot.toString())
+
                     if (snapshot.exists()) {
+                        Log.d("switchedOff", snapshot.toString())
                         documentRef.child(documentId).child("liveCollaborators")
                             .child(userId).removeValue().addOnCompleteListener {
                                 if (it.isSuccessful) {
@@ -225,7 +227,7 @@ class FirebaseManager @Inject constructor(
             documentRef.child(documentId).child("liveCollaborators")
                 .child(userId).addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
-                        Log.d("switchedOff", snapshot.toString())
+                        Log.d("switchedOn", snapshot.toString())
                         if (!snapshot.exists()) {
                             documentRef.child(documentId).child("liveCollaborators")
                                 .child(userId)

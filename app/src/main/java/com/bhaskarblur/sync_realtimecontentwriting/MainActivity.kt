@@ -76,6 +76,7 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         Log.d("resumed","Yes")
+        documentViewModel.switchUserOn()
     }
 
     override fun onDestroy() {
