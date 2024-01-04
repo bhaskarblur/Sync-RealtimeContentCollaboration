@@ -193,15 +193,32 @@ fun DocumentPage(
 
 
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = "Chat history",
-                        color = Color.White,
-                        style = TextStyle(
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Medium
+
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Chat history",
+                            color = Color.White,
+                            style = TextStyle(
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Medium
+                            )
                         )
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = "Clear history",
+                            color = Color.White,
+                            textAlign = TextAlign.End,
+                            style = TextStyle(
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Normal
+                            ),
+                            modifier = Modifier.clickable {  }
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     LazyColumn(state = promptScrollState,
                         modifier = Modifier.fillMaxWidth()
@@ -249,10 +266,10 @@ fun DocumentPage(
                                     }
                                 }
                             }
+
                         }
                     }
                     Spacer(modifier = Modifier.height(16.dp))
-
                     TextField(value = promptFieldText.value,
                         colors = TextFieldDefaults.colors(
                             unfocusedTextColor = Color.White,
@@ -293,6 +310,14 @@ fun DocumentPage(
                         onClick = {
                             viewModel.getGptSuggestions(promptFieldText.value)
                             promptFieldText.value = ""
+                                ctnScope.launch {
+                                    data.promptsList?.size?.let { it1 ->
+                                        promptScrollState.animateScrollToItem(
+                                            it1
+                                        )
+                                    }
+
+                            }
                         },
                         modifier = Modifier
                             .background(Color(0xFF6105E2), RoundedCornerShape(80.dp))
@@ -312,7 +337,7 @@ fun DocumentPage(
                 }
             },
             sheetContainerColor = Color(0xFF151516),
-            scaffoldState = sheetState
+            scaffoldState = sheetState,
         ) {
             Column(
                 Modifier
