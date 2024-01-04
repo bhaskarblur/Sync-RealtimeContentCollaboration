@@ -18,20 +18,20 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -47,13 +47,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -71,9 +71,11 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
 import com.bhaskarblur.sync_realtimecontentwriting.R
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.buildAnnotatedStringWithColors
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.findFirstDifferenceIndex
+import com.bhaskarblur.sync_realtimecontentwriting.domain.model.PromptModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.UserModelCursor
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.signUp.SignUpViewModel
 import kotlinx.coroutines.delay
@@ -85,11 +87,10 @@ import org.w3c.dom.Text
 fun DocumentPage(
     viewModel: DocumentViewModel,
     userViewModel: SignUpViewModel,
-    context : Context
+    context: Context
 ) {
     val configuration = LocalConfiguration.current
     val data by viewModel.documentData
-    val gptData by viewModel.gptData
     val undoStack = remember {
         mutableStateOf(viewModel.undoStack)
     }
@@ -111,13 +112,17 @@ fun DocumentPage(
     val promptFieldText = remember {
         mutableStateOf("")
     }
+    val promptList = remember {
+        mutableStateOf(viewModel.documentData.value.promptsList)
+    }
     val contributorScrollState = rememberLazyListState()
+    val promptScrollState = rememberLazyListState()
     val ctnScope = rememberCoroutineScope()
 
     val sheetState = rememberBottomSheetScaffoldState(
         bottomSheetState = SheetState(
-            skipPartiallyExpanded = true,
-            initialValue = SheetValue.Hidden
+            skipPartiallyExpanded = false,
+            initialValue = SheetValue.PartiallyExpanded
         )
     )
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -128,6 +133,11 @@ fun DocumentPage(
     }
     LaunchedEffect(key1 = viewModel.undoStack) {
         undoStack.value = viewModel.undoStack
+    }
+
+    LaunchedEffect(key1 = data.promptsList) {
+        Log.d("newPromptAdded","yes")
+        promptList.value = data.promptsList?: arrayListOf()
     }
     LaunchedEffect(key1 = data.content?.content) {
         if (!dataGot.value) {
@@ -154,40 +164,6 @@ fun DocumentPage(
 
     Scaffold(
         floatingActionButtonPosition = FabPosition.End,
-        floatingActionButton = {
-//            if (!data.documentId.isNullOrEmpty()) {
-//            Row(
-//                Modifier
-//                    .padding(vertical = 8.dp),
-//                horizontalArrangement = Arrangement.Center,
-//                verticalAlignment = Alignment.CenterVertically,
-//            ) {
-//                Button(
-//                    colors = ButtonDefaults.buttonColors(
-//                        containerColor = Color.Transparent,
-//                    ),
-//                    onClick = {
-//                        ctnScope.launch {
-//                            if(sheetState.bottomSheetState.currentValue != SheetValue.Expanded) {
-//                                sheetState.bottomSheetState.expand()
-//                            }
-//                        }
-//                    },
-//                    modifier = Modifier
-//                        .background(Color(0xFF6105E2), RoundedCornerShape(80.dp))
-//                ) {
-//
-//                    Text(
-//                        text = "✨ Write with AI!",
-//                        color = Color.White,
-//                        fontSize = 15.sp,
-//                        fontWeight = FontWeight.SemiBold
-//                    )
-//                }
-//            }
-//            }
-
-        },
     ) {
         it
         BottomSheetScaffold(
@@ -196,11 +172,10 @@ fun DocumentPage(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(Color(0xFF151516))
-                        .verticalScroll(rememberScrollState())
                         .padding(horizontal = 18.dp, vertical = 12.dp)
                 ) {
                     Text(
-                        text = "Write with AI", color = Color.White,
+                        text = "Collaborative content with AI", color = Color.White,
                         style = TextStyle(
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
@@ -209,13 +184,73 @@ fun DocumentPage(
 
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Use AI to generate content & use it in your board.",
+                        text = "Use AI to generate content & use it in your board, you & other users can see each other's prompts ",
                         color = Color.Gray,
                         style = TextStyle(
                             fontSize = 13.sp
                         )
                     )
 
+
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "Chat history",
+                        color = Color.White,
+                        style = TextStyle(
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    LazyColumn(state = promptScrollState,
+                        modifier = Modifier.fillMaxWidth()
+                        .requiredHeightIn(max = configuration.screenHeightDp.dp / 2)) {
+                        items(promptList.value?: listOf(),
+                            key = {
+                                it.timeStamp
+                            }) { msgModel ->
+                            PromptItem(msgModel) { msg ->
+                                if (msg.isNotEmpty()) {
+                                    val tempContent = content.value.text
+                                        .substring(
+                                            0,
+                                            content.value.selection.start
+                                        )
+                                        .plus(msg)
+                                        .plus(
+                                            content.value.text.substring(
+                                                content.value.selection.start,
+                                                content.value.text.length
+                                            )
+                                        )
+                                    content.value =
+                                        TextFieldValue(
+                                            tempContent,
+                                            TextRange(content.value.text.length)
+                                        )
+                                    viewModel.handleUndoRedoStack(content.value.text)
+                                    viewModel.updateContent(
+                                        content.value.text,
+                                        content.value.selection.start
+                                    )
+                                    Toast
+                                        .makeText(
+                                            context, "Text pasted to board",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                        .show()
+                                    ctnScope.launch {
+                                        sheetState.bottomSheetState.hide()
+                                        TextFieldValue(
+                                            content.value.text,
+                                            content.value.selection
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
                     Spacer(modifier = Modifier.height(16.dp))
 
                     TextField(value = promptFieldText.value,
@@ -248,84 +283,6 @@ fun DocumentPage(
                             Text("Say what you want to generate...")
                         })
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    TextField(value = gptData.content,
-                        colors = TextFieldDefaults.colors(
-                            unfocusedTextColor = Color.White,
-                            focusedTextColor = Color.White,
-                            focusedPlaceholderColor = Color.Gray,
-                            unfocusedPlaceholderColor = Color.Gray,
-                            focusedContainerColor = Color(0xff1b1b1c),
-                            unfocusedContainerColor = Color(0xff1b1b1c),
-                            disabledContainerColor = Color(0xff1b1b1c),
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            errorIndicatorColor = Color.Transparent,
-                        ),
-                        textStyle = TextStyle(
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Medium,
-                            lineHeight = 22.sp
-                        ),
-                        onValueChange = {},
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                shape = RoundedCornerShape(90.dp),
-                                color = Color(0xFF151516)
-                            ),
-                        suffix = {
-                            Icon(
-                                Icons.Filled.AddCircle,
-                                contentDescription = "Add to Text",
-                                tint = Color.White,
-                                modifier = Modifier
-                                    .height(24.dp)
-                                    .clickable {
-                                        if (gptData.content.isNotEmpty()) {
-                                            val tempContent = content.value.text
-                                                .substring(
-                                                    0,
-                                                    content.value.selection.start
-                                                )
-                                                .plus(gptData.content)
-                                                .plus(
-                                                    content.value.text.substring(
-                                                        content.value.selection.start,
-                                                        content.value.text.length
-                                                    )
-                                                )
-                                            content.value =
-                                                TextFieldValue(
-                                                    tempContent,
-                                                    TextRange(content.value.text.length)
-                                                )
-                                            viewModel.handleUndoRedoStack(content.value.text)
-                                            viewModel.updateContent(
-                                                content.value.text,
-                                                content.value.selection.start
-                                            )
-                                            Toast
-                                                .makeText(
-                                                    context, "Text pasted to board",
-                                                    Toast.LENGTH_SHORT
-                                                )
-                                                .show()
-                                            ctnScope.launch {
-                                                sheetState.bottomSheetState.hide()
-                                                TextFieldValue(
-                                                    content.value.text,
-                                                    content.value.selection
-                                                )
-                                            }
-                                        }
-                                    }
-                            )
-                        },
-                        placeholder = {
-                            Text("Results will be shown here")
-                        })
 
                     Spacer(modifier = Modifier.height(24.dp))
 
@@ -335,6 +292,7 @@ fun DocumentPage(
                         ),
                         onClick = {
                             viewModel.getGptSuggestions(promptFieldText.value)
+                            promptFieldText.value = ""
                         },
                         modifier = Modifier
                             .background(Color(0xFF6105E2), RoundedCornerShape(80.dp))

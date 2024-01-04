@@ -1,16 +1,18 @@
 package com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto
-
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.DocumentModel
+import com.bhaskarblur.sync_realtimecontentwriting.domain.model.PromptModel
 
 data class DocumentModelDto(
-    val documentId : String = "",
-    val documentName : String = "",
-    var content : ContentModelDto? = ContentModelDto(null, null),
-    val liveCollaborators : List<UserModelCursorDto>? = listOf()
+    val documentId: String = "",
+    val documentName: String = "",
+    var content: ContentModelDto? = ContentModelDto(null, null),
+    val liveCollaborators: List<UserModelCursorDto>? = listOf(),
+    val promptsList: ArrayList<PromptModel> = arrayListOf()
 ) {
 
     fun toDocumentModel() : DocumentModel {
-        return DocumentModel(documentId, documentName, content?.toContentModel(), liveCollaborators?.map {  it.toUserModelCursor()})
+        return DocumentModel(documentId, documentName, content?.toContentModel(), liveCollaborators?.map {  it.toUserModelCursor()},
+            PromptModelDto.listToArrayList(promptsList))
     }
 }
 
@@ -18,5 +20,6 @@ data class DocumentModelDtoNoList(
     val documentId : String = "",
     val documentName : String = "",
     val content : ContentModelDto? = ContentModelDto(null, null),
-    val liveCollaborators : Any? = Any()
+    val liveCollaborators : Any? = Any(),
+    val promptsList : Any? = Any()
 )

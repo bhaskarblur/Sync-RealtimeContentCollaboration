@@ -10,6 +10,7 @@ import com.bhaskarblur.sync_realtimecontentwriting.data.local.SharedPreferencesM
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.ContentModelDto
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.DocumentModelDto
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.DocumentModelDtoNoList
+import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.PromptModelDto
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.UserModelCursorDto
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.UserModelDto
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.DocumentModel
@@ -113,12 +114,25 @@ class FirebaseManager @Inject constructor(
                                 Log.d("docData", child.toString())
                                 contributorsList.add(child)
                             }
+                            val promptsList = arrayListOf<PromptModelDto>()
+                            snapshot.child("promptsList").children.forEach {
+                                val child = it.getValue(PromptModelDto::class.java)!!
+                                Log.d("promptData", child.toString())
+                                promptsList.add(child)
+                            }
                             Log.d("documentExists", value.toString())
                             document = DocumentModelDto(
                                 documentId = value.documentId,
                                 value.documentName,
                                 value.content,
-                                contributorsList
+                                contributorsList,
+                                promptsList = PromptModelDto.listToArrayList(
+                                    promptsList.map {
+                                       it.toPromptModel()
+                                    }.sortedBy {
+                                        it.timeStamp
+                                    }
+                                )
                             )
                             if(value.content?.changedBy != null) {
                                 if (value.content.changedBy == userDetails.id!!) {
@@ -274,6 +288,11 @@ class FirebaseManager @Inject constructor(
         return flag
     }
 
+    private fun updateChangeByStatus(userId: String, documentId: String) {
+        documentRef.child(documentId).child("content")
+            .child("changedBy").setValue(userId)
+    }
+
     fun changeUserCursorPosition(
         documentId: String,
         userId: String,
@@ -290,8 +309,7 @@ class FirebaseManager @Inject constructor(
                             .child("position").setValue(position).addOnCompleteListener {
                                 if (it.isSuccessful) {
                                     flag = true
-                                    documentRef.child(documentId).child("content")
-                                        .child("changedBy").setValue(userDetails.id?:"")
+                                    updateChangeByStatus(userDetails.id?:"", documentId)
                                 }
                             }
                     }
@@ -302,6 +320,20 @@ class FirebaseManager @Inject constructor(
                 }
 
             })
+        return flag
+    }
+
+    fun addPromptMessage(documentId: String, message: PromptModelDto) : Boolean {
+        val key = documentRef.push().key?:""
+        var flag = false
+        documentRef.child(documentId).child("promptsList")
+            .child(key).setValue(message).addOnCompleteListener {
+                if(it.isSuccessful) {
+                    flag = true
+                    updateChangeByStatus(userDetails.id?:"", documentId)
+                }
+            }
+
         return flag
     }
 

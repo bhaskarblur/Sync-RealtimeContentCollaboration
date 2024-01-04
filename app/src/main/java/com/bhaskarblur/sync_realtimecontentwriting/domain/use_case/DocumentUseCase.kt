@@ -5,6 +5,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import com.bhaskarblur.dictionaryapp.core.utils.Resources
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.DocumentModel
+import com.bhaskarblur.sync_realtimecontentwriting.domain.model.PromptModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.repository.IDocumentRepository
 import kotlinx.coroutines.flow.Flow
 
@@ -40,6 +41,10 @@ class DocumentUseCase(
         Log.d("switchOnUseCase", userId.toString())
         return documentRepository.switchUserToOnline(documentId = documentId,
             userId = userId)
+    }
+
+    fun addMessageToPrompt(documentId : String, message : PromptModel) : Flow<Boolean> {
+        return documentRepository.addPromptMessage(documentId = documentId, message)
     }
 
 

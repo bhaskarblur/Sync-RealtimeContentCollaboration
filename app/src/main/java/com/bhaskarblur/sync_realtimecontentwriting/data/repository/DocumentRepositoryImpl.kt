@@ -7,7 +7,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.bhaskarblur.dictionaryapp.core.utils.Resources
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.FirebaseManager
+import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.PromptModelDto
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.DocumentModel
+import com.bhaskarblur.sync_realtimecontentwriting.domain.model.PromptModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.repository.IDocumentRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -37,6 +39,16 @@ class DocumentRepositoryImpl @Inject constructor(
             )
         }
     }
+
+    override fun addPromptMessage(documentId: String, message: PromptModel): Flow<Boolean> {
+        firebaseManager.addPromptMessage(documentId, PromptModelDto.fromPromptModel(message))
+        return flow {
+            emit(
+                true
+            )
+        }
+    }
+
     override fun updateCursorPosition(
         documentId: String,
         position: Int,

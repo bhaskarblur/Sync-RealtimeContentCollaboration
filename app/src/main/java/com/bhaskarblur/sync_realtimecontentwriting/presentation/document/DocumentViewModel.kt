@@ -13,8 +13,10 @@ import com.bhaskarblur.dictionaryapp.core.utils.Resources
 import com.bhaskarblur.gptbot.models.GptBody
 import com.bhaskarblur.gptbot.models.GptMessageModel
 import com.bhaskarblur.gptbot.models.MessageBody
+import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.PromptModelDto
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.ContentModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.DocumentModel
+import com.bhaskarblur.sync_realtimecontentwriting.domain.model.PromptModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.UserModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.repository.IUserRepository
 import com.bhaskarblur.sync_realtimecontentwriting.domain.use_case.DocumentUseCase
@@ -40,13 +42,11 @@ class DocumentViewModel @Inject constructor(
 
     private val _documentData = documentUseCase._documentDetails
     val documentData: State<DocumentModel> = _documentData
-    private val _changeHistory = mutableListOf<String>()
     val undoStack by mutableStateOf(Stack<String>())
     var redoStack by mutableStateOf(Stack<String>())
 
-    private val _gptData = mutableStateOf(MessageBody(role = "", content = ""))
-    val gptData get() = _gptData
-    private val gptMessagesList  = mutableListOf<MessageBody>()
+    private val _gptData = mutableStateOf("")
+    val gptMessagesList by mutableStateOf(documentData.value.promptsList)
 
     private val _eventFlow = MutableSharedFlow<UIEvents>()
     val eventFlow = _eventFlow
@@ -103,6 +103,13 @@ class DocumentViewModel @Inject constructor(
                 }
             }
             }
+        }
+    }
+
+   private fun addMessageToPrompt(message: PromptModel) {
+
+        viewModelScope.launch {
+            documentUseCase.addMessageToPrompt(documentId = documentData.value.documentId!!, message)
         }
     }
 
@@ -187,32 +194,45 @@ class DocumentViewModel @Inject constructor(
     }
 
     fun getGptSuggestions(message: String) {
-        gptMessagesList.add(MessageBody("user", message))
-        val body = GptBody(messages = gptMessagesList)
+        val messageModel =   PromptModel(
+            message = message,
+            role = "user",
+            sentBy = userDetails.value,
+            timeStamp = System.currentTimeMillis())
+        _documentData.value.promptsList?.add(messageModel)
+        addMessageToPrompt(messageModel)
+        val body = GptBody(messages =  _documentData.value.promptsList?.map { it.toMessageModel() }?: listOf())
         Log.d("body", body.toString())
         viewModelScope.launch {
-            _gptData.value = MessageBody("User","Generating..")
+            _gptData.value =  "Generating..."
            gptRepo.getGptSuggestion(body).collectLatest { res ->
                when(res) {
                    is Resources.Success -> {
                        Log.d("data", res.data?.get(0)?.message.toString())
-                       _gptData.value = MessageBody("User","")
-                       res.data?.get(0)?.message?.content?.split(" ")?.forEach { char ->
-                           delay(40)
-                           _gptData.value= MessageBody(role = "assistant",gptData.value.content.plus(char).plus(" "))
-                       }
-
-                       gptMessagesList.add(MessageBody("assistant", res.data?.get(0)?.message?.content?:""))
+                       _gptData.value= ""
+                       val promptMessage = PromptModel(message = res.data?.get(0)?.message?.content.toString(),
+                           role = "assistant", sentBy = null, System.currentTimeMillis())
+                       val tempCnt = DocumentModel(
+                           documentData.value.documentId, documentData.value.documentName,
+                           documentData.value.content, documentData.value.liveCollaborators,
+                           PromptModelDto.listToArrayList(documentData.value
+                               .promptsList?.plus(promptMessage)?: listOf()
+                           )
+                       )
+                       _documentData.value = tempCnt
+                       addMessageToPrompt(promptMessage)
                    }
                    is Resources.Error -> {
                        _eventFlow.emit(UIEvents.ShowSnackbar(res.message ?: "There was an error"))
-                       _gptData.value = MessageBody("User","Error generating content")
+                       _gptData.value = "There was an error, try again. "
                    }
                    is Resources.Loading -> {
-                       _gptData.value = MessageBody("User","Generating..")
+                       _gptData.value = "Generating..."
                    }
 
-                   else -> {}
+                   else -> {
+                       _gptData.value= ""
+                   }
                }
 
            }

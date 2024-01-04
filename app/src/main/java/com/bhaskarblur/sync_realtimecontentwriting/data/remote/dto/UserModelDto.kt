@@ -5,12 +5,20 @@ import javax.annotation.concurrent.Immutable
 
 @Immutable
 data class UserModelDto(
-    val id : String? = "",
-    val userName : String? = "",
-    val fullName : String? = ""
+    var id : String? = "",
+    var userName : String? = "",
+    var fullName : String? = ""
 ) {
 
     fun toUserModel() : UserModel {
         return UserModel(id, userName, fullName)
+    }
+
+    companion object {
+        fun fromUserModel(user: UserModel): UserModelDto {
+            return UserModelDto(
+                user.id, user.userName, user.fullName
+            )
+        }
     }
 }
