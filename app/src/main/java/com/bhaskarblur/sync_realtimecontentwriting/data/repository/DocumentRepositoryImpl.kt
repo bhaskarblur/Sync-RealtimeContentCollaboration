@@ -40,6 +40,15 @@ class DocumentRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun clearPromptsList(documentId: String): Flow<Boolean> {
+        firebaseManager.clearPromptsList(documentId)
+        return flow {
+            emit(
+                true
+            )
+        }
+    }
+
     override fun addPromptMessage(documentId: String, message: PromptModel): Flow<Boolean> {
         firebaseManager.addPromptMessage(documentId, PromptModelDto.fromPromptModel(message))
         return flow {

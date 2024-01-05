@@ -7,5 +7,5 @@ data class DocumentModel(
     val documentName : String?,
     var content : ContentModel?,
     val liveCollaborators : List<UserModelCursor>?,
-    val promptsList : ArrayList<PromptModel>? = arrayListOf()
+    var promptsList : ArrayList<PromptModel>? = arrayListOf()
 )

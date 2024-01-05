@@ -19,5 +19,6 @@ interface IDocumentRepository {
     fun liveChangesListener(documentId : String) : Flow<Unit>
     fun updateTitle(documentId: String, content: String): Flow<Boolean>
 
+    fun clearPromptsList(documentId : String) : Flow<Boolean>
     fun addPromptMessage(documentId : String, message : PromptModel) : Flow<Boolean>
 }

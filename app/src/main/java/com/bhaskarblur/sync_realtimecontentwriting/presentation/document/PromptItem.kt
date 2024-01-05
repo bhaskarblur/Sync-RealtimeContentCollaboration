@@ -45,6 +45,7 @@ fun PromptItem(
             },
         ) {
 
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     when (promptMessage.sentBy?.fullName) {
                         "" -> "AI Assistant"
@@ -55,6 +56,18 @@ fun PromptItem(
                     lineHeight = 20.sp
                 )
 
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    when (promptMessage.sentBy?.fullName) {
+                        "" -> ""
+                        null -> ""
+                        else -> "(@${promptMessage.sentBy.userName.toString()})"
+                    }, color = Color.White, fontSize = 12.sp,
+                    fontWeight = FontWeight.Normal, fontFamily = FontFamily.Default,
+                    lineHeight = 20.sp
+                )
+
+            }
             Spacer(Modifier.height(8.dp))
 
             Column(
@@ -68,7 +81,7 @@ fun PromptItem(
                     .padding(12.dp)
             ) {
                 Text(
-                    promptMessage.message, color = Color.White, fontSize = 14.sp,
+                    promptMessage.message, color = Color.White, fontSize = 15.sp,
                     fontWeight = FontWeight.Medium, fontFamily = FontFamily.Default,
                     lineHeight = 20.sp
                 )
@@ -77,8 +90,8 @@ fun PromptItem(
                     Spacer(Modifier.height(16.dp))
                     Row(
                         Modifier
-                            .border(2.dp, Color.White, RoundedCornerShape(90.dp)).
-                            padding(vertical = 8.dp, horizontal = 12.dp)
+                            .border(2.dp, Color.White, RoundedCornerShape(90.dp))
+                            .padding(vertical = 8.dp, horizontal = 12.dp)
                             .clickable {
                                 onAdd(promptMessage.message)
                             }

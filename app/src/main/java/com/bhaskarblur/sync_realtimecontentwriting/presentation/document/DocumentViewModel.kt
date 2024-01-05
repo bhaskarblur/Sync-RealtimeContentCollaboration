@@ -48,6 +48,7 @@ class DocumentViewModel @Inject constructor(
     private val _gptData = mutableStateOf("")
     val gptMessagesList by mutableStateOf(documentData.value.promptsList)
 
+    private val useOldPromptsHistory = mutableStateOf(true)
     private val _eventFlow = MutableSharedFlow<UIEvents>()
     val eventFlow = _eventFlow
 
@@ -92,31 +93,34 @@ class DocumentViewModel @Inject constructor(
     fun switchUserOn() {
         viewModelScope.launch(Dispatchers.IO) {
             userDetails.value.userName?.let {
-            if (!userDetails.value.userName.isNullOrEmpty()) {
-                viewModelScope.launch(Dispatchers.IO) {
-                    if(documentData.value.documentId != null) {
-                        documentUseCase.switchUserToOnline(
-                            documentData.value.documentId!! ,
-                            userDetails.value.id.toString()
-                        )
+                if (!userDetails.value.userName.isNullOrEmpty()) {
+                    viewModelScope.launch(Dispatchers.IO) {
+                        if (documentData.value.documentId != null) {
+                            documentUseCase.switchUserToOnline(
+                                documentData.value.documentId!!,
+                                userDetails.value.id.toString()
+                            )
+                        }
                     }
                 }
-            }
             }
         }
     }
 
-   private fun addMessageToPrompt(message: PromptModel) {
+    private fun addMessageToPrompt(message: PromptModel) {
 
         viewModelScope.launch {
-            documentUseCase.addMessageToPrompt(documentId = documentData.value.documentId!!, message)
+            documentUseCase.addMessageToPrompt(
+                documentId = documentData.value.documentId!!,
+                message
+            )
         }
     }
 
     fun switchUserOff() {
         viewModelScope.launch(Dispatchers.IO) {
-            if(!userDetails.value.id.isNullOrEmpty()) {
-                if(!documentData.value.documentId.isNullOrEmpty()) {
+            if (!userDetails.value.id.isNullOrEmpty()) {
+                if (!documentData.value.documentId.isNullOrEmpty()) {
                     documentUseCase.switchUserToOffline(
                         documentData.value.documentId!!,
                         userDetails.value.id!!
@@ -126,40 +130,49 @@ class DocumentViewModel @Inject constructor(
         }
     }
 
+    fun toggleUseOldPrompts(value: Boolean) {
+        useOldPromptsHistory.value = value
+    }
+
 
     fun undoChanges() {
-        if(undoStack.size > 0) {
+        if (undoStack.size > 0) {
             Log.d("calledForUndo", undoStack.peek().toString())
             _documentData.value = DocumentModel(
-                    documentId = _documentData.value.documentId,
-            _documentData.value.documentName,
-            ContentModel(_documentData.value.documentId,
-                content = undoStack.peek().toString(),
-                changedBy = userDetails.value.id),
-            _documentData.value.liveCollaborators
+                documentId = _documentData.value.documentId,
+                _documentData.value.documentName,
+                ContentModel(
+                    _documentData.value.documentId,
+                    content = undoStack.peek().toString(),
+                    changedBy = userDetails.value.id
+                ),
+                _documentData.value.liveCollaborators
             )
-            updateContent(undoStack.peek(), undoStack.peek().length-1)
+            updateContent(undoStack.peek(), undoStack.peek().length - 1)
             redoStack.push(undoStack.peek())
             undoStack.pop()
         }
     }
 
     fun redoChanges() {
-        if(redoStack.size > 0) {
+        if (redoStack.size > 0) {
             Log.d("calledForRedo", redoStack.peek())
             _documentData.value = DocumentModel(
                 documentId = _documentData.value.documentId,
                 _documentData.value.documentName,
-                ContentModel(_documentData.value.documentId,
+                ContentModel(
+                    _documentData.value.documentId,
                     content = redoStack.peek().toString(),
-                    changedBy = userDetails.value.id),
+                    changedBy = userDetails.value.id
+                ),
                 _documentData.value.liveCollaborators
             )
-            updateContent(redoStack.peek(), redoStack.peek().length-1)
+            updateContent(redoStack.peek(), redoStack.peek().length - 1)
             undoStack.push(redoStack.peek())
             redoStack.pop()
         }
     }
+
     fun handleUndoRedoStack(content: String) {
         viewModelScope.launch {
             delay(800)
@@ -171,11 +184,14 @@ class DocumentViewModel @Inject constructor(
             }
         }
     }
+
     fun updateContent(content: String, cursorPosition: Int) {
         updateJob?.cancel()
         updateJob = viewModelScope.launch {
-            documentUseCase.updateContent(_documentData.value.documentId!!,
-                content)
+            documentUseCase.updateContent(
+                _documentData.value.documentId!!,
+                content
+            )
             documentUseCase.updateCursorPosition(
                 documentId = _documentData.value.documentId!!,
                 position = cursorPosition, userDetails.value.id!!
@@ -189,54 +205,86 @@ class DocumentViewModel @Inject constructor(
         updateJob = viewModelScope.launch {
             documentUseCase.updateDocumentTitle(
                 _documentData.value.documentId!!,
-                title)
+                title
+            )
         }
     }
 
-    fun getGptSuggestions(message: String) {
-        val messageModel =   PromptModel(
+    fun getGptSuggestions(message: String, ignoreChatHistory: Boolean) {
+        val messageModel = PromptModel(
             message = message,
             role = "user",
             sentBy = userDetails.value,
-            timeStamp = System.currentTimeMillis())
-        _documentData.value.promptsList?.add(messageModel)
+            timeStamp = System.currentTimeMillis()
+        )
+        val tempMsg = DocumentModel(
+            documentData.value.documentId, documentData.value.documentName,
+            documentData.value.content, documentData.value.liveCollaborators,
+            PromptModelDto.listToArrayList(
+                documentData.value
+                    .promptsList?.plus(
+                        PromptModel(message, "user", userDetails.value, System.currentTimeMillis())
+                    ) ?: listOf()
+            )
+        )
+        _documentData.value = tempMsg
         addMessageToPrompt(messageModel)
-        val body = GptBody(messages =  _documentData.value.promptsList?.map { it.toMessageModel() }?: listOf())
+        lateinit var body: GptBody
+        if (ignoreChatHistory) {
+            body = GptBody(messages = arrayListOf(messageModel.toMessageModel()))
+        } else {
+
+            body = GptBody(messages = _documentData.value.promptsList?.map { it.toMessageModel() }
+                ?: listOf())
+        }
         Log.d("body", body.toString())
         viewModelScope.launch {
-            _gptData.value =  "Generating..."
-           gptRepo.getGptSuggestion(body).collectLatest { res ->
-               when(res) {
-                   is Resources.Success -> {
-                       Log.d("data", res.data?.get(0)?.message.toString())
-                       _gptData.value= ""
-                       val promptMessage = PromptModel(message = res.data?.get(0)?.message?.content.toString(),
-                           role = "assistant", sentBy = null, System.currentTimeMillis())
-                       val tempCnt = DocumentModel(
-                           documentData.value.documentId, documentData.value.documentName,
-                           documentData.value.content, documentData.value.liveCollaborators,
-                           PromptModelDto.listToArrayList(documentData.value
-                               .promptsList?.plus(promptMessage)?: listOf()
-                           )
-                       )
-                       _documentData.value = tempCnt
-                       addMessageToPrompt(promptMessage)
-                   }
-                   is Resources.Error -> {
-                       _eventFlow.emit(UIEvents.ShowSnackbar(res.message ?: "There was an error"))
-                       _gptData.value = "There was an error, try again. "
-                   }
-                   is Resources.Loading -> {
-                       _gptData.value = "Generating..."
-                   }
+            _gptData.value = "Generating..."
+            gptRepo.getGptSuggestion(body).collectLatest { res ->
+                when (res) {
+                    is Resources.Success -> {
+                        Log.d("data", res.data?.get(0)?.message.toString())
+                        _gptData.value = ""
+                        val promptMessage = PromptModel(
+                            message = res.data?.get(0)?.message?.content.toString(),
+                            role = "assistant", sentBy = null, System.currentTimeMillis()
+                        )
+                        val tempCnt = DocumentModel(
+                            documentData.value.documentId, documentData.value.documentName,
+                            documentData.value.content, documentData.value.liveCollaborators,
+                            PromptModelDto.listToArrayList(
+                                documentData.value
+                                    .promptsList?.plus(promptMessage) ?: listOf()
+                            )
+                        )
+                        _documentData.value = tempCnt
+                        addMessageToPrompt(promptMessage)
+                    }
 
-                   else -> {
-                       _gptData.value= ""
-                   }
-               }
+                    is Resources.Error -> {
+                        _eventFlow.emit(UIEvents.ShowSnackbar(res.message ?: "There was an error"))
+                        _gptData.value = "There was an error, try again. "
+                    }
 
-           }
+                    is Resources.Loading -> {
+                        _gptData.value = "Generating..."
+                    }
+
+                    else -> {
+                        _gptData.value = ""
+                    }
+                }
+
+            }
         }
+    }
+
+    fun clearPromptHistory() {
+        documentData.value.promptsList = arrayListOf()
+        viewModelScope.launch {
+            documentUseCase.clearPromptList(documentData.value.documentId?:"")
+        }
+
     }
 
     sealed class UIEvents {

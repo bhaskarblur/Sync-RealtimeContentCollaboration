@@ -337,4 +337,17 @@ class FirebaseManager @Inject constructor(
         return flag
     }
 
+    fun clearPromptsList(documentId: String) : Boolean {
+        var flag = false
+        documentRef.child(documentId).child("promptsList")
+            .removeValue().addOnCompleteListener {
+                if(it.isSuccessful) {
+                    flag = true
+                    updateChangeByStatus(userDetails.id?:"", documentId)
+                }
+            }
+
+        return flag
+    }
+
 }

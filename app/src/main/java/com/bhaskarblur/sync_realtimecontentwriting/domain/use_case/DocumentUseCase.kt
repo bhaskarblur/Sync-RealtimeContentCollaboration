@@ -47,5 +47,8 @@ class DocumentUseCase(
         return documentRepository.addPromptMessage(documentId = documentId, message)
     }
 
+    fun clearPromptList(documentId : String) : Flow<Boolean> {
+        return documentRepository.clearPromptsList(documentId = documentId)
+    }
 
 }
