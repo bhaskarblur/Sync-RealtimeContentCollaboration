@@ -144,7 +144,7 @@ class DocumentViewModel @Inject constructor(
                 ContentModel(
                     _documentData.value.documentId,
                     content = undoStack.peek().toString(),
-                    changedBy = userDetails.value.id
+                    lastEditedBy = userDetails.value.id
                 ),
                 _documentData.value.liveCollaborators
             )
@@ -163,7 +163,7 @@ class DocumentViewModel @Inject constructor(
                 ContentModel(
                     _documentData.value.documentId,
                     content = redoStack.peek().toString(),
-                    changedBy = userDetails.value.id
+                    lastEditedBy = userDetails.value.id
                 ),
                 _documentData.value.liveCollaborators
             )

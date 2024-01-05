@@ -5,5 +5,5 @@ import javax.annotation.concurrent.Immutable
 data class ContentModel(
     val documentId : String?,
     var content : String?,
-    val changedBy : String? = ""
+    val lastEditedBy : String? = ""
 )

@@ -134,8 +134,8 @@ class FirebaseManager @Inject constructor(
                                     }
                                 )
                             )
-                            if(value.content?.changedBy != null) {
-                                if (value.content.changedBy == userDetails.id!!) {
+                            if(value.content?.lastEditedBy != null) {
+                                if (value.content.lastEditedBy == userDetails.id!!) {
                                     Log.d("hitIf", _documentDetails.value.content?.content.isNullOrEmpty().toString())
                                     if(_documentDetails.value.content?.content.isNullOrEmpty() ||
                                         _documentDetails.value.content?.content == null) {
@@ -185,7 +185,7 @@ class FirebaseManager @Inject constructor(
                 if (it.isSuccessful) {
                     flag = true
                     documentRef.child(documentId).child("content")
-                        .child("changedBy").setValue(userDetails.id?:"")
+                        .child("lastEditedBy").setValue(userDetails.id?:"")
                 }
             }
         return flag
@@ -288,9 +288,9 @@ class FirebaseManager @Inject constructor(
         return flag
     }
 
-    private fun updateChangeByStatus(userId: String, documentId: String) {
+    private fun updateLastEditedByStatus(userId: String, documentId: String) {
         documentRef.child(documentId).child("content")
-            .child("changedBy").setValue(userId)
+            .child("lastEditedBy").setValue(userId)
     }
 
     fun changeUserCursorPosition(
@@ -309,7 +309,7 @@ class FirebaseManager @Inject constructor(
                             .child("position").setValue(position).addOnCompleteListener {
                                 if (it.isSuccessful) {
                                     flag = true
-                                    updateChangeByStatus(userDetails.id?:"", documentId)
+                                    updateLastEditedByStatus(userDetails.id?:"", documentId)
                                 }
                             }
                     }
@@ -330,7 +330,7 @@ class FirebaseManager @Inject constructor(
             .child(key).setValue(message).addOnCompleteListener {
                 if(it.isSuccessful) {
                     flag = true
-                    updateChangeByStatus(userDetails.id?:"", documentId)
+                    updateLastEditedByStatus(userDetails.id?:"", documentId)
                 }
             }
 
@@ -343,7 +343,7 @@ class FirebaseManager @Inject constructor(
             .removeValue().addOnCompleteListener {
                 if(it.isSuccessful) {
                     flag = true
-                    updateChangeByStatus(userDetails.id?:"", documentId)
+                    updateLastEditedByStatus(userDetails.id?:"", documentId)
                 }
             }
 
