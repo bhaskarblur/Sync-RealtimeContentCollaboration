@@ -31,6 +31,20 @@ class UserRepositoryImpl @Inject constructor(
     }.flowOn(Dispatchers.IO)
 
     override fun getUserDetails(): Flow<UserModel>  = flow {
-        emit(spManager.getSession().toUserModel())
-    }
+        val userDetails = spManager.getSession().toUserModel()
+        if(!userDetails.id.isNullOrEmpty()) {
+            val checkUserInDB = firebaseManager.getUserById(userDetails.id)
+            Log.d("checkUserInDB", checkUserInDB.toString());
+            if(!checkUserInDB.id.isNullOrBlank()) {
+                emit(checkUserInDB)
+                spManager.storeSession(UserModelDto.fromUserModel(checkUserInDB))
+                return@flow
+            }
+            else {
+                emit(checkUserInDB)
+                return@flow
+            }
+        }
+        emit(userDetails)
+    }.flowOn(Dispatchers.IO)
 }

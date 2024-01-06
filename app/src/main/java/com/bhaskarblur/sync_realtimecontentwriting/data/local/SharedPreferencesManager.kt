@@ -1,9 +1,8 @@
 package com.bhaskarblur.sync_realtimecontentwriting.data.local
 
-import android.R
-import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.UserModelDto
 import javax.inject.Inject
 
@@ -23,8 +22,14 @@ class SharedPreferencesManager @Inject constructor(
         editor.putString("userName", userData.userName)
         editor.putString("fullName", userData.fullName)
         editor.apply()
+        Log.d("sessionStored", userData.toUserModel().toString())
     }
 
+    fun logOutSession() {
+        val editor: SharedPreferences.Editor = sharedPreferences.edit()
+        editor.clear()
+        editor.apply()
+    }
     fun getSession() : UserModelDto {
       val id = sharedPreferences.getString("id","")?: ""
       val userName = sharedPreferences.getString("userName","")

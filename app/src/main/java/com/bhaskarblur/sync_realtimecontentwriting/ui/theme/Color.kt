@@ -14,3 +14,4 @@ val textColorPrimary = Color.White
 val backgroundColor = Color(0xff1b1b1c)
 val textColorSecondary = Color.Gray
 val colorSecondary = Color(0xFF151516)
+val chatBoxColor = Color(0xFF222324)

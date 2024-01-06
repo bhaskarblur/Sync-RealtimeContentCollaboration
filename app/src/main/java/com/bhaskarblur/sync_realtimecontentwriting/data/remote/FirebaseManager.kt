@@ -18,7 +18,6 @@ import com.bhaskarblur.sync_realtimecontentwriting.domain.model.UserModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -26,7 +25,6 @@ import java.lang.Exception
 import javax.inject.Inject
 
 class FirebaseManager @Inject constructor(
-    private val database: FirebaseDatabase,
     private val documentRef: DatabaseReference,
     private val usersModelRef: DatabaseReference,
     private val shpRepo: SharedPreferencesManager,
@@ -44,7 +42,7 @@ class FirebaseManager @Inject constructor(
     }
 
     suspend fun createUser(userName: String, fullName: String): UserModel {
-        var user: UserModelDto = UserModelDto(
+        var user = UserModelDto(
             id = usersModelRef.push().key,
             userName = userName, fullName = fullName
         )
@@ -77,10 +75,10 @@ class FirebaseManager @Inject constructor(
     }
 
     suspend fun getUserById(userId: String): UserModel {
-        lateinit var user: UserModelDto
-        withContext(Dispatchers.IO) {
-            usersModelRef.child(userId).addValueEventListener(object : ValueEventListener {
+        var user = UserModelDto()
+            usersModelRef.child(userId).addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    Log.d("userDb", dataSnapshot.exists().toString())
                     if (dataSnapshot.exists()) {
                         user = dataSnapshot.getValue(UserModelDto::class.java)!!
                     }
@@ -90,12 +88,13 @@ class FirebaseManager @Inject constructor(
                     databaseError.toException().printStackTrace()
                 }
             })
-        }
+        kotlinx.coroutines.delay(200)
+        Log.d("UserDb", user.toUserModel().toString())
         return user.toUserModel()
     }
 
     suspend fun getDocumentDetails(documentId: String): DocumentModel {
-        var document: DocumentModelDto = DocumentModelDto(
+        var document = DocumentModelDto(
             documentId,
             "",
             null,
@@ -120,7 +119,6 @@ class FirebaseManager @Inject constructor(
                                 Log.d("promptData", child.toString())
                                 promptsList.add(child)
                             }
-                            Log.d("documentExists", value.toString())
                             document = DocumentModelDto(
                                 documentId = value.documentId,
                                 value.documentName,
@@ -184,8 +182,7 @@ class FirebaseManager @Inject constructor(
             .child("content").setValue(content).addOnCompleteListener {
                 if (it.isSuccessful) {
                     flag = true
-                    documentRef.child(documentId).child("content")
-                        .child("lastEditedBy").setValue(userDetails.id?:"")
+                    updateLastEditedByStatus(userDetails.id?:"", documentId)
                 }
             }
         return flag
@@ -197,6 +194,7 @@ class FirebaseManager @Inject constructor(
             .setValue(title).addOnCompleteListener {
                 if (it.isSuccessful) {
                     flag = true
+                    updateLastEditedByStatus(userDetails.id?:"", documentId)
                 }
             }
         return flag
@@ -288,9 +286,11 @@ class FirebaseManager @Inject constructor(
         return flag
     }
 
-    private fun updateLastEditedByStatus(userId: String, documentId: String) {
-        documentRef.child(documentId).child("content")
-            .child("lastEditedBy").setValue(userId)
+    private fun updateLastEditedByStatus(userId: String?, documentId: String) {
+        if(!userId.isNullOrEmpty()) {
+            documentRef.child(documentId).child("content")
+                .child("lastEditedBy").setValue(userId)
+        }
     }
 
     fun changeUserCursorPosition(
@@ -300,26 +300,28 @@ class FirebaseManager @Inject constructor(
     ): Boolean {
         var flag = false
         Log.d("cursorPosition",position.toString())
-        documentRef.child(documentId).child("liveCollaborators")
-            .child(userId).addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if(snapshot.exists()) {
-                        documentRef.child(documentId).child("liveCollaborators")
-                            .child(userId)
-                            .child("position").setValue(position).addOnCompleteListener {
-                                if (it.isSuccessful) {
-                                    flag = true
-                                    updateLastEditedByStatus(userDetails.id?:"", documentId)
+        if(userId.isNotEmpty()) {
+            documentRef.child(documentId).child("liveCollaborators")
+                .child(userId).addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        if (snapshot.exists()) {
+                            documentRef.child(documentId).child("liveCollaborators")
+                                .child(userId)
+                                .child("position").setValue(position).addOnCompleteListener {
+                                    if (it.isSuccessful) {
+                                        flag = true
+                                        updateLastEditedByStatus(userDetails.id ?: "", documentId)
+                                    }
                                 }
-                            }
+                        }
                     }
-                }
 
-                override fun onCancelled(error: DatabaseError) {
-                    error.toException().printStackTrace()
-                }
+                    override fun onCancelled(error: DatabaseError) {
+                        error.toException().printStackTrace()
+                    }
 
-            })
+                })
+        }
         return flag
     }
 

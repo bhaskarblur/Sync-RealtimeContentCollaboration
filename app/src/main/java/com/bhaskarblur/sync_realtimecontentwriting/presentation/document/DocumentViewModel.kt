@@ -195,7 +195,13 @@ class DocumentViewModel @Inject constructor(
                 position = cursorPosition, userDetails.value.id!!
             )
             switchUserOn()
+            if(userDetails.value.id.isNullOrEmpty()) {
+                userRepo.getUserDetails().collectLatest {
+                    userDetails.value = it
+                }
+            }
         }
+
     }
 
     fun updateTitle(title: String) {

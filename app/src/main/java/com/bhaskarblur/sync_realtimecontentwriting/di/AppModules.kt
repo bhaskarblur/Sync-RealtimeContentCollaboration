@@ -48,13 +48,11 @@ class AppModules {
 
     @Provides
     @Singleton
-    fun providesFirebaseManager(firebaseDatabase: FirebaseDatabase,
-                              @Named("docsRef") databaseReference: DatabaseReference,
+    fun providesFirebaseManager(@Named("docsRef") databaseReference: DatabaseReference,
                               @Named("usersRef") usersRef: DatabaseReference,
                                 sharedPreferencesManager: SharedPreferencesManager
                                 ) : FirebaseManager {
-        return FirebaseManager(firebaseDatabase,
-            databaseReference, usersRef, sharedPreferencesManager)
+        return FirebaseManager(databaseReference, usersRef, sharedPreferencesManager)
     }
 
     @Provides

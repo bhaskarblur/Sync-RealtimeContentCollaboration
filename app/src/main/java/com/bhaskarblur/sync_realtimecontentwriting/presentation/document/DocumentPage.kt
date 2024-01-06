@@ -62,6 +62,7 @@ import com.bhaskarblur.sync_realtimecontentwriting.R
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.buildAnnotatedStringWithColors
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.findFirstDifferenceIndex
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.UserModelCursor
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets.ContributorsItems
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.signUp.SignUpViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.AlertDialogComponent
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.backgroundColor
@@ -114,7 +115,7 @@ fun DocumentPage(
             },
             skipPartiallyExpanded = false,
             initialValue = when (sheetIsOpen.value) {
-                false -> SheetValue.PartiallyExpanded
+                false -> SheetValue.Hidden
                 true -> SheetValue.Expanded
             }
         )
@@ -253,7 +254,7 @@ fun DocumentPage(
                                     ),
                                     modifier = Modifier
                                         .background(
-                                            textColorPrimary,
+                                            primaryColor,
                                             RoundedCornerShape(90.dp)
                                         )
                                         .clickable {

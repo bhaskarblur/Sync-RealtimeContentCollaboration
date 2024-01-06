@@ -2,8 +2,6 @@ package com.bhaskarblur.sync_realtimecontentwriting.presentation.document
 
 import android.content.Context
 import android.util.Log
-import android.widget.CheckBox
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,7 +25,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -35,15 +32,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.DocumentModel
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets.PromptItem
+import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.backgroundColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
@@ -173,8 +170,8 @@ fun AIBottomSheet(context : Context, viewModel: DocumentViewModel, data : Docume
                 focusedTextColor = textColorPrimary,
                 focusedPlaceholderColor = textColorSecondary,
                 unfocusedPlaceholderColor = textColorSecondary,
-                focusedContainerColor = colorSecondary,
-                unfocusedContainerColor = colorSecondary,
+                focusedContainerColor = backgroundColor,
+                unfocusedContainerColor = backgroundColor,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 errorIndicatorColor = Color.Transparent,

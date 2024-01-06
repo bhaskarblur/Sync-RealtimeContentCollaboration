@@ -1,9 +1,8 @@
-package com.bhaskarblur.sync_realtimecontentwriting.presentation.document
+package com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,8 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
@@ -21,16 +18,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.UiUtils
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.PromptModel
+import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.backgroundColor
+import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.chatBoxColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
+import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorSecondary
 
 @Composable
 fun PromptItem(
@@ -76,7 +75,7 @@ fun PromptItem(
             Column(
                 modifier = Modifier
                     .background(
-                        if (promptMessage.role.equals("user")) colorSecondary else primaryColor,
+                        if (promptMessage.role.equals("user")) chatBoxColor else primaryColor,
                         RoundedCornerShape(10.dp)
                     )
                     .padding(12.dp)
