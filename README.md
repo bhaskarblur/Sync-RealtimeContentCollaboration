@@ -17,4 +17,4 @@ I and We warmly welcome contributors to contribute to this app and improve the A
 4. Architecture: Clean Arch.
 5. AI: Open AI Chat GPT Api
 
-### Note: In order to setup the environment and work on the app locally, you've to add the firebase db url, Open AI Api & other credentials in values/string files, i know it's not a good approach to save keys this way, but it is what it is :))
+#### Note: In order to setup the environment and work on the app locally, you've to add the firebase db url, Open AI Api & other credentials in values/string files, i know it's not a good approach to save keys this way, but it is what it is :))
