@@ -44,6 +44,10 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.DocumentModel
+import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
+import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
+import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
+import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorSecondary
 import kotlinx.coroutines.launch
 
 @Composable
@@ -72,11 +76,11 @@ fun AIBottomSheet(context : Context, viewModel: DocumentViewModel, data : Docume
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFF151516))
+            .background(colorSecondary)
             .padding(horizontal = 18.dp, vertical = 6.dp)
     ) {
         Text(
-            text = "Collaborative content with AI", color = Color.White,
+            text = "Collaborative content with AI", color = textColorPrimary,
             style = TextStyle(
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
@@ -86,7 +90,7 @@ fun AIBottomSheet(context : Context, viewModel: DocumentViewModel, data : Docume
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Use AI to generate content & use it in your board, you & other users can see each other's prompts ",
-            color = Color.Gray,
+            color = textColorSecondary,
             style = TextStyle(
                 fontSize = 13.sp
             )
@@ -101,7 +105,7 @@ fun AIBottomSheet(context : Context, viewModel: DocumentViewModel, data : Docume
         ) {
             Text(
                 text = "Prompts history",
-                color = Color.White,
+                color = textColorPrimary,
                 style = TextStyle(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
@@ -110,7 +114,7 @@ fun AIBottomSheet(context : Context, viewModel: DocumentViewModel, data : Docume
 
             Text(
                 text = "Clear history",
-                color = Color.White,
+                color = textColorPrimary,
                 textAlign = TextAlign.End,
                 style = TextStyle(
                     fontSize = 14.sp,
@@ -148,14 +152,14 @@ fun AIBottomSheet(context : Context, viewModel: DocumentViewModel, data : Docume
                 checked = ignoreOldHistory.value,
                 onCheckedChange = { ignoreOldHistory.value = it },
                 colors = CheckboxDefaults.colors(
-                    checkmarkColor = Color.White,
-                    uncheckedColor = Color.White,
-                    checkedColor =  Color(0xFF6105E2),
+                    checkmarkColor = textColorPrimary,
+                    uncheckedColor = textColorPrimary,
+                    checkedColor =  primaryColor,
                 )
             )
             Text(
                 text = "Ignore chat history (checking this will send your new prompts without chat history.)",
-                color = Color.White,
+                color = textColorPrimary,
                 style = TextStyle(
                     fontSize = 13.sp
                 )
@@ -165,12 +169,12 @@ fun AIBottomSheet(context : Context, viewModel: DocumentViewModel, data : Docume
 
         TextField(value = promptFieldText.value,
             colors = TextFieldDefaults.colors(
-                unfocusedTextColor = Color.White,
-                focusedTextColor = Color.White,
-                focusedPlaceholderColor = Color.Gray,
-                unfocusedPlaceholderColor = Color.Gray,
-                focusedContainerColor = Color(0xff1b1b1c),
-                unfocusedContainerColor = Color(0xff1b1b1c),
+                unfocusedTextColor = textColorPrimary,
+                focusedTextColor = textColorPrimary,
+                focusedPlaceholderColor = textColorSecondary,
+                unfocusedPlaceholderColor = textColorSecondary,
+                focusedContainerColor = colorSecondary,
+                unfocusedContainerColor = colorSecondary,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 errorIndicatorColor = Color.Transparent,
@@ -184,7 +188,7 @@ fun AIBottomSheet(context : Context, viewModel: DocumentViewModel, data : Docume
                 .fillMaxWidth()
                 .background(
                     shape = RoundedCornerShape(90.dp),
-                    color = Color(0xFF151516)
+                    color = colorSecondary
                 ),
             onValueChange = { value ->
                 promptFieldText.value = value
@@ -214,13 +218,13 @@ fun AIBottomSheet(context : Context, viewModel: DocumentViewModel, data : Docume
                 }
             },
             modifier = Modifier
-                .background(Color(0xFF6105E2), RoundedCornerShape(80.dp))
+                .background(primaryColor, RoundedCornerShape(80.dp))
                 .fillMaxWidth()
         ) {
 
             Text(
                 text = "✨ Generate",
-                color = Color.White,
+                color = textColorPrimary,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold
             )

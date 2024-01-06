@@ -8,9 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,31 +16,20 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetScaffold
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
@@ -50,14 +37,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -67,26 +52,25 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.lifecycleScope
 import com.bhaskarblur.sync_realtimecontentwriting.R
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.buildAnnotatedStringWithColors
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.findFirstDifferenceIndex
-import com.bhaskarblur.sync_realtimecontentwriting.domain.model.PromptModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.UserModelCursor
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.signUp.SignUpViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.AlertDialogComponent
+import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.backgroundColor
+import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
+import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
+import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
+import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorSecondary
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.w3c.dom.Text
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -235,14 +219,14 @@ fun DocumentPage(
                     })
 
             },
-            containerColor = Color(0xFF151516),
-            sheetContainerColor = Color(0xFF151516),
+            containerColor = colorSecondary,
+            sheetContainerColor = colorSecondary,
             scaffoldState = sheetState,
             content = {
                 Column(
                     Modifier
                         .fillMaxSize()
-                        .background(Color(0xff1b1b1c)),
+                        .background(backgroundColor),
                     verticalArrangement = Arrangement.Top
                 ) {
 
@@ -255,7 +239,7 @@ fun DocumentPage(
                                 Modifier
                                     .fillMaxWidth()
                                     .height(62.dp)
-                                    .background(Color(0xFF151516))
+                                    .background(colorSecondary)
                                     .padding(horizontal = 18.dp, vertical = 12.dp),
                                 horizontalArrangement = Arrangement.Absolute.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,
@@ -263,13 +247,13 @@ fun DocumentPage(
 
                                 Text(
                                     text = "✨ AI",
-                                    color = Color.White,
+                                    color = textColorPrimary,
                                     style = TextStyle(
                                         fontWeight = FontWeight.Medium
                                     ),
                                     modifier = Modifier
                                         .background(
-                                            Color(0xFF6105E2),
+                                            textColorPrimary,
                                             RoundedCornerShape(90.dp)
                                         )
                                         .clickable {
@@ -295,7 +279,7 @@ fun DocumentPage(
                                         Icon(
                                             painter = painterResource(id = R.drawable.undo_icon),
                                             contentDescription = "Undo changes",
-                                            tint = Color.White,
+                                            tint = textColorPrimary,
                                             modifier = Modifier
                                                 .height(24.dp)
                                                 .clickable {
@@ -306,7 +290,7 @@ fun DocumentPage(
                                         Icon(
                                             painter = painterResource(id = R.drawable.undo_icon),
                                             contentDescription = "Undo changes",
-                                            tint = Color.Gray,
+                                            tint = textColorSecondary,
                                             modifier = Modifier.height(24.dp)
                                         )
                                     }
@@ -316,7 +300,7 @@ fun DocumentPage(
                                         Icon(
                                             painter = painterResource(id = R.drawable.redo_icon),
                                             contentDescription = "Redo changes",
-                                            tint = Color.White,
+                                            tint = textColorPrimary,
                                             modifier = Modifier
                                                 .height(24.dp)
                                                 .clickable {
@@ -327,7 +311,7 @@ fun DocumentPage(
                                         Icon(
                                             painter = painterResource(id = R.drawable.redo_icon),
                                             contentDescription = "Redo changes",
-                                            tint = Color.Gray,
+                                            tint = textColorSecondary,
                                             modifier = Modifier.height(24.dp)
                                         )
                                     }
@@ -379,10 +363,10 @@ fun DocumentPage(
                                     colors = TextFieldDefaults.colors(
                                         focusedContainerColor = Color.Transparent,
                                         unfocusedContainerColor = Color.Transparent,
-                                        unfocusedTextColor = Color.White,
-                                        focusedTextColor = Color.White,
-                                        unfocusedPlaceholderColor = Color.Gray,
-                                        focusedPlaceholderColor = Color.Gray,
+                                        unfocusedTextColor = textColorPrimary,
+                                        focusedTextColor = textColorPrimary,
+                                        unfocusedPlaceholderColor = textColorSecondary,
+                                        focusedPlaceholderColor =textColorSecondary,
                                         focusedIndicatorColor = Color.Transparent,
                                         unfocusedIndicatorColor = Color.Transparent,
                                         cursorColor = Color.White
@@ -441,13 +425,13 @@ fun DocumentPage(
                                     colors = TextFieldDefaults.colors(
                                         focusedContainerColor = Color.Transparent,
                                         unfocusedContainerColor = Color.Transparent,
-                                        unfocusedTextColor = Color.White,
-                                        focusedTextColor = Color.White,
-                                        unfocusedPlaceholderColor = Color.Gray,
-                                        focusedPlaceholderColor = Color.Gray,
+                                        unfocusedTextColor = textColorPrimary,
+                                        focusedTextColor = textColorPrimary,
+                                        unfocusedPlaceholderColor = textColorSecondary,
+                                        focusedPlaceholderColor =textColorSecondary,
                                         focusedIndicatorColor = Color.Transparent,
                                         unfocusedIndicatorColor = Color.Transparent,
-                                        cursorColor = Color.White
+                                        cursorColor = textColorPrimary
                                     ),
                                     textStyle = TextStyle(
                                         fontWeight = FontWeight.Normal,
@@ -467,7 +451,7 @@ fun DocumentPage(
                             verticalArrangement = Arrangement.Center
                         ) {
                             CircularProgressIndicator(
-                                color = Color(0xFF6105E2),
+                                color = primaryColor,
                                 modifier = Modifier.then(Modifier.size(42.dp))
                             )
                         }

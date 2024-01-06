@@ -28,6 +28,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.UiUtils
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.PromptModel
+import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
+import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
+import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
 
 @Composable
 fun PromptItem(
@@ -51,7 +54,7 @@ fun PromptItem(
                         "" -> "AI Assistant"
                         null -> "AI Assistant"
                         else -> promptMessage.sentBy.fullName.toString()
-                    }, color = Color.White, fontSize = 15.sp,
+                    }, color = textColorPrimary, fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold, fontFamily = FontFamily.Default,
                     lineHeight = 20.sp
                 )
@@ -62,7 +65,7 @@ fun PromptItem(
                         "" -> ""
                         null -> ""
                         else -> "(@${promptMessage.sentBy.userName.toString()})"
-                    }, color = Color.White, fontSize = 12.sp,
+                    }, color = textColorPrimary, fontSize = 12.sp,
                     fontWeight = FontWeight.Normal, fontFamily = FontFamily.Default,
                     lineHeight = 20.sp
                 )
@@ -73,15 +76,13 @@ fun PromptItem(
             Column(
                 modifier = Modifier
                     .background(
-                        if (promptMessage.role.equals("user")) Color(0xFF222324) else Color(
-                            0xFF6105E2
-                        ),
+                        if (promptMessage.role.equals("user")) colorSecondary else primaryColor,
                         RoundedCornerShape(10.dp)
                     )
                     .padding(12.dp)
             ) {
                 Text(
-                    promptMessage.message, color = Color.White, fontSize = 15.sp,
+                    promptMessage.message, color = textColorPrimary, fontSize = 15.sp,
                     fontWeight = FontWeight.Medium, fontFamily = FontFamily.Default,
                     lineHeight = 20.sp
                 )
@@ -90,7 +91,7 @@ fun PromptItem(
                     Spacer(Modifier.height(16.dp))
                     Row(
                         Modifier
-                            .border(2.dp, Color.White, RoundedCornerShape(90.dp))
+                            .border(2.dp, textColorPrimary, RoundedCornerShape(90.dp))
                             .padding(vertical = 8.dp, horizontal = 12.dp)
                             .clickable {
                                 onAdd(promptMessage.message)
@@ -100,7 +101,7 @@ fun PromptItem(
                         Icon(
                             Icons.Filled.AddCircle,
                             contentDescription = "Apply to board",
-                            tint = Color.White,
+                            tint = textColorPrimary,
                             modifier = Modifier
                                 .height(16.dp)
 
@@ -108,7 +109,7 @@ fun PromptItem(
                         Spacer(Modifier.width(4.dp))
 
                         Text(
-                            "Add to board", color = Color.White, fontSize = 12.sp,
+                            "Add to board", color = textColorPrimary, fontSize = 12.sp,
                             fontWeight = FontWeight.Medium, fontFamily = FontFamily.Default,
                             lineHeight = 20.sp
                         )
@@ -120,7 +121,7 @@ fun PromptItem(
             Row {
                 Text(
                     UiUtils.getDateTime(promptMessage.timeStamp.toString())!!,
-                    color = Color.White,
+                    color = textColorPrimary,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Normal
                 )

@@ -24,6 +24,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
+import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
+import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
+import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorSecondary
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -39,22 +43,22 @@ fun SignUpPage(viewModel: SignUpViewModel) {
 
         Spacer(Modifier.height(6.dp))
         Text("Welcome to Sync", fontSize = 22.sp, fontWeight = FontWeight.SemiBold,
-            color = Color.White)
+            color = textColorPrimary)
 
         Spacer(Modifier.height(24.dp))
 
         TextField(value = userName.value,
             colors = TextFieldDefaults.colors(
-                unfocusedTextColor = Color.White,
-                focusedTextColor = Color.White,
-                focusedPlaceholderColor = Color.Gray,
-                unfocusedPlaceholderColor = Color.Gray,
-                focusedContainerColor = Color(0xFF151516),
-                unfocusedContainerColor = Color(0xFF151516)
+                unfocusedTextColor = textColorPrimary,
+                focusedTextColor = textColorPrimary,
+                focusedPlaceholderColor = textColorSecondary,
+                unfocusedPlaceholderColor = textColorSecondary,
+                focusedContainerColor = colorSecondary,
+                unfocusedContainerColor = colorSecondary
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .background(shape = RoundedCornerShape(90.dp), color = Color(0xFF151516)),
+                .background(shape = RoundedCornerShape(90.dp), color = colorSecondary),
             onValueChange = { value ->
                 userName.value = value.lowercase()
                     .trim()
@@ -67,16 +71,16 @@ fun SignUpPage(viewModel: SignUpViewModel) {
 
         TextField(value = fullName.value,
             colors = TextFieldDefaults.colors(
-                unfocusedTextColor = Color.White,
-                focusedTextColor = Color.White,
-                focusedPlaceholderColor = Color.Gray,
-                unfocusedPlaceholderColor = Color.Gray,
-                focusedContainerColor = Color(0xFF151516),
-                unfocusedContainerColor = Color(0xFF151516)
+                unfocusedTextColor = textColorPrimary,
+                focusedTextColor = textColorPrimary,
+                focusedPlaceholderColor = textColorSecondary,
+                unfocusedPlaceholderColor = textColorSecondary,
+                focusedContainerColor = colorSecondary,
+                unfocusedContainerColor = colorSecondary
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .background(shape = RoundedCornerShape(90.dp), color = Color(0xFF151516)),
+                .background(shape = RoundedCornerShape(90.dp), color = colorSecondary),
             onValueChange = { value ->
                 fullName.value = value
             },
@@ -87,8 +91,8 @@ fun SignUpPage(viewModel: SignUpViewModel) {
         Button(
             modifier = Modifier.fillMaxWidth().height(56.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF6105E2),
-                disabledContainerColor = Color(0xFF6105E2),
+                containerColor = primaryColor,
+                disabledContainerColor = primaryColor
             ),
             onClick = {
                 viewModel.signUpUser(userName.value, fullName.value)

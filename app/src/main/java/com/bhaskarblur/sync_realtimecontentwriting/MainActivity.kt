@@ -21,6 +21,7 @@ import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.Documen
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.DocumentViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.signUp.SignUpPage
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.signUp.SignUpViewModel
+import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.backgroundColor
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
@@ -56,7 +57,7 @@ class MainActivity : ComponentActivity() {
                 Box(
                     Modifier
                         .fillMaxSize()
-                        .background(Color(0xff1b1b1c))
+                        .background(backgroundColor)
 
                 ) {
                     if (!loggedData.id.isNullOrEmpty()) {

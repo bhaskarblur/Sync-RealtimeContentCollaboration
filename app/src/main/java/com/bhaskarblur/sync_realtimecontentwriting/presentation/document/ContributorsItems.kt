@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.UserModelCursor
+import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
 
 @Composable
 fun ContributorsItems(item : UserModelCursor, onClick: (position: Int) -> Unit) {
@@ -27,7 +28,7 @@ fun ContributorsItems(item : UserModelCursor, onClick: (position: Int) -> Unit) 
     Row(
         Modifier
             .background(item.color, RoundedCornerShape(90.dp))
-            .border(1.5.dp, color = Color.White, shape = RoundedCornerShape(90.dp))
+            .border(1.5.dp, color = textColorPrimary, shape = RoundedCornerShape(90.dp))
             .width(36.dp)
             .height(36.dp)
             .clickable { onClick(item.position?: -1) },
@@ -38,7 +39,7 @@ fun ContributorsItems(item : UserModelCursor, onClick: (position: Int) -> Unit) 
             if((item.userDetails.fullName?.length ?: 0) > 0) {
                 Text(
                     item.userDetails.fullName!![0].toString().uppercase(), fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold, color = Color.White
+                    fontWeight = FontWeight.SemiBold, color = textColorPrimary
                 )
             }
         }
