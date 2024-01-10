@@ -1,4 +1,4 @@
-package com.bhaskarblur.sync_realtimecontentwriting.presentation.Registration
+package com.bhaskarblur.sync_realtimecontentwriting.presentation.registration
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column

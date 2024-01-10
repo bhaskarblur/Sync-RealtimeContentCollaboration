@@ -20,4 +20,7 @@ class UserUseCase(
         return userRepository.getUserDetails()
     }
 
+    fun logOutUser() : Flow<Boolean> {
+        return userRepository.logOutUser()
+    }
 }

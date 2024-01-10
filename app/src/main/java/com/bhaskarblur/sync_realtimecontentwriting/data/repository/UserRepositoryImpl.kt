@@ -47,4 +47,9 @@ class UserRepositoryImpl @Inject constructor(
         }
         emit(userDetails)
     }.flowOn(Dispatchers.IO)
+
+    override fun logOutUser(): Flow<Boolean> = flow {
+        spManager.logOutSession()
+        Log.d("userLoggedOutRepo", "true")
+    }
 }

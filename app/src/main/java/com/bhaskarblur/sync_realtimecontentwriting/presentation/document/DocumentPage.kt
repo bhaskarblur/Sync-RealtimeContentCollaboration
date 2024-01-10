@@ -63,7 +63,7 @@ import com.bhaskarblur.sync_realtimecontentwriting.core.utils.buildAnnotatedStri
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.findFirstDifferenceIndex
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.UserModelCursor
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets.ContributorsItems
-import com.bhaskarblur.sync_realtimecontentwriting.presentation.Registration.SignUpViewModel
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.SignUpViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.AlertDialogComponent
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.backgroundColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary

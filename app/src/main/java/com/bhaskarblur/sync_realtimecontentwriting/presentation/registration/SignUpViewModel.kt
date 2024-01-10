@@ -1,4 +1,4 @@
-package com.bhaskarblur.sync_realtimecontentwriting.presentation.Registration
+package com.bhaskarblur.sync_realtimecontentwriting.presentation.registration
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
@@ -7,13 +7,9 @@ import androidx.lifecycle.viewModelScope
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.UserModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.use_case.UserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
@@ -46,23 +42,12 @@ class SignUpViewModel @Inject constructor(
         }
     }
 
-    suspend fun isUserLogged() : Boolean {
-        var flag = false
+    fun logOutUser() {
         viewModelScope.launch {
-            async {
-                userUseCase.getUserDetails().collectLatest { user ->
-                    Log.d("userData", user.toString())
-                    Log.d("isLogged", flag.toString())
-                    if (user.id != null) {
-                        if (user.id.isNotBlank()) {
-                            flag = true
-                            _userState.value = user
-                        }
-                    }
-                }
-            }.await()
+            userUseCase.logOutUser()
+            userState.value = UserModel()
+            Log.d("UserLoggedOut", "true")
         }
-        return flag
     }
 
 }
