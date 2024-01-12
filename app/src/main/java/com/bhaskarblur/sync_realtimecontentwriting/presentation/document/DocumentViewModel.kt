@@ -31,6 +31,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.Stack
 import javax.inject.Inject
 
@@ -81,6 +82,19 @@ class DocumentViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    suspend fun getDocumentById(documentId: String): Boolean {
+        var flag = false
+        documentUseCase.getDocumentById(documentId).collectLatest {
+            if (it.documentId!!.isNotEmpty()) {
+                flag = true
+            }
+            Log.d("documentIsValid", flag.toString())
+        }
+
+        delay(1520)
+        return flag
     }
 
     fun createDocument() {
@@ -250,7 +264,7 @@ class DocumentViewModel @Inject constructor(
             )
             userDocuments.map {
                 val doc = it
-                if(doc.documentId == documentData.value.documentId) {
+                if (doc.documentId == documentData.value.documentId) {
                     doc.documentName = title
                 }
                 doc

@@ -67,4 +67,8 @@ class DocumentUseCase(
 
     }
 
+    fun getDocumentById(documentId: String) : Flow<DocumentModel> {
+        return documentRepository.getDocumentById(documentId)
+    }
+
 }

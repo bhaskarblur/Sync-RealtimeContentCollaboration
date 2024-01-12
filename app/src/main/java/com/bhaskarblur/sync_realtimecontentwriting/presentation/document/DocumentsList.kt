@@ -39,6 +39,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,6 +60,7 @@ import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorSecondary
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun DocumentsList(
@@ -76,7 +78,7 @@ fun DocumentsList(
     val documentCode = remember {
         mutableStateOf("")
     }
-
+    val scope = rememberCoroutineScope()
     LaunchedEffect(documentViewModel.userDocuments) {
         delay(2500)
         isLoading.value = false
@@ -168,7 +170,23 @@ fun DocumentsList(
                                     Color.White
                                 }
                             },
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier
+                                .size(20.dp)
+                                .clickable {
+                                    scope.launch {
+                                        val isValidCode =
+                                            documentViewModel.getDocumentById(documentCode.value)
+
+                                        if (isValidCode) {
+                                            val intent =
+                                                Intent(context, DocumentActivity::class.java)
+                                            intent.putExtra("documentId", documentCode.value)
+                                            context.startActivity(intent)
+                                        } else {
+                                            userViewModel.event.value = "Incorrect document code"
+                                        }
+                                    }
+                                }
                         )
                     })
 

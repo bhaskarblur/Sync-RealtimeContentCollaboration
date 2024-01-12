@@ -72,6 +72,10 @@ class DocumentRepositoryImpl @Inject constructor(
         emit(list)
     }
 
+    override fun getDocumentById(documentId: String): Flow<DocumentModel> = flow{
+        emit(firebaseManager.getDocumentById(documentId))
+    }
+
     override fun updateCursorPosition(
         documentId: String,
         position: Int,

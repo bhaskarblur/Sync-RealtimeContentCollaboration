@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.core.app.PendingIntentCompat.send
 import com.bhaskarblur.sync_realtimecontentwriting.R
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.ColorHelper
 import com.bhaskarblur.sync_realtimecontentwriting.data.local.SharedPreferencesManager
@@ -20,13 +19,8 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.getValue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.lang.Exception
@@ -104,7 +98,7 @@ class FirebaseManager @Inject constructor(
             })
 
         }
-        kotlinx.coroutines.delay(4000)
+        delay(4000)
         Log.d("UserDb2", user.toUserModel().toString())
         return user.toUserModel()
     }
@@ -128,7 +122,7 @@ class FirebaseManager @Inject constructor(
                 databaseError.toException().printStackTrace()
             }
         })
-        kotlinx.coroutines.delay(500)
+        delay(500)
         return user
     }
 
@@ -177,7 +171,7 @@ class FirebaseManager @Inject constructor(
                 }
 
             })
-        kotlinx.coroutines.delay(1000)
+        delay(1000)
         return document.toDocumentModel()
     }
     suspend fun getDocumentDetails(documentId: String): DocumentModel {

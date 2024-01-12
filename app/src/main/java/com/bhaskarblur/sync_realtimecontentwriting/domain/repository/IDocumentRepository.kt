@@ -23,4 +23,6 @@ interface IDocumentRepository {
     fun createDocument(userId: String) : Flow<DocumentModel>
     fun deleteDocument(documentId: String)
     fun getDocumentsByUserId(userId: String) : Flow<List<DocumentModel>>
+
+    fun getDocumentById(documentId: String) : Flow<DocumentModel>
 }
