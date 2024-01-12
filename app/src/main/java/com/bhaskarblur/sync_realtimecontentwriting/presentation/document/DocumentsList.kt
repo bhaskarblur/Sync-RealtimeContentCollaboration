@@ -107,7 +107,7 @@ fun DocumentsList(
         ) {
 
             Text(
-                "Hi ${userViewModel.userState.value.fullName}", style = TextStyle(
+                "Hi ${userViewModel.userState.value.fullName} 👋", style = TextStyle(
                     textColorPrimary, fontSize = 17.sp, fontWeight = FontWeight.SemiBold
                 )
             )
