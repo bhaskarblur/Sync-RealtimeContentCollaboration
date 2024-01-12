@@ -12,8 +12,12 @@ class UserUseCase(
     private val userRepository: IUserRepository
 ) {
 
-    fun createUser(userName : String, fullName : String) : Flow<UserModel> {
-        return userRepository.signupUser(userName, fullName)
+    fun createUser(userName : String, fullName : String, password: String) : Flow<UserModel> {
+        return userRepository.signupUser(userName, fullName, password)
+    }
+
+    fun loginUser(userName : String, password: String) : Flow<UserModel> {
+        return userRepository.loginUser(userName, password)
     }
 
     fun getUserDetails() : Flow<UserModel> {

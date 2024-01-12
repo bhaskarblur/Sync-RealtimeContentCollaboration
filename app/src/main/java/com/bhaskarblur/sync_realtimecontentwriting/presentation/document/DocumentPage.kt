@@ -175,7 +175,6 @@ fun DocumentPage(
         BottomSheetScaffold(
             sheetContent = {
                 AIBottomSheet(
-                    context = context,
                     viewModel = viewModel,
                     data = data,
                     onHideSheet = { msg ->
@@ -214,10 +213,10 @@ fun DocumentPage(
                                 content.value.selection
                             )
                         }
-                    },
-                    onClearHistory = {
-                        showDialog.value = true
-                    })
+                    }
+                ) {
+                    showDialog.value = true
+                }
 
             },
             containerColor = colorSecondary,

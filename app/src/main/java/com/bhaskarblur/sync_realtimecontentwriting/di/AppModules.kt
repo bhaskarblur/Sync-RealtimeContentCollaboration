@@ -3,6 +3,7 @@ package com.bhaskarblur.sync_realtimecontentwriting.di
 import android.content.Context
 import com.bhaskarblur.gptbot.network.LoggingInterceptor
 import com.bhaskarblur.gptbot.network.OpenAiInterceptor
+import com.bhaskarblur.sync_realtimecontentwriting.core.utils.PasswordUtil
 import com.bhaskarblur.sync_realtimecontentwriting.data.local.SharedPreferencesManager
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.ApiRoutes
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.FirebaseManager
@@ -36,6 +37,11 @@ class AppModules {
 
     @Provides
     @Singleton
+    fun providesPassUtil() : PasswordUtil {
+        return PasswordUtil
+    }
+    @Provides
+    @Singleton
     fun providesAppContext(@ApplicationContext context: Context) : Context  {
         return context
     }
@@ -63,8 +69,9 @@ class AppModules {
 
     @Provides
     @Singleton
-    fun providesUserRepository(firebaseManager : FirebaseManager, sharedPreferencesManager: SharedPreferencesManager) : IUserRepository {
-        return UserRepositoryImpl(firebaseManager, sharedPreferencesManager)
+    fun providesUserRepository(firebaseManager : FirebaseManager, sharedPreferencesManager: SharedPreferencesManager,
+                               passUtil:PasswordUtil) : IUserRepository {
+        return UserRepositoryImpl(firebaseManager, sharedPreferencesManager,passUtil)
     }
     @Provides
     @Singleton

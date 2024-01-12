@@ -2,6 +2,7 @@ package com.bhaskarblur.sync_realtimecontentwriting.presentation.document
 
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
@@ -39,7 +40,7 @@ fun DocumentsList(
     documentViewModel: DocumentViewModel,
     context: Context
 ) {
-
+    documentViewModel.getDocumentData("Playground")
     val showAlertDialog = remember {
         mutableStateOf(false)
     }
@@ -48,10 +49,11 @@ fun DocumentsList(
         AlertDialogComponent(
             context = context,
             title = "Log out?",
-            bodyMsg = "Are you sure, you want to logout?",
+            bodyMsg = "Are you sure, you want to logout from your account?",
             yesLabel = "Log out",
             onYesPressed = {
                 userViewModel.logOutUser()
+                Toast.makeText(context, "Logged out!", Toast.LENGTH_SHORT).show()
             },
             onClose = {
                 showAlertDialog.value = false
@@ -71,6 +73,7 @@ fun DocumentsList(
             Text(
                 "Hi ${userViewModel.userState.value.fullName}", style =
                 TextStyle(
+                    textColorPrimary,
                     fontSize = 17.sp,
                     fontWeight = FontWeight.SemiBold
                 )

@@ -1,6 +1,7 @@
 package com.bhaskarblur.sync_realtimecontentwriting.data.repository
 
 import android.util.Log
+import com.bhaskarblur.sync_realtimecontentwriting.core.utils.PasswordUtil
 import com.bhaskarblur.sync_realtimecontentwriting.data.local.SharedPreferencesManager
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.FirebaseManager
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.UserModelDto
@@ -14,11 +15,12 @@ import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
     private val firebaseManager: FirebaseManager,
-    private val spManager: SharedPreferencesManager
+    private val spManager: SharedPreferencesManager,
+    private val passUtil : PasswordUtil
 ): IUserRepository {
-    override fun signupUser(userName: String, fullName: String): Flow<UserModel> = flow {
-        val user = firebaseManager.createUser(userName, fullName)
-
+    override fun signupUser(userName: String, fullName: String, password : String): Flow<UserModel> = flow {
+        val hashedPass = passUtil.hashPassword(password)
+        val user = firebaseManager.createUser(userName, fullName, hashedPass)
         if(!user.id.isNullOrEmpty()) {
             Log.d("FirebaseUserToBeStored", user.toString())
             spManager.storeSession(UserModelDto(user.id, user.userName, user.fullName))
@@ -30,26 +32,46 @@ class UserRepositoryImpl @Inject constructor(
 
     }.flowOn(Dispatchers.IO)
 
+    override fun loginUser(userName: String, password: String): Flow<UserModel> = flow{
+        val user = firebaseManager.getUserByUserName(userName)
+        val passIsCorrect = passUtil.verifyPassword(password, user.password!!)
+        if(!user.id.isNullOrEmpty()) {
+            if(passIsCorrect) {
+                Log.d("firebasePasswordCorrect", user.toString())
+                spManager.storeSession(UserModelDto(user.id, user.userName, user.fullName))
+                emit(user.toUserModel())
+            }
+            else {
+                emit(UserModel(null, null, null))
+            }
+        }
+        else {
+            emit(UserModel(null, null, null))
+        }
+    }.flowOn(Dispatchers.IO)
+
     override fun getUserDetails(): Flow<UserModel>  = flow {
         val userDetails = spManager.getSession().toUserModel()
         if(!userDetails.id.isNullOrEmpty()) {
-            val checkUserInDB = firebaseManager.getUserById(userDetails.id)
-            Log.d("checkUserInDB", checkUserInDB.toString());
-            if(!checkUserInDB.id.isNullOrBlank()) {
-                emit(checkUserInDB)
-                spManager.storeSession(UserModelDto.fromUserModel(checkUserInDB))
+            Log.d("checkUserInDB", userDetails.toString());
+            if(!userDetails.id.isNullOrBlank()) {
+                emit(userDetails)
+                spManager.storeSession(UserModelDto.fromUserModel(userDetails))
                 return@flow
             }
             else {
-                emit(checkUserInDB)
+                emit(UserModel())
                 return@flow
             }
         }
         emit(userDetails)
     }.flowOn(Dispatchers.IO)
 
-    override fun logOutUser(): Flow<Boolean> = flow {
+    override fun logOutUser(): Flow<Boolean> {
         spManager.logOutSession()
         Log.d("userLoggedOutRepo", "true")
+        return flow {
+            emit(true)
+    }
     }
 }

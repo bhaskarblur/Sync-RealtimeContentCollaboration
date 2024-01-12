@@ -44,8 +44,8 @@ class MainActivity : ComponentActivity() {
         documentViewModel = viewModels<DocumentViewModel>().value
         userViewModel = viewModels<SignUpViewModel>().value
         val loggedData by userViewModel.userState
-
         setContent {
+            val context = LocalContext.current
             val scaffoldState = remember { SnackbarHostState() }
             val currentPage = remember {
                 mutableStateOf("")
@@ -53,10 +53,13 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             LaunchedEffect(loggedData) {
                 userViewModel.initData()
-                delay(2000)
+                delay(500)
                 Log.d("userData__", loggedData.userName.toString())
                 if(!loggedData.id.isNullOrEmpty()) {
                     currentPage.value = Screens.HomePage.route
+                    if(navController.previousBackStackEntry?.destination != null) {
+                        navController.popBackStack()
+                    }
                 }
                 else {
                     currentPage.value = Screens.RegistrationPage.route
@@ -74,25 +77,25 @@ class MainActivity : ComponentActivity() {
                     if(currentPage.value.isNotEmpty()) {
                         NavHost(
                             navController = navController,
-                            startDestination = currentPage.value
+                            startDestination = currentPage.value,
                         ) {
                             composable(
                                 route = Screens.RegistrationPage.route
                             ) {
-                                SignUpPage(userViewModel)
+                                SignUpPage(userViewModel, navController,context)
                             }
 
                             composable(
                                 route = Screens.HomePage.route
                             ) {
                                 DocumentsList(userViewModel, documentViewModel,
-                                    LocalContext.current)
+                                    context)
                             }
 
                             composable(
                                 route = Screens.LoginPage.route
                             ) {
-                                LoginPage(userViewModel)
+                                LoginPage(userViewModel,navController,context)
                             }
                         }
                     }

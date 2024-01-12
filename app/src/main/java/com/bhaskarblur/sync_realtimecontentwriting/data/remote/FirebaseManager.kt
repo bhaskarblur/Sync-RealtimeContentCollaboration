@@ -19,7 +19,9 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.getValue
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.lang.Exception
 import javax.inject.Inject
@@ -32,8 +34,8 @@ class FirebaseManager @Inject constructor(
 
     private val _documentDetails = mutableStateOf(DocumentModel(null, null, null, null))
     val documentDetails: MutableState<DocumentModel> = _documentDetails
-    private lateinit var changeListener : ValueEventListener
-    private var userDetails : UserModelDto = UserModelDto()
+    private lateinit var changeListener: ValueEventListener
+    private var userDetails: UserModelDto = UserModelDto()
 
     companion object {
         fun DB_URL(context: Context): String {
@@ -41,33 +43,39 @@ class FirebaseManager @Inject constructor(
         }
     }
 
-    suspend fun createUser(userName: String, fullName: String): UserModel {
+    suspend fun createUser(userName: String, fullName: String, password: String): UserModel {
         var user = UserModelDto(
             id = usersModelRef.push().key,
             userName = userName, fullName = fullName
         )
-
         withContext(Dispatchers.IO) {
-            usersModelRef.child(user.id ?: "").setValue(
-                UserModelDto(
-                    id = user.id ?: "",
-                    userName, fullName
-                )
-            ).addOnCompleteListener {
-                try {
-                    Log.d("taskResult", it.isSuccessful.toString())
-                    Log.d("taskResult", it.isComplete.toString())
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-                if (it.isSuccessful) {
-                    user = UserModelDto(
-                        id = user.id,
-                        userName, fullName
+            val checkUser = getUserByUserName(userName)
+            Log.d("checkingUserName", checkUser.toString())
+            if (checkUser.id?.isEmpty() == true) {
+                usersModelRef.child(user.id ?: "").setValue(
+                    UserModelDto(
+                        id = user.id ?: "",
+                        userName, fullName, password
                     )
-                    return@addOnCompleteListener
-                }
+                ).addOnCompleteListener {
+                    try {
+                        Log.d("taskResult", it.isSuccessful.toString())
+                        Log.d("taskResult", it.isComplete.toString())
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                    if (it.isSuccessful) {
+                        user = UserModelDto(
+                            id = user.id,
+                            userName, fullName,
+                            password
+                        )
+                        return@addOnCompleteListener
+                    }
 
+                }
+            } else {
+                user = UserModelDto()
             }
         }
         Log.d("FirebaseUserCreated", user.toUserModel().toString())
@@ -76,9 +84,10 @@ class FirebaseManager @Inject constructor(
 
     suspend fun getUserById(userId: String): UserModel {
         var user = UserModelDto()
+        runBlocking {
             usersModelRef.child(userId).addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    Log.d("userDb", dataSnapshot.exists().toString())
+                    Log.d("userDb1", dataSnapshot.exists().toString())
                     if (dataSnapshot.exists()) {
                         user = dataSnapshot.getValue(UserModelDto::class.java)!!
                     }
@@ -88,9 +97,36 @@ class FirebaseManager @Inject constructor(
                     databaseError.toException().printStackTrace()
                 }
             })
-        kotlinx.coroutines.delay(200)
-        Log.d("UserDb", user.toUserModel().toString())
+
+        }
+        kotlinx.coroutines.delay(4000)
+        Log.d("UserDb2", user.toUserModel().toString())
         return user.toUserModel()
+    }
+
+
+    suspend fun getUserByUserName(userName: String): UserModelDto {
+        var user = UserModelDto()
+        usersModelRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                Log.d("userDb", dataSnapshot.exists().toString())
+                if (dataSnapshot.exists()) {
+                    dataSnapshot.children.forEach {
+                        val eachUser = it.getValue(UserModelDto::class.java)
+                        if (eachUser?.userName?.equals(userName) == true) {
+                            user = eachUser
+                        }
+                    }
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                databaseError.toException().printStackTrace()
+            }
+        })
+        kotlinx.coroutines.delay(500)
+        Log.d("UserDb", user.toUserModel().toString())
+        return user
     }
 
     suspend fun getDocumentDetails(documentId: String): DocumentModel {
@@ -126,26 +162,29 @@ class FirebaseManager @Inject constructor(
                                 contributorsList,
                                 promptsList = PromptModelDto.listToArrayList(
                                     promptsList.map {
-                                       it.toPromptModel()
+                                        it.toPromptModel()
                                     }.sortedBy {
                                         it.timeStamp
                                     }
                                 )
                             )
-                            if(value.content?.lastEditedBy != null) {
+                            if (value.content?.lastEditedBy != null) {
                                 if (value.content.lastEditedBy == userDetails.id!!) {
-                                    Log.d("hitIf", _documentDetails.value.content?.content.isNullOrEmpty().toString())
-                                    if(_documentDetails.value.content?.content.isNullOrEmpty() ||
-                                        _documentDetails.value.content?.content == null) {
+                                    Log.d(
+                                        "hitIf",
+                                        _documentDetails.value.content?.content.isNullOrEmpty()
+                                            .toString()
+                                    )
+                                    if (_documentDetails.value.content?.content.isNullOrEmpty() ||
+                                        _documentDetails.value.content?.content == null
+                                    ) {
                                         _documentDetails.value = document.toDocumentModel()
                                     }
-                                }
-                                else {
+                                } else {
                                     Log.d("hitElse", "yes")
                                     _documentDetails.value = document.toDocumentModel()
                                 }
-                            }
-                            else {
+                            } else {
                                 Log.d("hitElse", "yes")
                                 _documentDetails.value = document.toDocumentModel()
                             }
@@ -182,7 +221,7 @@ class FirebaseManager @Inject constructor(
             .child("content").setValue(content).addOnCompleteListener {
                 if (it.isSuccessful) {
                     flag = true
-                    updateLastEditedByStatus(userDetails.id?:"", documentId)
+                    updateLastEditedByStatus(userDetails.id ?: "", documentId)
                 }
             }
         return flag
@@ -194,7 +233,7 @@ class FirebaseManager @Inject constructor(
             .setValue(title).addOnCompleteListener {
                 if (it.isSuccessful) {
                     flag = true
-                    updateLastEditedByStatus(userDetails.id?:"", documentId)
+                    updateLastEditedByStatus(userDetails.id ?: "", documentId)
                 }
             }
         return flag
@@ -262,9 +301,9 @@ class FirebaseManager @Inject constructor(
                     override fun onDataChange(snapshot: DataSnapshot) {
                         Log.d("switchedOn", snapshot.toString())
                         if (!snapshot.exists()) {
-                            if(userData.id != null) {
+                            if (userData.id != null) {
                                 documentRef.child(documentId).child("liveCollaborators")
-                                    .child(userData.id?:userId)
+                                    .child(userData.id ?: userId)
                                     .setValue(
                                         UserModelCursorDto(
                                             userData, ColorHelper.generateColor(), -1
@@ -287,7 +326,7 @@ class FirebaseManager @Inject constructor(
     }
 
     private fun updateLastEditedByStatus(userId: String?, documentId: String) {
-        if(!userId.isNullOrEmpty()) {
+        if (!userId.isNullOrEmpty()) {
             documentRef.child(documentId).child("content")
                 .child("lastEditedBy").setValue(userId)
         }
@@ -299,8 +338,8 @@ class FirebaseManager @Inject constructor(
         position: Int
     ): Boolean {
         var flag = false
-        Log.d("cursorPosition",position.toString())
-        if(userId.isNotEmpty()) {
+        Log.d("cursorPosition", position.toString())
+        if (userId.isNotEmpty()) {
             documentRef.child(documentId).child("liveCollaborators")
                 .child(userId).addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
@@ -325,27 +364,27 @@ class FirebaseManager @Inject constructor(
         return flag
     }
 
-    fun addPromptMessage(documentId: String, message: PromptModelDto) : Boolean {
-        val key = documentRef.push().key?:""
+    fun addPromptMessage(documentId: String, message: PromptModelDto): Boolean {
+        val key = documentRef.push().key ?: ""
         var flag = false
         documentRef.child(documentId).child("promptsList")
             .child(key).setValue(message).addOnCompleteListener {
-                if(it.isSuccessful) {
+                if (it.isSuccessful) {
                     flag = true
-                    updateLastEditedByStatus(userDetails.id?:"", documentId)
+                    updateLastEditedByStatus(userDetails.id ?: "", documentId)
                 }
             }
 
         return flag
     }
 
-    fun clearPromptsList(documentId: String) : Boolean {
+    fun clearPromptsList(documentId: String): Boolean {
         var flag = false
         documentRef.child(documentId).child("promptsList")
             .removeValue().addOnCompleteListener {
-                if(it.isSuccessful) {
+                if (it.isSuccessful) {
                     flag = true
-                    updateLastEditedByStatus(userDetails.id?:"", documentId)
+                    updateLastEditedByStatus(userDetails.id ?: "", documentId)
                 }
             }
 

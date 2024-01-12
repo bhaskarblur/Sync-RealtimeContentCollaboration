@@ -7,7 +7,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface IUserRepository {
 
-    fun signupUser(userName : String, fullName : String) : Flow<UserModel>
+    fun signupUser(userName : String, fullName : String, password : String) : Flow<UserModel>
+
+    fun loginUser(userName : String, password : String) : Flow<UserModel>
     fun getUserDetails() : Flow<UserModel>
 
     fun logOutUser() : Flow<Boolean>

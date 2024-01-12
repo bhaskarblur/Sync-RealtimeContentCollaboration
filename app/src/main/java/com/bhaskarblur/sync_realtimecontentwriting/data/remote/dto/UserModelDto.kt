@@ -7,7 +7,8 @@ import javax.annotation.concurrent.Immutable
 data class UserModelDto(
     var id : String? = "",
     var userName : String? = "",
-    var fullName : String? = ""
+    var fullName : String? = "",
+    var password : String? = ""
 ) {
 
     fun toUserModel() : UserModel {

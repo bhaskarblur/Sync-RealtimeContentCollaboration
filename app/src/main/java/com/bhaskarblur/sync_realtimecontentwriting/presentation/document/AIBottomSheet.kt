@@ -1,6 +1,5 @@
 package com.bhaskarblur.sync_realtimecontentwriting.presentation.document
 
-import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -48,8 +47,10 @@ import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorSecondary
 import kotlinx.coroutines.launch
 
 @Composable
-fun AIBottomSheet(context : Context, viewModel: DocumentViewModel, data : DocumentModel,
-                  onHideSheet : (msg : String) -> Unit, onClearHistory : () -> Unit) {
+fun AIBottomSheet(
+    viewModel: DocumentViewModel, data: DocumentModel, onHideSheet: (msg: String) -> Unit,
+    onClearHistory: () -> Unit
+) {
 
     val ctnScope = rememberCoroutineScope()
 
@@ -61,7 +62,6 @@ fun AIBottomSheet(context : Context, viewModel: DocumentViewModel, data : Docume
     val promptList = remember {
         mutableStateOf(viewModel.documentData.value.promptsList)
     }
-
 
     LaunchedEffect(key1 = data.promptsList) {
         Log.d("newPromptAdded","yes")
@@ -92,7 +92,6 @@ fun AIBottomSheet(context : Context, viewModel: DocumentViewModel, data : Docume
                 fontSize = 13.sp
             )
         )
-
 
         Spacer(modifier = Modifier.height(16.dp))
 
