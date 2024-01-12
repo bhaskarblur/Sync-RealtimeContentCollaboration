@@ -32,7 +32,7 @@ class FirebaseManager @Inject constructor(
     private val shpRepo: SharedPreferencesManager,
 ) {
 
-    private val _documentDetails = mutableStateOf(DocumentModel(null, null, null, null))
+    private val _documentDetails = mutableStateOf(DocumentModel(null, null, null, "", 0, null))
     val documentDetails: MutableState<DocumentModel> = _documentDetails
     private lateinit var changeListener: ValueEventListener
     private var userDetails: UserModelDto = UserModelDto()
@@ -132,6 +132,8 @@ class FirebaseManager @Inject constructor(
         var document = DocumentModelDto(
             documentId,
             "",
+            "",
+            0,
             null,
             null
         )
@@ -157,6 +159,7 @@ class FirebaseManager @Inject constructor(
                             document = DocumentModelDto(
                                 documentId = value.documentId,
                                 value.documentName,
+                                value.createdBy,0,
                                 value.content,
                                 contributorsList,
                                 promptsList = PromptModelDto.listToArrayList(
@@ -192,6 +195,7 @@ class FirebaseManager @Inject constructor(
                                 DocumentModelDto(
                                     documentId,
                                     "",
+                                    "",0,
                                     ContentModelDto(documentId, ""),
                                     null
                                 )
@@ -199,6 +203,7 @@ class FirebaseManager @Inject constructor(
                             document = DocumentModelDto(
                                 documentId,
                                 "",
+                                "",0,
                                 ContentModelDto(documentId, ""),
                                 null
                             )
@@ -214,6 +219,65 @@ class FirebaseManager @Inject constructor(
         return document.toDocumentModel()
     }
 
+    fun deleteDocument(documentId: String) {
+        documentRef.child(documentId).removeValue()
+    }
+    fun createDocument(userId: String): DocumentModel {
+        var document = DocumentModelDto(
+            "",
+            "",
+            userId,0,
+            ContentModelDto("", ""),
+            null
+        )
+        val dId = documentRef.push().key ?: ""
+        documentRef.child(dId).setValue(
+            DocumentModelDto(dId, "", userId,0,ContentModelDto("", ""), null)
+        ).addOnCompleteListener {
+            if (it.isSuccessful) {
+                document = DocumentModelDto(
+                    dId,
+                    "",
+                    createdBy = userId,0,
+                    ContentModelDto("", ""),
+                    null
+                )
+            }
+        }
+        return document.toDocumentModel()
+    }
+
+    fun getDocumentsByUserId(userId: String) : List<DocumentModel> {
+        val docsList = arrayListOf<DocumentModelDto>()
+        documentRef.addListenerForSingleValueEvent(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if(snapshot.exists()) {
+                    snapshot.children.forEach { doc ->
+                        val docValue = doc.getValue(DocumentModelDtoNoList::class.java)
+                        docValue?.let {
+                            docsList.add(
+                                DocumentModelDto(
+                                    documentId = docValue.documentId,
+                                    documentName = docValue.documentName,
+                                    content = docValue.content,
+                                    createdBy = docValue.createdBy,
+                                    creationDateTime = docValue.creationDateTime,
+                                    liveCollaborators = listOf(),
+                                    promptsList = arrayListOf()
+                                )
+                            )
+                        }
+
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+
+        })
+        return docsList.map { it.toDocumentModel() }
+    }
     fun updateDocumentContent(documentId: String, content: String): Boolean {
         var flag = false
         documentRef.child(documentId).child("content")

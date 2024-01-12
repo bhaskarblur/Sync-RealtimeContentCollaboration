@@ -6,6 +6,8 @@ data class DocumentModel(
     val documentId : String?,
     val documentName : String?,
     var content : ContentModel?,
+    val createdBy : String ="",
+    val creationDateTime : Long = 0,
     val liveCollaborators : List<UserModelCursor>?,
     var promptsList : ArrayList<PromptModel>? = arrayListOf()
 )
