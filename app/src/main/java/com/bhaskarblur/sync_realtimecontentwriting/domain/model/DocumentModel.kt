@@ -4,7 +4,7 @@ import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.PromptModelDt
 
 data class DocumentModel(
     val documentId : String?,
-    val documentName : String?,
+    var documentName : String?,
     var content : ContentModel?,
     val createdBy : String ="",
     val creationDateTime : Long = 0,

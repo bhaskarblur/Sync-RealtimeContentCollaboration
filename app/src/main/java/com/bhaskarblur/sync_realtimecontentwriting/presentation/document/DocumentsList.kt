@@ -1,6 +1,7 @@
 package com.bhaskarblur.sync_realtimecontentwriting.presentation.document
 
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -48,6 +49,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.DocumentActivity
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets.DocumentItem
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.SignUpViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.AlertDialogComponent
@@ -59,7 +62,8 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun DocumentsList(
-    userViewModel: SignUpViewModel, documentViewModel: DocumentViewModel, context: Context
+    userViewModel: SignUpViewModel, documentViewModel: DocumentViewModel, context: Context,
+    navController: NavController
 ) {
     documentViewModel.getUserDocuments()
     val showAlertDialog = remember {
@@ -173,7 +177,8 @@ fun DocumentsList(
                 Text(
                     "Or you can",
                     textAlign = TextAlign.Center, color = textColorSecondary, fontSize = 14.sp,
-                    modifier = Modifier.fillMaxWidth(), fontWeight = FontWeight.Medium)
+                    modifier = Modifier.fillMaxWidth(), fontWeight = FontWeight.Medium
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -207,10 +212,14 @@ fun DocumentsList(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 LazyColumn {
-                    items(items = documentViewModel.userDocuments) { doc ->
+                    items(items = documentViewModel.userDocuments.reversed()) { doc ->
                         DocumentItem(documentModel = doc, onDelete = {
                             documentViewModel.deleteDocument(doc.documentId ?: "")
-                        }, context)
+                        }, onItemClick = {
+                            val intent =Intent(context, DocumentActivity::class.java)
+                            intent.putExtra("documentId", doc.documentId)
+                            context.startActivity(intent)
+                        }, context = context)
                     }
                 }
 

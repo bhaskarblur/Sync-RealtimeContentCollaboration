@@ -16,6 +16,11 @@
         android:theme="@style/Theme.SyncRealtimeContentWriting"
         tools:targetApi="31">
         <activity
+            android:name=".presentation.DocumentActivity"
+            android:exported="false"
+            android:label="@string/title_activity_document"
+            android:theme="@style/Theme.SyncRealtimeContentWriting" />
+        <activity
             android:name=".presentation.RegisterActivity"
             android:exported="false"
             android:label="@string/title_activity_register"

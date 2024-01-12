@@ -77,7 +77,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun DocumentPage(
     viewModel: DocumentViewModel,
-    userViewModel: SignUpViewModel,
     context: Context
 ) {
     val configuration = LocalConfiguration.current
@@ -223,6 +222,7 @@ fun DocumentPage(
             sheetContainerColor = colorSecondary,
             scaffoldState = sheetState,
             content = {
+
                 Column(
                     Modifier
                         .fillMaxSize()
@@ -230,7 +230,7 @@ fun DocumentPage(
                     verticalArrangement = Arrangement.Top
                 ) {
 
-                    if (!data.documentId.isNullOrEmpty()) {
+                    if (!data.documentId.isNullOrEmpty() && dataGot.value) {
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -416,7 +416,7 @@ fun DocumentPage(
                                     visualTransformation = {
                                         TransformedText(
                                             buildAnnotatedStringWithColors(data.liveCollaborators?.filter {
-                                                it.userDetails?.id!! != userViewModel.userState.value.id
+                                                it.userDetails?.id!! != viewModel.userDetails.value.id
                                             } ?: listOf(), content.value.text),
                                             OffsetMapping.Identity
                                         )

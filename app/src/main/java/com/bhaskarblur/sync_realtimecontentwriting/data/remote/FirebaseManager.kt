@@ -40,7 +40,6 @@ class FirebaseManager @Inject constructor(
 
     private val _documentDetails = mutableStateOf(DocumentModel(null, null, null, "", 0, null))
     val documentDetails: MutableState<DocumentModel> = _documentDetails
-    private lateinit var changeListener: ValueEventListener
     private var userDetails: UserModelDto = UserModelDto()
 
     companion object {
@@ -130,10 +129,57 @@ class FirebaseManager @Inject constructor(
             }
         })
         kotlinx.coroutines.delay(500)
-        Log.d("UserDb", user.toUserModel().toString())
         return user
     }
 
+    suspend fun getDocumentById(documentId: String) : DocumentModel {
+        var document = DocumentModelDto(
+            "",
+            "",
+            "",
+            0,
+            null,
+            null
+        )
+        documentRef.child(documentId)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if(snapshot.exists()) {
+                        val value = snapshot.getValue(DocumentModelDtoNoList::class.java)!!
+                        val contributorsList = arrayListOf<UserModelCursorDto>()
+                        snapshot.child("liveCollaborators").children.forEach {
+                            val child = it.getValue(UserModelCursorDto::class.java)!!
+                            contributorsList.add(child)
+                        }
+                        val promptsList = arrayListOf<PromptModelDto>()
+                        snapshot.child("promptsList").children.forEach {
+                            val child = it.getValue(PromptModelDto::class.java)!!
+                            promptsList.add(child)
+                        }
+                        document = DocumentModelDto(
+                            documentId = value.documentId,
+                            value.documentName,
+                            value.createdBy,0,
+                            value.content,
+                            contributorsList,
+                            promptsList = PromptModelDto.listToArrayList(
+                                promptsList.map {
+                                    it.toPromptModel()
+                                }.sortedBy {
+                                    it.timeStamp
+                                }
+                            )
+                        )
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                }
+
+            })
+        kotlinx.coroutines.delay(1000)
+        return document.toDocumentModel()
+    }
     suspend fun getDocumentDetails(documentId: String): DocumentModel {
         var document = DocumentModelDto(
             documentId,
@@ -145,7 +191,7 @@ class FirebaseManager @Inject constructor(
         )
         userDetails = shpRepo.getSession()
         withContext(Dispatchers.IO) {
-            changeListener = documentRef.child(documentId)
+          documentRef.child(documentId)
                 .addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         if (snapshot.exists()) {
@@ -153,13 +199,11 @@ class FirebaseManager @Inject constructor(
                             val contributorsList = arrayListOf<UserModelCursorDto>()
                             snapshot.child("liveCollaborators").children.forEach {
                                 val child = it.getValue(UserModelCursorDto::class.java)!!
-                                Log.d("docData", child.toString())
                                 contributorsList.add(child)
                             }
                             val promptsList = arrayListOf<PromptModelDto>()
                             snapshot.child("promptsList").children.forEach {
                                 val child = it.getValue(PromptModelDto::class.java)!!
-                                Log.d("promptData", child.toString())
                                 promptsList.add(child)
                             }
                             document = DocumentModelDto(
@@ -178,41 +222,17 @@ class FirebaseManager @Inject constructor(
                             )
                             if (value.content?.lastEditedBy != null) {
                                 if (value.content.lastEditedBy == userDetails.id!!) {
-                                    Log.d(
-                                        "hitIf",
-                                        _documentDetails.value.content?.content.isNullOrEmpty()
-                                            .toString()
-                                    )
                                     if (_documentDetails.value.content?.content.isNullOrEmpty() ||
                                         _documentDetails.value.content?.content == null
                                     ) {
                                         _documentDetails.value = document.toDocumentModel()
                                     }
                                 } else {
-                                    Log.d("hitElse", "yes")
                                     _documentDetails.value = document.toDocumentModel()
                                 }
                             } else {
-                                Log.d("hitElse", "yes")
                                 _documentDetails.value = document.toDocumentModel()
                             }
-                        } else {
-                            documentRef.child(documentId).setValue(
-                                DocumentModelDto(
-                                    documentId,
-                                    "",
-                                    "",0,
-                                    ContentModelDto(documentId, ""),
-                                    null
-                                )
-                            )
-                            document = DocumentModelDto(
-                                documentId,
-                                "",
-                                "",0,
-                                ContentModelDto(documentId, ""),
-                                null
-                            )
                         }
                     }
 
@@ -245,7 +265,7 @@ class FirebaseManager @Inject constructor(
                 document = DocumentModelDto(
                     dId,
                     "",
-                    createdBy = userId,0,
+                    createdBy = userId,System.currentTimeMillis(),
                     ContentModelDto("", ""),
                     null
                 )

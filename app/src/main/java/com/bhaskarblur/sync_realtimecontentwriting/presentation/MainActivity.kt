@@ -36,14 +36,15 @@ import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.backgroundColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private lateinit var documentViewModel : DocumentViewModel
+    @Inject
+    lateinit var documentViewModel: DocumentViewModel
     private lateinit var userViewModel: SignUpViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        documentViewModel = viewModels<DocumentViewModel>().value
         userViewModel = viewModels<SignUpViewModel>().value
         val loggedData by userViewModel.userState
 
@@ -101,7 +102,7 @@ class MainActivity : ComponentActivity() {
                                 route = Screens.HomePage.route
                             ) {
                                 DocumentsList(userViewModel, documentViewModel,
-                                    context)
+                                    context, navController)
                             }
 
                             composable(
@@ -126,10 +127,5 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        documentViewModel.switchUserOff()
     }
 }

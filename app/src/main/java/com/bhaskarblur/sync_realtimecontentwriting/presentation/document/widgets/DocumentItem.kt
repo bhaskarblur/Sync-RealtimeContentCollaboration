@@ -34,7 +34,7 @@ import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.chatBoxColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
 
 @Composable
-fun DocumentItem(documentModel: DocumentModel, onDelete : () -> Unit,
+fun DocumentItem(documentModel: DocumentModel, onItemClick : () -> Unit, onDelete : () -> Unit,
                  context:Context) {
 
     val showDeleteDialog = remember {
@@ -60,7 +60,10 @@ fun DocumentItem(documentModel: DocumentModel, onDelete : () -> Unit,
         Modifier
             .fillMaxWidth()
             .background(chatBoxColor, RoundedCornerShape(14.dp))
-            .padding(16.dp)) {
+            .padding(16.dp)
+            .clickable {
+                onItemClick()
+            }) {
 
         Row(
             Modifier.fillMaxWidth(),

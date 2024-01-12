@@ -17,6 +17,7 @@ import com.bhaskarblur.sync_realtimecontentwriting.domain.repository.IUserReposi
 import com.bhaskarblur.sync_realtimecontentwriting.domain.use_case.DocumentUseCase
 import com.bhaskarblur.sync_realtimecontentwriting.domain.use_case.GptUseCase
 import com.bhaskarblur.sync_realtimecontentwriting.domain.use_case.UserUseCase
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.DocumentViewModel
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import dagger.Module
@@ -91,6 +92,12 @@ class AppModules {
         return DocumentUseCase(documentRepo)
     }
 
+    @Provides
+    @Singleton
+    fun providesDocumentViewModel(documentUseCase: DocumentUseCase, userRepository: IUserRepository
+    , gptUseCase: GptUseCase) : DocumentViewModel {
+        return DocumentViewModel(documentUseCase,userRepository,gptUseCase)
+    }
     @Provides
     @Singleton
     @Named("docsRef")

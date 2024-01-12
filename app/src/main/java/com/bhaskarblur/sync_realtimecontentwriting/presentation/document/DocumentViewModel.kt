@@ -56,7 +56,7 @@ class DocumentViewModel @Inject constructor(
     private var updateJob: Job? = null
 
     val userDocuments = mutableStateListOf<DocumentModel>()
-    private val userDetails = mutableStateOf(UserModel())
+    val userDetails = mutableStateOf(UserModel())
 
     fun setUser() {
         viewModelScope.launch {
@@ -75,7 +75,7 @@ class DocumentViewModel @Inject constructor(
             delay(800)
             documentUseCase.getDocumentsByUserId(userDetails.value.id ?: "").collectLatest {
                 userDocuments.clear()
-                it.forEach {doc ->
+                it.forEach { doc ->
                     Log.d("userDocuments", doc.documentId.toString())
                     userDocuments.add(doc)
                 }
@@ -85,16 +85,16 @@ class DocumentViewModel @Inject constructor(
 
     fun createDocument() {
         viewModelScope.launch {
-            documentUseCase.createDocument(userDetails.value.id?:"").collectLatest { doc ->
+            documentUseCase.createDocument(userDetails.value.id ?: "").collectLatest { doc ->
                 Log.d("userDocumentCreated", doc.documentId.toString())
-                userDocuments.add(0,doc)
+                userDocuments.add(0, doc)
             }
         }
     }
 
     fun deleteDocument(documentId: String?) {
         viewModelScope.launch {
-            documentUseCase.deleteDocument(documentId?:"")
+            documentUseCase.deleteDocument(documentId ?: "")
             documentId?.let {
                 userDocuments.removeIf {
                     it.documentId == documentId
@@ -156,14 +156,10 @@ class DocumentViewModel @Inject constructor(
 
     fun switchUserOff() {
         viewModelScope.launch(Dispatchers.IO) {
-            if (!userDetails.value.id.isNullOrEmpty()) {
-                if (!documentData.value.documentId.isNullOrEmpty()) {
-                    documentUseCase.switchUserToOffline(
-                        documentData.value.documentId!!,
-                        userDetails.value.id!!
-                    )
-                }
-            }
+            documentUseCase.switchUserToOffline(
+                documentData.value.documentId!!,
+                userDetails.value.id!!
+            )
         }
     }
 
@@ -252,6 +248,13 @@ class DocumentViewModel @Inject constructor(
                 _documentData.value.documentId!!,
                 title
             )
+            userDocuments.map {
+                val doc = it
+                if(doc.documentId == documentData.value.documentId) {
+                    doc.documentName = title
+                }
+                doc
+            }
         }
     }
 
