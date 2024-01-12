@@ -18,7 +18,9 @@ interface IDocumentRepository {
     fun switchUserToOnline(userId : String, documentId : String) : Flow<Boolean>
     fun liveChangesListener(documentId : String) : Flow<Unit>
     fun updateTitle(documentId: String, content: String): Flow<Boolean>
-
     fun clearPromptsList(documentId : String) : Flow<Boolean>
     fun addPromptMessage(documentId : String, message : PromptModel) : Flow<Boolean>
+    fun createDocument(userId: String) : Flow<DocumentModel>
+    fun deleteDocument(documentId: String)
+    fun getDocumentsByUserId(userId: String) : Flow<List<DocumentModel>>
 }

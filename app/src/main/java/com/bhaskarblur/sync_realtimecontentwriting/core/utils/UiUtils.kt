@@ -17,4 +17,14 @@ object UiUtils {
         }
     }
 
+    fun getDate(s: String): String? {
+        return try {
+            val sdf: SimpleDateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+            val netDate = Date(s.toLong())
+            sdf.format(netDate)
+        } catch (e: Exception) {
+            e.toString()
+        }
+    }
+
 }

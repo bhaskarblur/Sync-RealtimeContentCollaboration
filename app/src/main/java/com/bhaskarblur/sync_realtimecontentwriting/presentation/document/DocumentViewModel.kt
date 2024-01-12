@@ -5,6 +5,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -54,22 +55,58 @@ class DocumentViewModel @Inject constructor(
 
     private var updateJob: Job? = null
 
+    val userDocuments = mutableStateListOf<DocumentModel>()
     private val userDetails = mutableStateOf(UserModel())
 
-    fun initDocument(documentId: String) {
+    fun setUser() {
         viewModelScope.launch {
             userRepo.getUserDetails().collect {
                 Log.d("userDataEmitted", it.toString())
                 userDetails.value = it
             }
             delay(1000)
-            getDocumentData(documentId)
             switchUserOn()
         }
 
     }
 
+    fun getUserDocuments() {
+        viewModelScope.launch {
+            delay(800)
+            documentUseCase.getDocumentsByUserId(userDetails.value.id ?: "").collectLatest {
+                userDocuments.clear()
+                it.forEach {doc ->
+                    Log.d("userDocuments", doc.documentId.toString())
+                    userDocuments.add(doc)
+                }
+            }
+        }
+    }
+
+    fun createDocument() {
+        viewModelScope.launch {
+            documentUseCase.createDocument(userDetails.value.id?:"").collectLatest { doc ->
+                Log.d("userDocumentCreated", doc.documentId.toString())
+                userDocuments.add(0,doc)
+            }
+        }
+    }
+
+    fun deleteDocument(documentId: String?) {
+        viewModelScope.launch {
+            documentUseCase.deleteDocument(documentId?:"")
+            documentId?.let {
+                userDocuments.removeIf {
+                    it.documentId == documentId
+                }
+                Log.d("userDocumentDeleted", documentId.toString())
+            }
+        }
+    }
+
     fun getDocumentData(documentId: String) {
+        undoStack.clear()
+        redoStack.clear()
         viewModelScope.launch(Dispatchers.IO) {
             documentUseCase.getDocumentDetails(documentId, userDetails.value.id!!).collectLatest {
                 when (it) {
@@ -140,12 +177,14 @@ class DocumentViewModel @Inject constructor(
             Log.d("calledForUndo", undoStack.peek().toString())
             _documentData.value = DocumentModel(
                 documentId = _documentData.value.documentId,
-                _documentData.value.documentName,
-                ContentModel(
+                documentName = _documentData.value.documentName,
+                createdBy = _documentData.value.createdBy,
+                creationDateTime = _documentData.value.creationDateTime,
+                content = ContentModel(
                     content = undoStack.peek().toString(),
                     lastEditedBy = userDetails.value.id
                 ),
-                _documentData.value.liveCollaborators
+                liveCollaborators = _documentData.value.liveCollaborators
             )
             updateContent(undoStack.peek(), undoStack.peek().length - 1)
             redoStack.push(undoStack.peek())
@@ -159,11 +198,13 @@ class DocumentViewModel @Inject constructor(
             _documentData.value = DocumentModel(
                 documentId = _documentData.value.documentId,
                 _documentData.value.documentName,
-                ContentModel(
+                createdBy = _documentData.value.createdBy,
+                creationDateTime = _documentData.value.creationDateTime,
+                content = ContentModel(
                     content = redoStack.peek().toString(),
                     lastEditedBy = userDetails.value.id
                 ),
-                _documentData.value.liveCollaborators
+                liveCollaborators = _documentData.value.liveCollaborators
             )
             updateContent(redoStack.peek(), redoStack.peek().length - 1)
             undoStack.push(redoStack.peek())
@@ -195,7 +236,7 @@ class DocumentViewModel @Inject constructor(
                 position = cursorPosition, userDetails.value.id!!
             )
             switchUserOn()
-            if(userDetails.value.id.isNullOrEmpty()) {
+            if (userDetails.value.id.isNullOrEmpty()) {
                 userRepo.getUserDetails().collectLatest {
                     userDetails.value = it
                 }
@@ -222,8 +263,12 @@ class DocumentViewModel @Inject constructor(
             timeStamp = System.currentTimeMillis()
         )
         val tempMsg = DocumentModel(
-            documentData.value.documentId, documentData.value.documentName,
-            documentData.value.content, documentData.value.liveCollaborators,
+            documentData.value.documentId,
+            documentData.value.documentName,
+            documentData.value.content,
+            createdBy = _documentData.value.createdBy,
+            creationDateTime = _documentData.value.creationDateTime,
+            documentData.value.liveCollaborators,
             PromptModelDto.listToArrayList(
                 documentData.value
                     .promptsList?.plus(
@@ -254,8 +299,12 @@ class DocumentViewModel @Inject constructor(
                             role = "assistant", sentBy = null, System.currentTimeMillis()
                         )
                         val tempCnt = DocumentModel(
-                            documentData.value.documentId, documentData.value.documentName,
-                            documentData.value.content, documentData.value.liveCollaborators,
+                            documentData.value.documentId,
+                            documentData.value.documentName,
+                            documentData.value.content,
+                            createdBy = _documentData.value.createdBy,
+                            creationDateTime = _documentData.value.creationDateTime,
+                            documentData.value.liveCollaborators,
                             PromptModelDto.listToArrayList(
                                 documentData.value
                                     .promptsList?.plus(promptMessage) ?: listOf()
@@ -286,7 +335,7 @@ class DocumentViewModel @Inject constructor(
     fun clearPromptHistory() {
         documentData.value.promptsList = arrayListOf()
         viewModelScope.launch {
-            documentUseCase.clearPromptList(documentData.value.documentId?:"")
+            documentUseCase.clearPromptList(documentData.value.documentId ?: "")
         }
 
     }

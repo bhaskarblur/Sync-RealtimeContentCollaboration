@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.core.app.PendingIntentCompat.send
 import com.bhaskarblur.sync_realtimecontentwriting.R
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.ColorHelper
 import com.bhaskarblur.sync_realtimecontentwriting.data.local.SharedPreferencesManager
@@ -21,6 +22,11 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.getValue
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.lang.Exception
@@ -222,17 +228,18 @@ class FirebaseManager @Inject constructor(
     fun deleteDocument(documentId: String) {
         documentRef.child(documentId).removeValue()
     }
-    fun createDocument(userId: String): DocumentModel {
+    suspend fun createDocument(userId: String): DocumentModel {
         var document = DocumentModelDto(
             "",
             "",
-            userId,0,
+            userId,    System.currentTimeMillis(),
             ContentModelDto("", ""),
             null
         )
         val dId = documentRef.push().key ?: ""
         documentRef.child(dId).setValue(
-            DocumentModelDto(dId, "", userId,0,ContentModelDto("", ""), null)
+            DocumentModelDto(dId, "", userId,
+                System.currentTimeMillis(),ContentModelDto("", ""), null)
         ).addOnCompleteListener {
             if (it.isSuccessful) {
                 document = DocumentModelDto(
@@ -244,38 +251,47 @@ class FirebaseManager @Inject constructor(
                 )
             }
         }
+        delay(1500)
         return document.toDocumentModel()
     }
 
-    fun getDocumentsByUserId(userId: String) : List<DocumentModel> {
+    suspend fun getDocumentsByUserId(userId: String) : List<DocumentModel> {
         val docsList = arrayListOf<DocumentModelDto>()
-        documentRef.addListenerForSingleValueEvent(object : ValueEventListener{
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if(snapshot.exists()) {
-                    snapshot.children.forEach { doc ->
-                        val docValue = doc.getValue(DocumentModelDtoNoList::class.java)
-                        docValue?.let {
-                            docsList.add(
-                                DocumentModelDto(
-                                    documentId = docValue.documentId,
-                                    documentName = docValue.documentName,
-                                    content = docValue.content,
-                                    createdBy = docValue.createdBy,
-                                    creationDateTime = docValue.creationDateTime,
-                                    liveCollaborators = listOf(),
-                                    promptsList = arrayListOf()
+        documentRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        snapshot.children.forEach { doc ->
+                            val docValue = doc.getValue(DocumentModelDtoNoList::class.java)
+                            docValue?.let {
+                                Log.d(
+                                    "firebaseUserDocs",
+                                    docValue.createdBy?.equals(userId).toString()
                                 )
-                            )
+                                if (docValue.createdBy?.equals(userId) == true) {
+                                    docsList.add(
+                                        DocumentModelDto(
+                                            documentId = docValue.documentId,
+                                            documentName = docValue.documentName,
+                                            content = docValue.content,
+                                            createdBy = docValue.createdBy,
+                                            creationDateTime = docValue.creationDateTime,
+                                            liveCollaborators = listOf(),
+                                            promptsList = arrayListOf()
+                                        )
+                                    )
+                                }
+                            }
+
                         }
-
                     }
+
                 }
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-            }
+                override fun onCancelled(error: DatabaseError) {
+                }
 
-        })
+            })
+        delay(3500)
         return docsList.map { it.toDocumentModel() }
     }
     fun updateDocumentContent(documentId: String, content: String): Boolean {

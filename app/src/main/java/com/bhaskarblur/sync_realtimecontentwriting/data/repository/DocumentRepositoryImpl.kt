@@ -58,6 +58,20 @@ class DocumentRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun createDocument(userId: String): Flow<DocumentModel> = flow{
+        emit(firebaseManager.createDocument(userId))
+    }
+
+    override fun deleteDocument(documentId: String){
+        firebaseManager.deleteDocument(documentId)
+    }
+
+    override fun getDocumentsByUserId(userId: String): Flow<List<DocumentModel>> = flow {
+        Log.d("fetchUserDocs", "repo")
+        val list = firebaseManager.getDocumentsByUserId(userId)
+        emit(list)
+    }
+
     override fun updateCursorPosition(
         documentId: String,
         position: Int,

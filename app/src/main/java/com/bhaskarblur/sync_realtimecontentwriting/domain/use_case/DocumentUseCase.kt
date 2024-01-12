@@ -8,6 +8,7 @@ import com.bhaskarblur.sync_realtimecontentwriting.domain.model.DocumentModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.PromptModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.repository.IDocumentRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 class DocumentUseCase(
     private val documentRepository: IDocumentRepository
@@ -49,6 +50,21 @@ class DocumentUseCase(
 
     fun clearPromptList(documentId : String) : Flow<Boolean> {
         return documentRepository.clearPromptsList(documentId = documentId)
+    }
+
+    fun createDocument(userId: String): Flow<DocumentModel> {
+        return documentRepository.createDocument(userId)
+
+    }
+
+    fun deleteDocument(documentId: String) {
+        return documentRepository.deleteDocument(documentId)
+
+    }
+
+    fun getDocumentsByUserId(userId: String): Flow<List<DocumentModel>> {
+        return documentRepository.getDocumentsByUserId(userId)
+
     }
 
 }

@@ -68,6 +68,7 @@ class MainActivity : ComponentActivity() {
                 Log.d("userData__", loggedData.userName.toString())
                 if(!loggedData.id.isNullOrEmpty()) {
                     currentPage.value = Screens.HomePage.route
+                    documentViewModel.setUser()
                     if(navController.previousBackStackEntry?.destination != null) {
                         navController.popBackStack()
                     }
