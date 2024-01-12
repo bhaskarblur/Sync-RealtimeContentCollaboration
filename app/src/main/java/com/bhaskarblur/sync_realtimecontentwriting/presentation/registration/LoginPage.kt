@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -51,27 +52,22 @@ import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorSecondary
 
 @Composable
-fun LoginPage(viewModel: SignUpViewModel, navController: NavController,
-              context: Context
+fun LoginPage(
+    viewModel: SignUpViewModel, navController: NavController,
+    context: Context
 ) {
-
     val userName = remember { mutableStateOf("") }
-    val fullName = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
+    var isLoading by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(viewModel.event.value) {
-
-        if(viewModel.event.value.isNotEmpty()) {
-            Toast.makeText(context, viewModel.event.value, Toast.LENGTH_SHORT).show()
-            viewModel.event.value = ""
-        }
+        isLoading = false
     }
     Column(
         Modifier
             .fillMaxSize()
-            .padding(16.dp)
-        ,
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
@@ -79,12 +75,18 @@ fun LoginPage(viewModel: SignUpViewModel, navController: NavController,
 
         Image(
             painterResource(id = R.drawable.logo), contentDescription = "App logo",
-            Modifier.size(96.dp))
+            Modifier.size(96.dp)
+        )
 
         Spacer(Modifier.height(12.dp))
 
-        Text("Login to continue", textAlign = TextAlign.Center, fontSize = 22.sp, fontWeight = FontWeight.SemiBold,
-            color = textColorPrimary)
+        Text(
+            "Login to continue",
+            textAlign = TextAlign.Center,
+            fontSize = 22.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = textColorPrimary
+        )
 
 
         Spacer(Modifier.height(36.dp))
@@ -137,7 +139,7 @@ fun LoginPage(viewModel: SignUpViewModel, navController: NavController,
                 // Please provide localized description for accessibility services
                 val description = if (passwordVisible) "Hide password" else "Show password"
 
-                IconButton(onClick = {passwordVisible = !passwordVisible}) {
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(imageVector = image, description)
                 }
             },
@@ -145,41 +147,70 @@ fun LoginPage(viewModel: SignUpViewModel, navController: NavController,
                 Text("Enter password")
             })
 
-        Spacer(Modifier.height(32.dp))
-        Button(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = primaryColor,
-                disabledContainerColor = primaryColor
-            ),
-            onClick = {
-                if(userName.value.isNotEmpty() &&
-                    password.value.isNotEmpty()) {
-                    viewModel.loginUser(userName.value,password.value)
+        Spacer(Modifier.height(18.dp))
+
+        Text("Forgot Password?",
+            textAlign = TextAlign.Center,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color.White,
+            modifier = Modifier.clickable {
+                viewModel.event.value = "Forgot password coming soon!"
+            })
+
+        Spacer(Modifier.height(28.dp))
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+            if(isLoading) {
+                CircularProgressIndicator(
+                    color = primaryColor,
+                    modifier = Modifier.size(42.dp)
+                )
+            } else {
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = primaryColor,
+                        disabledContainerColor = primaryColor
+                    ),
+                    onClick = {
+                        if (userName.value.isNotEmpty() &&
+                            password.value.isNotEmpty()
+                        ) {
+                            viewModel.loginUser(userName.value, password.value)
+                            isLoading = true
+                        } else {
+                            viewModel.event.value = "Please fill username and password"
+                        }
+                    },
+                ) {
+                    Text("Login", fontSize = 16.sp)
+
                 }
-                else {
-                    Toast.makeText(context,"Please fill all the details", Toast.LENGTH_SHORT).show()
-                }
-            },
-        ) {
-            Text("Login", fontSize = 16.sp)
+            }
 
         }
-
         Spacer(Modifier.height(38.dp))
 
-        Text("New User?", textAlign = TextAlign.Center, fontSize = 15.sp, fontWeight = FontWeight.Medium,
-            color = Color.Gray)
+        Text(
+            "New User?",
+            textAlign = TextAlign.Center,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color.Gray
+        )
 
         Spacer(Modifier.height(8.dp))
 
-        Text("Sign in", textAlign = TextAlign.Center, fontSize = 16.sp, fontWeight = FontWeight.Medium,
+        Text("Sign in",
+            textAlign = TextAlign.Center,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
             color = textColorPrimary,
             modifier = Modifier.clickable {
                 navController.popBackStack()
-                navController.navigate(Screens.RegistrationPage.route)
             })
     }
 }

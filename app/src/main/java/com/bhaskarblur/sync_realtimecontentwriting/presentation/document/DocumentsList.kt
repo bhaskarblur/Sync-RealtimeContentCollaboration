@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
@@ -53,7 +54,6 @@ fun DocumentsList(
             yesLabel = "Log out",
             onYesPressed = {
                 userViewModel.logOutUser()
-                Toast.makeText(context, "Logged out!", Toast.LENGTH_SHORT).show()
             },
             onClose = {
                 showAlertDialog.value = false
@@ -79,7 +79,7 @@ fun DocumentsList(
                 )
             )
 
-            Icon(Icons.Filled.ExitToApp, tint = textColorPrimary, contentDescription = "Log out",
+            Icon(Icons.Filled.Logout, tint = textColorPrimary, contentDescription = "Log out",
                 modifier = Modifier.clickable {
                     showAlertDialog.value = true
                 })

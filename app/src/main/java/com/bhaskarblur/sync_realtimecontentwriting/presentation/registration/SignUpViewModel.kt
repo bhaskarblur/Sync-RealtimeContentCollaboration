@@ -39,6 +39,7 @@ class SignUpViewModel @Inject constructor(
         }
         return logged
     }
+
     fun signUpUser(userName: String, fullName : String, password : String) {
         viewModelScope.launch {
             userUseCase.createUser(userName, fullName, password).collectLatest { user ->
@@ -70,6 +71,7 @@ class SignUpViewModel @Inject constructor(
         viewModelScope.launch {
             userUseCase.logOutUser()
             userState.value = UserModel()
+            event.value = "Logged out!"
             Log.d("UserLoggedOut", "true")
         }
     }

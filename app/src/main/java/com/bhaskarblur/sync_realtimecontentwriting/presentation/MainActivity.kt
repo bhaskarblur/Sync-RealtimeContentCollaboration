@@ -1,6 +1,7 @@
 package com.bhaskarblur.sync_realtimecontentwriting.presentation
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -18,6 +19,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -44,13 +46,22 @@ class MainActivity : ComponentActivity() {
         documentViewModel = viewModels<DocumentViewModel>().value
         userViewModel = viewModels<SignUpViewModel>().value
         val loggedData by userViewModel.userState
+
         setContent {
             val context = LocalContext.current
             val scaffoldState = remember { SnackbarHostState() }
-            val currentPage = remember {
+            val currentPage = rememberSaveable {
                 mutableStateOf("")
             }
             val navController = rememberNavController()
+
+            LaunchedEffect(userViewModel.event.value) {
+
+                if(userViewModel.event.value.isNotEmpty()) {
+                    Toast.makeText(context, userViewModel.event.value, Toast.LENGTH_SHORT).show()
+                    userViewModel.event.value = ""
+                }
+            }
             LaunchedEffect(loggedData) {
                 userViewModel.initData()
                 delay(500)

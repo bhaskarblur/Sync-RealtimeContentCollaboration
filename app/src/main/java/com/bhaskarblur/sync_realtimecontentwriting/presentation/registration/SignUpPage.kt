@@ -1,7 +1,6 @@
 package com.bhaskarblur.sync_realtimecontentwriting.presentation.registration
 
 import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,6 +18,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -58,13 +58,9 @@ fun SignUpPage(viewModel: SignUpViewModel, navController: NavController,
     val fullName = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
-
+    var isLoading by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(viewModel.event.value) {
-
-        if(viewModel.event.value.isNotEmpty()) {
-            Toast.makeText(context, viewModel.event.value, Toast.LENGTH_SHORT).show()
-            viewModel.event.value = ""
-        }
+        isLoading = false
     }
     Column(
         Modifier
@@ -76,13 +72,20 @@ fun SignUpPage(viewModel: SignUpViewModel, navController: NavController,
 
         Spacer(Modifier.height(18.dp))
 
-        Image(painterResource(id = R.drawable.logo), contentDescription = "App logo",
-            Modifier.size(96.dp))
+        Image(
+            painterResource(id = R.drawable.logo), contentDescription = "App logo",
+            Modifier.size(96.dp)
+        )
 
         Spacer(Modifier.height(12.dp))
 
-        Text("Sign up to continue", textAlign = TextAlign.Center, fontSize = 22.sp, fontWeight = FontWeight.SemiBold,
-            color = textColorPrimary)
+        Text(
+            "Sign up to continue",
+            textAlign = TextAlign.Center,
+            fontSize = 22.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = textColorPrimary
+        )
 
 
         Spacer(Modifier.height(36.dp))
@@ -156,7 +159,7 @@ fun SignUpPage(viewModel: SignUpViewModel, navController: NavController,
                 // Please provide localized description for accessibility services
                 val description = if (passwordVisible) "Hide password" else "Show password"
 
-                IconButton(onClick = {passwordVisible = !passwordVisible}) {
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(imageVector = image, description)
                 }
             },
@@ -165,39 +168,58 @@ fun SignUpPage(viewModel: SignUpViewModel, navController: NavController,
             })
 
         Spacer(Modifier.height(32.dp))
-        Button(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = primaryColor,
-                disabledContainerColor = primaryColor
-            ),
-            onClick = {
-                if(userName.value.isNotEmpty() && fullName.value.isNotEmpty() &&
-                    password.value.isNotEmpty()) {
-                    viewModel.signUpUser(userName.value, fullName.value, password.value)
-                }
-                else {
-                    Toast.makeText(context,"Please fill all the details", Toast.LENGTH_SHORT).show()
-                }
-            },
-        ) {
-            Text("Create account", fontSize = 16.sp)
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
+            if (isLoading) {
+                CircularProgressIndicator(
+                    color = primaryColor,
+                    modifier = Modifier.size(42.dp)
+                )
+            } else {
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = primaryColor,
+                        disabledContainerColor = primaryColor
+                    ),
+                    onClick = {
+                        if (userName.value.isNotEmpty() && fullName.value.isNotEmpty() &&
+                            password.value.isNotEmpty()
+                        ) {
+                            viewModel.signUpUser(userName.value, fullName.value, password.value)
+                            isLoading = true
+                        } else {
+                            viewModel.event.value = "Please fill all the details"
+                        }
+                    },
+                ) {
+                    Text("Create account", fontSize = 16.sp)
+
+                }
+            }
+
+            Spacer(Modifier.height(38.dp))
+
+            Text(
+                "Already have an account?",
+                textAlign = TextAlign.Center,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.Gray
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            Text("Log in",
+                textAlign = TextAlign.Center,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                color = textColorPrimary,
+                modifier = Modifier.clickable {
+                    navController.navigate(Screens.LoginPage.route)
+                })
         }
-
-        Spacer(Modifier.height(38.dp))
-
-        Text("Already have an account?", textAlign = TextAlign.Center, fontSize = 15.sp, fontWeight = FontWeight.Medium,
-            color = Color.Gray)
-
-        Spacer(Modifier.height(8.dp))
-
-        Text("Log in", textAlign = TextAlign.Center, fontSize = 16.sp, fontWeight = FontWeight.Medium,
-            color = textColorPrimary,
-            modifier = Modifier.clickable {
-                navController.navigate(Screens.LoginPage.route)
-            })
     }
 }

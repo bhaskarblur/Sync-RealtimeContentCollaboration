@@ -104,7 +104,6 @@ class FirebaseManager @Inject constructor(
         return user.toUserModel()
     }
 
-
     suspend fun getUserByUserName(userName: String): UserModelDto {
         var user = UserModelDto()
         usersModelRef.addListenerForSingleValueEvent(object : ValueEventListener {
