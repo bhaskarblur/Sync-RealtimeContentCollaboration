@@ -9,6 +9,10 @@ object PasswordUtil {
     }
 
     fun verifyPassword(inputPassword: String, hashedPassword: String): Boolean {
-        return BCrypt.verifyer().verify(inputPassword.toCharArray(), hashedPassword).verified
+        return try {
+            BCrypt.verifyer().verify(inputPassword.toCharArray(), hashedPassword).verified
+        } catch (e : Exception) {
+            false
+        }
     }
 }

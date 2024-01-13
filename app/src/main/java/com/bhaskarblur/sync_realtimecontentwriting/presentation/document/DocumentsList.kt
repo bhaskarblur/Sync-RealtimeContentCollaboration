@@ -108,7 +108,7 @@ fun DocumentsList(
 
             Text(
                 "Hi ${userViewModel.userState.value.fullName} 👋", style = TextStyle(
-                    textColorPrimary, fontSize = 17.sp, fontWeight = FontWeight.SemiBold
+                    textColorPrimary, fontSize = 18.sp, fontWeight = FontWeight.SemiBold
                 )
             )
 
@@ -144,9 +144,12 @@ fun DocumentsList(
                     placeholder = {
                         Text(
                             text = "Enter document code you want to access...",
-                            fontSize = 14.sp
+                            fontSize = 15.sp
                         )
                     },
+                    textStyle = TextStyle(
+                        fontSize = 15.sp
+                    ),
                     colors = TextFieldDefaults.colors(
                         unfocusedTextColor = textColorPrimary,
                         focusedTextColor = textColorPrimary,
@@ -215,7 +218,7 @@ fun DocumentsList(
                     content = {
 
                         Text(
-                            "+ Create new document", color = textColorPrimary, fontSize = 15.sp
+                            "+  Create new document", color = textColorPrimary, fontSize = 15.sp
                         )
                     })
 
@@ -230,7 +233,10 @@ fun DocumentsList(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 LazyColumn {
-                    items(items = documentViewModel.userDocuments.reversed()) { doc ->
+                    items(items = documentViewModel.userDocuments.reversed(),
+                        key = {
+                            it.documentId?:""
+                        }) { doc ->
                         DocumentItem(documentModel = doc, onDelete = {
                             documentViewModel.deleteDocument(doc.documentId ?: "")
                         }, onItemClick = {

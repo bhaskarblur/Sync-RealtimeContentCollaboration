@@ -59,11 +59,11 @@ fun DocumentItem(documentModel: DocumentModel, onItemClick : () -> Unit, onDelet
     Column(
         Modifier
             .fillMaxWidth()
-            .background(chatBoxColor, RoundedCornerShape(14.dp))
-            .padding(16.dp)
-            .clickable {
+            .background(chatBoxColor, RoundedCornerShape(14.dp)).clickable {
                 onItemClick()
-            }) {
+            }
+            .padding(16.dp)
+            ) {
 
         Row(
             Modifier.fillMaxWidth(),
@@ -81,7 +81,7 @@ fun DocumentItem(documentModel: DocumentModel, onItemClick : () -> Unit, onDelet
 
             Icon(Icons.Filled.Delete,
                 contentDescription = "Delete", tint = Color.Red,
-                modifier = Modifier.size(20.dp).clickable {
+                modifier = Modifier.size(22.dp).clickable {
                     showDeleteDialog.value = true
                 } )
 

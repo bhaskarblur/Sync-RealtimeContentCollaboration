@@ -21,14 +21,8 @@
             android:label="@string/title_activity_document"
             android:theme="@style/Theme.SyncRealtimeContentWriting" />
         <activity
-            android:name=".presentation.RegisterActivity"
-            android:exported="false"
-            android:label="@string/title_activity_register"
-            android:theme="@style/Theme.SyncRealtimeContentWriting" />
-        <activity
             android:name=".presentation.SplashScreen"
             android:exported="true"
-            android:label="@string/title_activity_splash_screen"
             android:theme="@style/Theme.SyncRealtimeContentWriting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -38,13 +32,8 @@
         </activity>
         <activity
             android:name=".presentation.MainActivity"
-            android:exported="true"
+            android:exported="false"
             android:theme="@style/Theme.SyncRealtimeContentWriting">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
     </application>
 

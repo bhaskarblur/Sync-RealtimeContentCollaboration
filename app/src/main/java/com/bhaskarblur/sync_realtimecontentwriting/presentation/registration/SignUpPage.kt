@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -97,7 +98,12 @@ fun SignUpPage(viewModel: SignUpViewModel, navController: NavController,
                 focusedPlaceholderColor = textColorSecondary,
                 unfocusedPlaceholderColor = textColorSecondary,
                 focusedContainerColor = colorSecondary,
-                unfocusedContainerColor = colorSecondary
+                unfocusedContainerColor = colorSecondary,
+                unfocusedIndicatorColor = primaryColor,
+                focusedIndicatorColor = primaryColor
+            ),
+            textStyle = TextStyle(
+                fontSize = 15.sp
             ),
             modifier = Modifier
                 .fillMaxWidth()
@@ -119,7 +125,12 @@ fun SignUpPage(viewModel: SignUpViewModel, navController: NavController,
                 focusedPlaceholderColor = textColorSecondary,
                 unfocusedPlaceholderColor = textColorSecondary,
                 focusedContainerColor = colorSecondary,
-                unfocusedContainerColor = colorSecondary
+                unfocusedContainerColor = colorSecondary,
+                unfocusedIndicatorColor = primaryColor,
+                focusedIndicatorColor = primaryColor
+            ),
+            textStyle = TextStyle(
+                fontSize = 15.sp
             ),
             modifier = Modifier
                 .fillMaxWidth()
@@ -142,7 +153,12 @@ fun SignUpPage(viewModel: SignUpViewModel, navController: NavController,
                 focusedPlaceholderColor = textColorSecondary,
                 unfocusedPlaceholderColor = textColorSecondary,
                 focusedContainerColor = colorSecondary,
-                unfocusedContainerColor = colorSecondary
+                unfocusedContainerColor = colorSecondary,
+                unfocusedIndicatorColor = primaryColor,
+                focusedIndicatorColor = primaryColor
+            ),
+            textStyle = TextStyle(
+                fontSize = 15.sp
             ),
             modifier = Modifier
                 .fillMaxWidth()

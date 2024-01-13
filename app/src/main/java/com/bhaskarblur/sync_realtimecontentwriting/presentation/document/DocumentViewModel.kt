@@ -101,7 +101,7 @@ class DocumentViewModel @Inject constructor(
         viewModelScope.launch {
             documentUseCase.createDocument(userDetails.value.id ?: "").collectLatest { doc ->
                 Log.d("userDocumentCreated", doc.documentId.toString())
-                userDocuments.add(0, doc)
+                userDocuments.add(doc)
             }
         }
     }
