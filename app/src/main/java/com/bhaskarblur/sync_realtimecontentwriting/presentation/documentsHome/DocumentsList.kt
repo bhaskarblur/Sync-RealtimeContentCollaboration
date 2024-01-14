@@ -30,6 +30,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -158,33 +159,51 @@ fun DocumentsList(
                         .fillMaxWidth()
                         .background(shape = RoundedCornerShape(90.dp), color = colorSecondary),
                     trailingIcon = {
-                        Icon(
-                            Icons.Filled.Send,
-                            contentDescription = "",
-                            tint = when (documentCode.value) {
-                                "" -> Color.Gray
-                                else -> {
-                                    Color.White
-                                }
-                            },
-                            modifier = Modifier
-                                .size(20.dp)
-                                .clickable {
-                                    scope.launch {
-                                        val isValidCode =
-                                            documentViewModel.getDocumentById(documentCode.value)
+                        if (documentViewModel.eventFlow.collectAsState(null)
+                                .value == DocumentViewModel.UIEvents.ShowCodeLoading("1")
+                        ) {
+                            CircularProgressIndicator(
+                                color = primaryColor, modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.5.dp
+                            )
+                        } else {
+                            Icon(
+                                Icons.Filled.Send,
+                                contentDescription = "",
+                                tint = when (documentCode.value) {
+                                    "" -> Color.Gray
+                                    else -> {
+                                        Color.White
+                                    }
+                                },
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .clickable {
+                                        if (documentCode.value.isNotEmpty()) {
+                                            scope.launch {
+                                                val isValidCode =
+                                                    documentViewModel.getDocumentById(documentCode.value)
 
-                                        if (isValidCode) {
-                                            val intent =
-                                                Intent(context, DocumentActivity::class.java)
-                                            intent.putExtra("documentId", documentCode.value)
-                                            context.startActivity(intent)
-                                        } else {
-                                            userViewModel.event.value = "Incorrect document code"
+                                                if (isValidCode) {
+                                                    val intent =
+                                                        Intent(
+                                                            context,
+                                                            DocumentActivity::class.java
+                                                        )
+                                                    intent.putExtra(
+                                                        "documentId",
+                                                        documentCode.value
+                                                    )
+                                                    context.startActivity(intent)
+                                                } else {
+                                                    userViewModel.event.value =
+                                                        "Incorrect document code"
+                                                }
+                                            }
                                         }
                                     }
-                                }
-                        )
+                            )
+                        }
                     })
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -196,30 +215,44 @@ fun DocumentsList(
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
+                if (documentViewModel.eventFlow.collectAsState(null)
+                        .value == DocumentViewModel.UIEvents.ShowCreateLoading("1")
+                ) {
+                    Column(Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally) {
 
-                Button(modifier = Modifier
-                    .height(52.dp)
-                    .fillMaxWidth()
-                    .border(2.dp, color = textColorPrimary, RoundedCornerShape(90.dp))
-                    .background(color = Color.Transparent, RoundedCornerShape(90.dp)),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent,
-                        disabledContainerColor = Color.Transparent
-                    ),
-                    onClick = {
-                        documentViewModel.createDocument()
-                    },
-                    content = {
 
-                        Text(
-                            "+  Create new document", color = textColorPrimary, fontSize = 15.sp
+                        CircularProgressIndicator(
+                            color = primaryColor, modifier = Modifier.size(36.dp),
                         )
-                    })
+                    }
+                } else {
+                    Button(modifier = Modifier
+                        .height(52.dp)
+                        .fillMaxWidth()
+                        .border(2.dp, color = textColorPrimary, RoundedCornerShape(90.dp))
+                        .background(color = Color.Transparent, RoundedCornerShape(90.dp)),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent,
+                            disabledContainerColor = Color.Transparent
+                        ),
+                        onClick = {
+                            documentViewModel.createDocument()
+                        },
+                        content = {
 
+                            Text(
+                                "+  Create new document", color = textColorPrimary, fontSize = 15.sp
+                            )
+                        })
+
+                }
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Row(horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Text(
                         "Your documents",
                         color = textColorPrimary,
@@ -233,7 +266,7 @@ fun DocumentsList(
                             .size(24.dp)
                             .clickable {
                                 navController.navigate(Screens.SearchDocumentPage.route)
-                            } )
+                            })
 
                 }
                 Spacer(modifier = Modifier.height(16.dp))
@@ -241,12 +274,12 @@ fun DocumentsList(
                 LazyColumn {
                     items(items = documentViewModel.userDocuments.reversed(),
                         key = {
-                            it.documentId?:""
+                            it.documentId ?: ""
                         }) { doc ->
                         DocumentItem(documentModel = doc, onDelete = {
                             documentViewModel.deleteDocument(doc.documentId ?: "")
                         }, onItemClick = {
-                            val intent =Intent(context, DocumentActivity::class.java)
+                            val intent = Intent(context, DocumentActivity::class.java)
                             intent.putExtra("documentId", doc.documentId)
                             context.startActivity(intent)
                         }, context = context)

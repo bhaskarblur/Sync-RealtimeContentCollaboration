@@ -345,8 +345,7 @@ fun DocumentPage(
                                 Spacer(modifier = Modifier.height(6.dp))
                                 TextField(
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(0.dp),
+                                        .fillMaxWidth(),
                                     singleLine = true,
                                     value = title.value,
                                     onValueChange = { value ->
@@ -375,7 +374,6 @@ fun DocumentPage(
                                         fontWeight = FontWeight.Medium,
                                         fontSize = 20.sp,
                                         fontFamily = MaterialTheme.typography.bodyMedium.fontFamily,
-                                        lineHeight = 22.sp
                                     )
                                 )
 
@@ -383,8 +381,7 @@ fun DocumentPage(
                                     interactionSource = contentSource,
                                     modifier = Modifier
                                         .fillMaxHeight()
-                                        .fillMaxWidth()
-                                        .padding(0.dp),
+                                        .fillMaxWidth(),
                                     value = content.value,
                                     onValueChange = { value ->
                                         content.value = value

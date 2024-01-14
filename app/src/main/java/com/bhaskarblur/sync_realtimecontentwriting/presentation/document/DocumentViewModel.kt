@@ -86,22 +86,25 @@ class DocumentViewModel @Inject constructor(
 
     suspend fun getDocumentById(documentId: String): Boolean {
         var flag = false
+        _eventFlow.emit(UIEvents.ShowCodeLoading("1"))
         documentUseCase.getDocumentById(documentId).collectLatest {
             if (it.documentId!!.isNotEmpty()) {
                 flag = true
             }
             Log.d("documentIsValid", flag.toString())
         }
-
         delay(1520)
+        _eventFlow.emit(UIEvents.ShowCodeLoading("0"))
         return flag
     }
 
     fun createDocument() {
         viewModelScope.launch {
+            _eventFlow.emit(UIEvents.ShowCreateLoading("1"))
             documentUseCase.createDocument(userDetails.value.id ?: "").collectLatest { doc ->
                 Log.d("userDocumentCreated", doc.documentId.toString())
                 userDocuments.add(doc)
+                _eventFlow.emit(UIEvents.ShowCreateLoading("0"))
             }
         }
     }
@@ -359,6 +362,9 @@ class DocumentViewModel @Inject constructor(
 
     sealed class UIEvents {
         data class ShowSnackbar(val message: String) : UIEvents()
+        data class ShowCodeLoading(val message: String = "0") : UIEvents()
+
+        data class ShowCreateLoading(val message: String = "0") : UIEvents()
     }
 
 
