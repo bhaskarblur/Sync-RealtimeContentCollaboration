@@ -14,6 +14,7 @@ import com.bhaskarblur.dictionaryapp.core.utils.Resources
 import com.bhaskarblur.gptbot.models.GptBody
 import com.bhaskarblur.gptbot.models.GptMessageModel
 import com.bhaskarblur.gptbot.models.MessageBody
+import com.bhaskarblur.sync_realtimecontentwriting.core.utils.AppNetworkManager
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.PromptModelDto
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.ContentModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.DocumentModel
@@ -39,7 +40,8 @@ import javax.inject.Inject
 class DocumentViewModel @Inject constructor(
     private val documentUseCase: DocumentUseCase,
     private val userRepo: IUserRepository,
-    private val gptRepo: GptUseCase
+    private val gptRepo: GptUseCase,
+    private val appNetworkManager: AppNetworkManager
 ) : ViewModel() {
 
     private val _documentData = documentUseCase._documentDetails
@@ -71,6 +73,9 @@ class DocumentViewModel @Inject constructor(
 
     }
 
+    fun isInternetAvailable() : Boolean {
+        return appNetworkManager.isNetworkAvailable()
+    }
     fun getUserDocuments() {
         viewModelScope.launch {
             delay(800)

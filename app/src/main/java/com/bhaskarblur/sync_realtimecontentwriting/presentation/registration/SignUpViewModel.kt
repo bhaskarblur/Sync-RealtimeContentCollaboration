@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bhaskarblur.sync_realtimecontentwriting.core.utils.AppNetworkManager
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.UserModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.use_case.UserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,12 +18,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
-    private val userUseCase: UserUseCase
+    private val userUseCase: UserUseCase,
+    private val appNetworkManager: AppNetworkManager
 ) : ViewModel() {
 
     private var _userState = mutableStateOf(UserModel())
     val userState = _userState
     val event = mutableStateOf("")
+
+    val isInternetAvailable = mutableStateOf(true)
 
     suspend fun initData() : Boolean{
         var logged = false
@@ -40,6 +44,10 @@ class SignUpViewModel @Inject constructor(
         return logged
     }
 
+    fun checkNetworkAvailable() : Boolean {
+         isInternetAvailable.value = appNetworkManager.isNetworkAvailable()
+        return isInternetAvailable.value
+    }
     fun signUpUser(userName: String, fullName : String, password : String) {
         viewModelScope.launch {
             userUseCase.createUser(userName, fullName, password).collectLatest { user ->

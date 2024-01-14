@@ -3,6 +3,7 @@ package com.bhaskarblur.sync_realtimecontentwriting.di
 import android.content.Context
 import com.bhaskarblur.gptbot.network.LoggingInterceptor
 import com.bhaskarblur.gptbot.network.OpenAiInterceptor
+import com.bhaskarblur.sync_realtimecontentwriting.core.utils.AppNetworkManager
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.PasswordUtil
 import com.bhaskarblur.sync_realtimecontentwriting.data.local.SharedPreferencesManager
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.ApiRoutes
@@ -64,6 +65,13 @@ class AppModules {
 
     @Provides
     @Singleton
+    fun providesNetworkManager(@ApplicationContext context: Context) : AppNetworkManager {
+        return AppNetworkManager(context)
+    }
+
+
+    @Provides
+    @Singleton
     fun providesFirebaseDatabase(context: Context) : FirebaseDatabase {
         return FirebaseDatabase.getInstance(FirebaseManager.DB_URL(context))
     }
@@ -95,8 +103,8 @@ class AppModules {
     @Provides
     @Singleton
     fun providesDocumentViewModel(documentUseCase: DocumentUseCase, userRepository: IUserRepository
-    , gptUseCase: GptUseCase) : DocumentViewModel {
-        return DocumentViewModel(documentUseCase,userRepository,gptUseCase)
+    , gptUseCase: GptUseCase, appNetworkManager: AppNetworkManager) : DocumentViewModel {
+        return DocumentViewModel(documentUseCase,userRepository,gptUseCase, appNetworkManager)
     }
     @Provides
     @Singleton
