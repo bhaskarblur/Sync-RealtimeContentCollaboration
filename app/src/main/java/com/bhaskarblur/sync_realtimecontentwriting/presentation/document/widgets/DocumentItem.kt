@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -59,7 +61,8 @@ fun DocumentItem(documentModel: DocumentModel, onItemClick : () -> Unit, onDelet
     Column(
         Modifier
             .fillMaxWidth()
-            .background(chatBoxColor, RoundedCornerShape(14.dp)).clickable {
+            .background(chatBoxColor, RoundedCornerShape(14.dp))
+            .clickable {
                 onItemClick()
             }
             .padding(16.dp)
@@ -81,19 +84,28 @@ fun DocumentItem(documentModel: DocumentModel, onItemClick : () -> Unit, onDelet
 
             Icon(Icons.Filled.Delete,
                 contentDescription = "Delete", tint = Color.Red,
-                modifier = Modifier.size(22.dp).clickable {
-                    showDeleteDialog.value = true
-                } )
+                modifier = Modifier
+                    .size(22.dp)
+                    .clickable {
+                        showDeleteDialog.value = true
+                    } )
 
         }
         Spacer(modifier = Modifier.height(8.dp))
 
-        Text(text = "Document code: ${documentModel.documentId.toString()}",
-            color = textColorPrimary,  fontSize = 13.sp,
-            modifier = Modifier.clickable {
-                clipBoard.setText(AnnotatedString(documentModel.documentId.toString()))
-                Toast.makeText(context, "Code Copied", Toast.LENGTH_SHORT).show()
-            })
+        Row {
+            Text(text = "Document code: ${documentModel.documentId.toString()}",
+                color = textColorPrimary, fontSize = 13.sp)
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Icon(Icons.Filled.ContentCopy, "Copy code",
+                tint = textColorPrimary, modifier = Modifier.size(16.dp)
+                .clickable {
+                    clipBoard.setText(AnnotatedString(documentModel.documentId.toString()))
+                    Toast.makeText(context, "Code Copied", Toast.LENGTH_SHORT).show()
+                })
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = "Created on: ${UiUtils.getDate(documentModel.creationDateTime.toString())}",

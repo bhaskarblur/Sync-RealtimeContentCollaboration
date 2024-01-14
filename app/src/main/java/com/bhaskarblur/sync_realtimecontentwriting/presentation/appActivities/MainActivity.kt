@@ -1,4 +1,4 @@
-package com.bhaskarblur.sync_realtimecontentwriting.presentation
+package com.bhaskarblur.sync_realtimecontentwriting.presentation.appActivities
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -27,9 +27,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.Screens
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.SignUpPage
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.DocumentViewModel
-import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.DocumentsList
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.documentsHome.DocumentsList
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.documentsHome.SearchDocumentsPage
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.LoginPage
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.SignUpViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.backgroundColor
@@ -109,6 +111,12 @@ class MainActivity : ComponentActivity() {
                                 route = Screens.LoginPage.route
                             ) {
                                 LoginPage(userViewModel,navController,context)
+                            }
+
+                            composable(
+                                route = Screens.SearchDocumentPage.route
+                            ) {
+                                SearchDocumentsPage(documentViewModel,navController,context)
                             }
                         }
                     }

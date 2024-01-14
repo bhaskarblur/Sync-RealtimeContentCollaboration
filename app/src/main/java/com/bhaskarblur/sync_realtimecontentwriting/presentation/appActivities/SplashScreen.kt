@@ -1,4 +1,4 @@
-package com.bhaskarblur.sync_realtimecontentwriting.presentation
+package com.bhaskarblur.sync_realtimecontentwriting.presentation.appActivities
 
 import android.content.Intent
 import android.os.Bundle
