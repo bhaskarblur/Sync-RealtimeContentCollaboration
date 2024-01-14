@@ -1,4 +1,4 @@
-# Sync-RealtimeContentWriting
+# Sync- Realtime Content Collaboration
 Sync is a realtime content collaboration app with multiple people developed in Kotlin with Firebase realtime database, offers undo-redo changes and realtime collaborative AI Content generation.
 
 ### Screenshots
