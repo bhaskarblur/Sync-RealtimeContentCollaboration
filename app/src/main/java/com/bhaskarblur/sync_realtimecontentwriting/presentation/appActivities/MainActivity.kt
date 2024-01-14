@@ -12,10 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.WifiOff
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -28,8 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.NavDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -69,23 +64,22 @@ class MainActivity : ComponentActivity() {
             navController.addOnDestinationChangedListener { _, _, _ -> userViewModel.checkNetworkAvailable() }
 
             LaunchedEffect(userViewModel.event.value) {
-
                 if (userViewModel.event.value.isNotEmpty()) {
                     Toast.makeText(context, userViewModel.event.value, Toast.LENGTH_SHORT).show()
                     userViewModel.event.value = ""
                 }
             }
-            LaunchedEffect(networkAvailable) {
+            LaunchedEffect(networkAvailable, loggedData) {
                 if (userViewModel.checkNetworkAvailable()) {
                     userViewModel.initData()
                     delay(500)
-                    Log.d("userData__", loggedData.userName.toString())
+                    Log.d("userData__", loggedData.id.isNullOrEmpty().toString())
                     if (!loggedData.id.isNullOrEmpty()) {
                         currentPage.value = Screens.HomePage.route
                         documentViewModel.setUser()
 
                     } else {
-                        currentPage.value = Screens.HomePage.route
+                        currentPage.value = Screens.RegistrationPage.route
                     }
                 } else {
                     currentPage.value = Screens.NoInternet.route
