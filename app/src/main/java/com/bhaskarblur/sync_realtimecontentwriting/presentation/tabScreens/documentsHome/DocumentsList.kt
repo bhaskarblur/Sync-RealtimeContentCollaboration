@@ -62,9 +62,7 @@ fun DocumentsList(
     userViewModel: SignUpViewModel, documentViewModel: DocumentViewModel, context: Context,
     navController: NavController
 ) {
-    val showAlertDialog = remember {
-        mutableStateOf(false)
-    }
+
     val isLoading = rememberSaveable {
         mutableStateOf(true)
     }
@@ -80,18 +78,7 @@ fun DocumentsList(
         }
         isLoading.value = false
     }
-    if (showAlertDialog.value) {
-        AlertDialogComponent(context = context,
-            title = "Log out?",
-            bodyMsg = "Are you sure, you want to logout from your account?",
-            yesLabel = "Log out",
-            onYesPressed = {
-                userViewModel.logOutUser()
-            },
-            onClose = {
-                showAlertDialog.value = false
-            })
-    }
+
     Column(Modifier.fillMaxSize()) {
         Row(
             Modifier
@@ -108,13 +95,6 @@ fun DocumentsList(
                     textColorPrimary, fontSize = 18.sp, fontWeight = FontWeight.SemiBold
                 )
             )
-
-            Icon(Icons.Filled.Logout,
-                tint = textColorPrimary,
-                contentDescription = "Log out",
-                modifier = Modifier.clickable {
-                    showAlertDialog.value = true
-                })
         }
         Column(
             Modifier
