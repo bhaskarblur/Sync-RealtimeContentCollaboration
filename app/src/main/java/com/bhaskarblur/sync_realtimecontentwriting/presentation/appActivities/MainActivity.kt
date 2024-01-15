@@ -1,6 +1,7 @@
 package com.bhaskarblur.sync_realtimecontentwriting.presentation.appActivities
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -29,10 +30,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.bhaskarblur.sync_realtimecontentwriting.core.utils.Constants
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.Screens
-import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.SignUpPage
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.UIEvents
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.DocumentViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.LoginPage
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.SignUpPage
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.SignUpViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.TabScreenPage
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.NoInternetPage
@@ -54,7 +57,7 @@ class MainActivity : ComponentActivity() {
         userViewModel = viewModels<SignUpViewModel>().value
         val loggedData by userViewModel.userState
         val networkAvailable by userViewModel.isInternetAvailable
-
+        val data: Uri? = intent?.data
         setContent {
             val context = LocalContext.current
             val scaffoldState = remember { SnackbarHostState() }
@@ -86,23 +89,48 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            /*
-              This code intent to DocumentActivity after creating a new document
-            */
-            LaunchedEffect(documentViewModel.eventFlow){
+            LaunchedEffect(documentViewModel.eventFlow) {
+                Log.d("valueChange", "yes")
+
                 documentViewModel.eventFlow
-                    .filterIsInstance<DocumentViewModel.UIEvents.DocumentCreated>()
-                    .collectLatest {documentCreated->
-                        documentCreated.documentId?.let {documentId->
-                            val intent= Intent(context,DocumentActivity::class.java)
-                            intent.putExtra("documentId",documentId)
+                    .filterIsInstance<UIEvents.ShareDocument>()
+                    .collectLatest { documentShared ->
+                        documentShared.documentId.let { documentId ->
+                            val sendIntent = Intent()
+                            sendIntent.setAction(Intent.ACTION_SEND)
+                            sendIntent.putExtra(
+                                Intent.EXTRA_TEXT,
+                                "Hey there! I invite you to collaborate with me in my content creation on Sync App: ${
+                                    Constants.appDeepLinkUrl.plus(
+                                        documentId
+                                    )
+                                }"
+                            )
+                            sendIntent.setType("text/plain")
+                            startActivity(Intent.createChooser(sendIntent,"Share Document"))
+                            documentViewModel.emitUIEvent(UIEvents.DefaultState())
+                        }
+
+                    }
+
+                documentViewModel.eventFlow
+                    .filterIsInstance<UIEvents.DocumentCreated>()
+                    .collectLatest { documentCreated ->
+                        documentCreated.documentId.let { documentId ->
+                            val intent = Intent(context, DocumentActivity::class.java)
+                            intent.putExtra("documentId", documentId)
                             context.startActivity(intent)
                         }
 
                     }
+
             }
 
-
+            data?.let {
+                if(!userViewModel.userState.value.id.isNullOrEmpty()) {
+                    Log.d("receivedDeepLink", it.toString())
+                }
+            }
             Scaffold(
                 snackbarHost = { SnackbarHost(hostState = scaffoldState) }) {
                 it

@@ -16,11 +16,6 @@
         android:theme="@style/Theme.SyncRealtimeContentWriting"
         tools:targetApi="31">
         <activity
-            android:name=".presentation.tabScreens.TabScreen"
-            android:exported="false"
-            android:label="@string/title_activity_tab_screen"
-            android:theme="@style/Theme.SyncRealtimeContentWriting" />
-        <activity
             android:name=".presentation.appActivities.DocumentActivity"
             android:exported="false"
             android:label="@string/title_activity_document"
@@ -37,8 +32,15 @@
         </activity>
         <activity
             android:name=".presentation.appActivities.MainActivity"
-            android:exported="false"
-            android:theme="@style/Theme.SyncRealtimeContentWriting"></activity>
+            android:exported="true"
+            android:theme="@style/Theme.SyncRealtimeContentWriting">
+            <intent-filter  android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="sync-realtime.com"/>
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

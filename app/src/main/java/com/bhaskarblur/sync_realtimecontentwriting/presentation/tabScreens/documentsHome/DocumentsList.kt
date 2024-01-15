@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,9 +15,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Send
@@ -43,9 +47,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.bhaskarblur.sync_realtimecontentwriting.core.utils.Constants
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.UIEvents
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.appActivities.DocumentActivity
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.DocumentViewModel
-import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets.DocumentItem
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.documentsHome.widgets.DocumentItem
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.SignUpViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.TabScreens
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
@@ -142,7 +148,7 @@ fun DocumentsList(
                         .background(shape = RoundedCornerShape(90.dp), color = colorSecondary),
                     trailingIcon = {
                         if (documentViewModel.eventFlow.collectAsState(null)
-                                .value == DocumentViewModel.UIEvents.ShowCodeLoading("1")
+                                .value == UIEvents.ShowCodeLoading("1")
                         ) {
                             CircularProgressIndicator(
                                 color = primaryColor, modifier = Modifier.size(20.dp),
@@ -198,7 +204,7 @@ fun DocumentsList(
 
                 Spacer(modifier = Modifier.height(16.dp))
                 if (documentViewModel.eventFlow.collectAsState(null)
-                        .value == DocumentViewModel.UIEvents.ShowCreateLoading("1")
+                        .value == UIEvents.ShowCreateLoading("1")
                 ) {
                     Column(
                         Modifier.fillMaxWidth(),
@@ -253,8 +259,8 @@ fun DocumentsList(
                             })
 
                 }
-                Spacer(modifier = Modifier.height(16.dp))
 
+                Spacer(modifier = Modifier.height(16.dp))
                 LazyColumn {
                     items(items = documentViewModel.userDocuments.reversed(),
                         key = {
@@ -266,9 +272,16 @@ fun DocumentsList(
                             val intent = Intent(context, DocumentActivity::class.java)
                             intent.putExtra("documentId", doc.documentId)
                             context.startActivity(intent)
+                        }, onShare = {
+                            documentViewModel.emitUIEvent(
+                                UIEvents.ShareDocument(
+                                    doc.documentId ?: ""
+                                )
+                            )
                         }, context = context)
                     }
                 }
+                Spacer(modifier = Modifier.height(28.dp))
 
             }
         }

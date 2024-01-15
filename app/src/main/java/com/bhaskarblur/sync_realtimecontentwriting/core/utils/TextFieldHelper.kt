@@ -19,7 +19,6 @@ import java.util.regex.Pattern
 
 fun buildAnnotatedStringWithColors(items : List<UserModelCursor>, text : String): AnnotatedString{
     val builder = AnnotatedString.Builder()
-//    builder.append(text)
     buildAnnotatedString {
         val htmlTagPattern = Pattern.compile(
             "(?i)<a([^>]+)>(.+?)</a>",

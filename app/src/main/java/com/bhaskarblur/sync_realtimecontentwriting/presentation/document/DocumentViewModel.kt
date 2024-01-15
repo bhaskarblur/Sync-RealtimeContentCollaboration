@@ -23,6 +23,7 @@ import com.bhaskarblur.sync_realtimecontentwriting.domain.model.UserModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.repository.IUserRepository
 import com.bhaskarblur.sync_realtimecontentwriting.domain.use_case.DocumentUseCase
 import com.bhaskarblur.sync_realtimecontentwriting.domain.use_case.GptUseCase
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.UIEvents
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -74,6 +75,12 @@ class DocumentViewModel @Inject constructor(
 
     }
 
+    fun emitUIEvent(value : UIEvents) {
+        viewModelScope.launch {
+            Log.d("UIEventEmitted", value.toString())
+            _eventFlow.emit(value)
+        }
+    }
     fun isInternetAvailable() : Boolean {
         return appNetworkManager.isNetworkAvailable()
     }
@@ -368,15 +375,6 @@ class DocumentViewModel @Inject constructor(
 
     }
 
-    sealed class UIEvents {
-        data class ShowSnackbar(val message: String) : UIEvents()
-        data class ShowCodeLoading(val message: String = "0") : UIEvents()
-
-        data class ShowCreateLoading(val message: String = "0") : UIEvents()
-
-        // This data class added to handle the intent after New Document create and it is used in above createDocument function
-        data class DocumentCreated(val documentId:String):UIEvents()
-    }
 
 
 }

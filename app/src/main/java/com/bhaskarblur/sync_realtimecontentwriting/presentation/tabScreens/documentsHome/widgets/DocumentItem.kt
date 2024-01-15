@@ -1,4 +1,4 @@
-package com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets
+package com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.documentsHome.widgets
 
 import android.content.Context
 import android.widget.Toast
@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,7 +37,7 @@ import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.chatBoxColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
 
 @Composable
-fun DocumentItem(documentModel: DocumentModel, onItemClick : () -> Unit, onDelete : () -> Unit,
+fun DocumentItem(documentModel: DocumentModel, onItemClick : () -> Unit, onDelete : () -> Unit, onShare : () -> Unit,
                  context:Context) {
 
     val showDeleteDialog = remember {
@@ -89,24 +90,39 @@ fun DocumentItem(documentModel: DocumentModel, onItemClick : () -> Unit, onDelet
                     .clickable {
                         showDeleteDialog.value = true
                     } )
-
         }
         Spacer(modifier = Modifier.height(8.dp))
 
-        Row {
-            Text(text = "Document code: ${documentModel.documentId.toString()}",
-                color = textColorPrimary, fontSize = 13.sp)
+        Row(horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()) {
+            Row {
+                Text(
+                    text = "Document code: ${documentModel.documentId.toString()}",
+                    color = textColorPrimary, fontSize = 13.sp
+                )
 
-            Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(8.dp))
 
-            Icon(Icons.Filled.ContentCopy, "Copy code",
-                tint = textColorPrimary, modifier = Modifier.size(16.dp)
-                .clickable {
-                    clipBoard.setText(AnnotatedString(documentModel.documentId.toString()))
-                    Toast.makeText(context, "Code Copied", Toast.LENGTH_SHORT).show()
-                })
+                Icon(Icons.Filled.ContentCopy, "Copy code",
+                    tint = textColorPrimary, modifier = Modifier
+                        .size(16.dp)
+                        .clickable {
+                            clipBoard.setText(AnnotatedString(documentModel.documentId.toString()))
+                            Toast
+                                .makeText(context, "Code Copied", Toast.LENGTH_SHORT)
+                                .show()
+                        })
+            }
+
+            Icon(Icons.Filled.Share,
+                contentDescription = "Share", tint = Color.White,
+                modifier = Modifier
+                    .size(22.dp)
+                    .clickable {
+                        onShare()
+                    } )
+
         }
-
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = "Created on: ${UiUtils.getDate(documentModel.creationDateTime.toString())}",
             color = textColorPrimary, fontSize = 13.sp)

@@ -34,9 +34,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.bhaskarblur.sync_realtimecontentwriting.core.utils.Constants
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.UIEvents
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.appActivities.DocumentActivity
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.DocumentViewModel
-import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets.DocumentItem
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.documentsHome.widgets.DocumentItem
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.chatBoxColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
@@ -134,6 +136,8 @@ fun SearchDocumentsPage(
                         val intent = Intent(context, DocumentActivity::class.java)
                         intent.putExtra("documentId", doc.documentId)
                         context.startActivity(intent)
+                    }, onShare = {
+                        documentViewModel.emitUIEvent(UIEvents.ShareDocument(doc.documentId?:""))
                     }, context = context)
                 }
             }
