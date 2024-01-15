@@ -75,7 +75,7 @@ fun ExplorePage(
 
             Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = "Search & find the documents with the content.",
+            text = "Search & find the documents with the content you want.",
             fontSize = 18.sp,
             color = textColorPrimary,
             lineHeight = 26.sp,
@@ -84,7 +84,7 @@ fun ExplorePage(
             modifier = Modifier.fillMaxWidth(0.8f)
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(14.dp))
         TextField(
             shape = RoundedCornerShape(10.dp),
             value = searchText.value,

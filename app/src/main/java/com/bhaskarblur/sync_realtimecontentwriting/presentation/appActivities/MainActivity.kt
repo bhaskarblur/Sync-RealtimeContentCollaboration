@@ -126,7 +126,7 @@ class MainActivity : ComponentActivity() {
                             composable(
                                 route = Screens.LoginPage.route
                             ) {
-                                LoginPage(userViewModel, navController, context)
+                                LoginPage(userViewModel, navController)
                             }
 
                             composable(
