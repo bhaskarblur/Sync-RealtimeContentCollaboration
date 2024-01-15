@@ -344,6 +344,7 @@ fun DocumentPage(
                             Column {
                                 Spacer(modifier = Modifier.height(6.dp))
                                 TextField(
+                                    shape = RoundedCornerShape(10.dp),
                                     modifier = Modifier
                                         .fillMaxWidth(),
                                     singleLine = true,
@@ -378,6 +379,7 @@ fun DocumentPage(
                                 )
 
                                 TextField(
+                                    shape = RoundedCornerShape(10.dp),
                                     interactionSource = contentSource,
                                     modifier = Modifier
                                         .fillMaxHeight()

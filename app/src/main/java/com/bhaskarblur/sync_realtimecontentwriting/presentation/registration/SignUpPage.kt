@@ -91,7 +91,9 @@ fun SignUpPage(viewModel: SignUpViewModel, navController: NavController,
 
         Spacer(Modifier.height(36.dp))
 
-        TextField(value = userName.value,
+        TextField(
+            shape = RoundedCornerShape(10.dp),
+            value = userName.value,
             colors = TextFieldDefaults.colors(
                 unfocusedTextColor = textColorPrimary,
                 focusedTextColor = textColorPrimary,
@@ -99,8 +101,8 @@ fun SignUpPage(viewModel: SignUpViewModel, navController: NavController,
                 unfocusedPlaceholderColor = textColorSecondary,
                 focusedContainerColor = colorSecondary,
                 unfocusedContainerColor = colorSecondary,
-                unfocusedIndicatorColor = primaryColor,
-                focusedIndicatorColor = primaryColor
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor =Color.Transparent,
             ),
             textStyle = TextStyle(
                 fontSize = 15.sp
@@ -112,13 +114,18 @@ fun SignUpPage(viewModel: SignUpViewModel, navController: NavController,
                 userName.value = value.lowercase()
                     .trim()
             },
+            label = {
+                Text("Username", color = textColorSecondary)
+            },
             placeholder = {
                 Text("Enter username")
             })
 
         Spacer(Modifier.height(12.dp))
 
-        TextField(value = fullName.value,
+        TextField(
+            shape = RoundedCornerShape(10.dp),
+            value = fullName.value,
             colors = TextFieldDefaults.colors(
                 unfocusedTextColor = textColorPrimary,
                 focusedTextColor = textColorPrimary,
@@ -126,9 +133,12 @@ fun SignUpPage(viewModel: SignUpViewModel, navController: NavController,
                 unfocusedPlaceholderColor = textColorSecondary,
                 focusedContainerColor = colorSecondary,
                 unfocusedContainerColor = colorSecondary,
-                unfocusedIndicatorColor = primaryColor,
-                focusedIndicatorColor = primaryColor
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor =Color.Transparent,
             ),
+            label = {
+                Text("Full Name", color = textColorSecondary)
+            },
             textStyle = TextStyle(
                 fontSize = 15.sp
             ),
@@ -144,7 +154,9 @@ fun SignUpPage(viewModel: SignUpViewModel, navController: NavController,
 
         Spacer(Modifier.height(12.dp))
 
-        TextField(value = password.value,
+        TextField(
+            shape = RoundedCornerShape(10.dp),
+            value = password.value,
             singleLine = true,
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             colors = TextFieldDefaults.colors(
@@ -154,9 +166,12 @@ fun SignUpPage(viewModel: SignUpViewModel, navController: NavController,
                 unfocusedPlaceholderColor = textColorSecondary,
                 focusedContainerColor = colorSecondary,
                 unfocusedContainerColor = colorSecondary,
-                unfocusedIndicatorColor = primaryColor,
-                focusedIndicatorColor = primaryColor
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor =Color.Transparent,
             ),
+            label = {
+                Text("Password", color = textColorSecondary)
+            },
             textStyle = TextStyle(
                 fontSize = 15.sp
             ),

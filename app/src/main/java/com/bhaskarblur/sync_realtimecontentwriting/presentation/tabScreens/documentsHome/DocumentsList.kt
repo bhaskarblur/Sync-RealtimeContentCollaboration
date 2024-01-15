@@ -18,7 +18,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
@@ -49,7 +48,6 @@ import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.Documen
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets.DocumentItem
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.SignUpViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.TabScreens
-import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.AlertDialogComponent
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
@@ -114,7 +112,9 @@ fun DocumentsList(
                 }
             } else {
 
-                TextField(value = documentCode.value,
+                TextField(
+                    shape = RoundedCornerShape(10.dp),
+                    value = documentCode.value,
                     onValueChange = {
                         documentCode.value = it
                     },

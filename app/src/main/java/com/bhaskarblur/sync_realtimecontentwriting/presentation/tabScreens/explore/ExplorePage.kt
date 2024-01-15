@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -31,7 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.DocumentViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.SignUpViewModel
-import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.chatBoxColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorSecondary
@@ -88,6 +86,7 @@ fun ExplorePage(
 
         Spacer(modifier = Modifier.height(12.dp))
         TextField(
+            shape = RoundedCornerShape(10.dp),
             value = searchText.value,
             onValueChange = {
                 searchText.value = it
@@ -110,8 +109,8 @@ fun ExplorePage(
                 focusedTextColor = textColorPrimary,
                 focusedPlaceholderColor = textColorSecondary,
                 unfocusedPlaceholderColor = textColorSecondary,
-                focusedContainerColor = chatBoxColor,
-                unfocusedContainerColor = chatBoxColor,
+                focusedContainerColor = colorSecondary,
+                unfocusedContainerColor = colorSecondary,
                 unfocusedIndicatorColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
             ),

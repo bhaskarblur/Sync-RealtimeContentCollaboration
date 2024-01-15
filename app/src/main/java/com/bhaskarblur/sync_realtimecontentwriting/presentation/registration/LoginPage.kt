@@ -1,7 +1,6 @@
 package com.bhaskarblur.sync_realtimecontentwriting.presentation.registration
 
 import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -46,7 +45,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.bhaskarblur.sync_realtimecontentwriting.R
-import com.bhaskarblur.sync_realtimecontentwriting.presentation.Screens
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
@@ -54,8 +52,7 @@ import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorSecondary
 
 @Composable
 fun LoginPage(
-    viewModel: SignUpViewModel, navController: NavController,
-    context: Context
+    viewModel: SignUpViewModel, navController: NavController
 ) {
     val userName = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
@@ -92,7 +89,9 @@ fun LoginPage(
 
         Spacer(Modifier.height(36.dp))
 
-        TextField(value = userName.value,
+        TextField(
+            shape = RoundedCornerShape(10.dp),
+            value = userName.value,
             colors = TextFieldDefaults.colors(
                 unfocusedTextColor = textColorPrimary,
                 focusedTextColor = textColorPrimary,
@@ -100,8 +99,8 @@ fun LoginPage(
                 unfocusedPlaceholderColor = textColorSecondary,
                 focusedContainerColor = colorSecondary,
                 unfocusedContainerColor = colorSecondary,
-                        unfocusedIndicatorColor = primaryColor,
-                focusedIndicatorColor = primaryColor
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor =Color.Transparent,
             ),
             textStyle = TextStyle(
                 fontSize = 15.sp
@@ -113,13 +112,18 @@ fun LoginPage(
                 userName.value = value.lowercase()
                     .trim()
             },
+            label = {
+                Text("Username", color = textColorSecondary)
+            },
             placeholder = {
                 Text("Enter username")
             })
 
         Spacer(Modifier.height(12.dp))
 
-        TextField(value = password.value,
+        TextField(
+            shape = RoundedCornerShape(10.dp),
+            value = password.value,
             singleLine = true,
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             colors = TextFieldDefaults.colors(
@@ -129,8 +133,8 @@ fun LoginPage(
                 unfocusedPlaceholderColor = textColorSecondary,
                 focusedContainerColor = colorSecondary,
                 unfocusedContainerColor = colorSecondary,
-                unfocusedIndicatorColor = primaryColor,
-                focusedIndicatorColor = primaryColor
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor =Color.Transparent,
             ),
             textStyle = TextStyle(
                 fontSize = 15.sp
@@ -153,6 +157,9 @@ fun LoginPage(
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(imageVector = image, description)
                 }
+            },
+            label = {
+                Text("Password", color = textColorSecondary)
             },
             placeholder = {
                 Text("Enter password")

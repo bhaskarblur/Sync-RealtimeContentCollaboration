@@ -163,7 +163,9 @@ fun AIBottomSheet(
         }
         Spacer(modifier = Modifier.height(12.dp))
 
-        TextField(value = promptFieldText.value,
+        TextField(
+            shape = RoundedCornerShape(10.dp),
+            value = promptFieldText.value,
             colors = TextFieldDefaults.colors(
                 unfocusedTextColor = textColorPrimary,
                 focusedTextColor = textColorPrimary,
