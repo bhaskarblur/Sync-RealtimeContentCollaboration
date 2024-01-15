@@ -3,7 +3,7 @@ Sync is a realtime content collaboration app with multiple people developed in K
 
 ### Screenshots
 
-|   <img src="https://github.com/bhaskarblur/Sync-RealtimeContentWriting/assets/85757758/a1f32e34-c2c9-4cc8-911b-6c5f6c069146" height="480">   |  <img src="https://github.com/bhaskarblur/Sync-RealtimeContentWriting/assets/85757758/9c609f99-481f-491d-b199-44aa2808b314" height="480">   |  <img src="https://github.com/bhaskarblur/Sync-RealtimeContentWriting/assets/85757758/fa5559cd-6e98-47c7-b4c8-1ee8e012f1f5" height="480">  |   <img src="https://github.com/bhaskarblur/Sync-RealtimeContentWriting/assets/85757758/cf6f9c59-6afe-4151-b2d0-febe25698e57" height="480">   |
+|   <img src="https://github.com/bhaskarblur/Sync-RealtimeContentWriting/assets/85757758/a1f32e34-c2c9-4cc8-911b-6c5f6c069146" height="480">   |  <img src="https://github.com/bhaskarblur/Sync-RealtimeContentWriting/assets/85757758/9c609f99-481f-491d-b199-44aa2808b314" height="480">   |  <img src="https://github.com/bhaskarblur/Sync-RealtimeContentCollaboration/assets/85757758/5c103fcf-4b28-492a-82c8-2895fc82a93d" height="480">  |   <img src="https://github.com/bhaskarblur/Sync-RealtimeContentWriting/assets/85757758/cf6f9c59-6afe-4151-b2d0-febe25698e57" height="480">   |
 
 
 

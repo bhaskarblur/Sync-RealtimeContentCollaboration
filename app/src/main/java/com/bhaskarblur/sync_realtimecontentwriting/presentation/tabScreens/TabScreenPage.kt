@@ -40,6 +40,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.DocumentViewModel
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.profile.ExplorePage
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.documentsHome.DocumentsList
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.documentsHome.SearchDocumentsPage
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.profile.ProfilePage
@@ -158,6 +159,7 @@ fun TabScreenPage(
                     composable(
                         route = TabScreens.ExplorePage.route
                     ) {
+                        ExplorePage(userViewModel, documentViewModel)
                     }
 
                     composable(
