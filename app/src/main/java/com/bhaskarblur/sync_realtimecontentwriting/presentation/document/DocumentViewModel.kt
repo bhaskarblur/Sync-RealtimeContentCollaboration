@@ -66,6 +66,7 @@ class DocumentViewModel @Inject constructor(
             userRepo.getUserDetails().collect {
                 Log.d("userDataEmitted", it.toString())
                 userDetails.value = it
+                getUserDocuments()
             }
             delay(1000)
             switchUserOn()

@@ -1,4 +1,4 @@
-package com.bhaskarblur.sync_realtimecontentwriting.presentation.documentsHome
+package com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.documentsHome
 
 import android.content.Context
 import android.content.Intent

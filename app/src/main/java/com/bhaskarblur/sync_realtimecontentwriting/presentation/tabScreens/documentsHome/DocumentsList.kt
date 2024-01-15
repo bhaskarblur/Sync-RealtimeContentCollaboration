@@ -1,4 +1,4 @@
-package com.bhaskarblur.sync_realtimecontentwriting.presentation.documentsHome
+package com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.documentsHome
 
 import android.content.Context
 import android.content.Intent
@@ -44,11 +44,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.bhaskarblur.sync_realtimecontentwriting.presentation.Screens
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.appActivities.DocumentActivity
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.DocumentViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets.DocumentItem
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.SignUpViewModel
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.TabScreens
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.AlertDialogComponent
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
@@ -62,7 +62,6 @@ fun DocumentsList(
     userViewModel: SignUpViewModel, documentViewModel: DocumentViewModel, context: Context,
     navController: NavController
 ) {
-    documentViewModel.getUserDocuments()
     val showAlertDialog = remember {
         mutableStateOf(false)
     }
@@ -75,7 +74,10 @@ fun DocumentsList(
     }
     val scope = rememberCoroutineScope()
     LaunchedEffect(documentViewModel.userDocuments) {
-        delay(2500)
+        if (documentViewModel.userDocuments.size < 1) {
+            documentViewModel.getUserDocuments()
+            delay(2500)
+        }
         isLoading.value = false
     }
     if (showAlertDialog.value) {
@@ -218,8 +220,10 @@ fun DocumentsList(
                 if (documentViewModel.eventFlow.collectAsState(null)
                         .value == DocumentViewModel.UIEvents.ShowCreateLoading("1")
                 ) {
-                    Column(Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally) {
+                    Column(
+                        Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
 
 
                         CircularProgressIndicator(
@@ -265,7 +269,7 @@ fun DocumentsList(
                         modifier = Modifier
                             .size(24.dp)
                             .clickable {
-                                navController.navigate(Screens.SearchDocumentPage.route)
+                                navController.navigate(TabScreens.SearchDocumentPage.route)
                             })
 
                 }

@@ -31,10 +31,9 @@ import androidx.navigation.compose.rememberNavController
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.Screens
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.SignUpPage
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.DocumentViewModel
-import com.bhaskarblur.sync_realtimecontentwriting.presentation.documentsHome.DocumentsList
-import com.bhaskarblur.sync_realtimecontentwriting.presentation.documentsHome.SearchDocumentsPage
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.LoginPage
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.SignUpViewModel
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.TabScreenPage
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.NoInternetPage
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.backgroundColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
@@ -61,8 +60,6 @@ class MainActivity : ComponentActivity() {
             }
             val navController = rememberNavController()
 
-            navController.addOnDestinationChangedListener { _, _, _ -> userViewModel.checkNetworkAvailable() }
-
             LaunchedEffect(userViewModel.event.value) {
                 if (userViewModel.event.value.isNotEmpty()) {
                     Toast.makeText(context, userViewModel.event.value, Toast.LENGTH_SHORT).show()
@@ -75,8 +72,8 @@ class MainActivity : ComponentActivity() {
                     delay(500)
                     Log.d("userData__", loggedData.id.isNullOrEmpty().toString())
                     if (!loggedData.id.isNullOrEmpty()) {
-                        currentPage.value = Screens.HomePage.route
                         documentViewModel.setUser()
+                        currentPage.value = Screens.TabScreen.route
 
                     } else {
                         currentPage.value = Screens.RegistrationPage.route
@@ -107,24 +104,15 @@ class MainActivity : ComponentActivity() {
                                 SignUpPage(userViewModel, navController, context)
                             }
                             composable(
-                                route = Screens.HomePage.route
-                            ) {
-                                DocumentsList(
-                                    userViewModel, documentViewModel,
-                                    context, navController
-                                )
-                            }
-
-                            composable(
                                 route = Screens.LoginPage.route
                             ) {
                                 LoginPage(userViewModel, navController, context)
                             }
 
                             composable(
-                                route = Screens.SearchDocumentPage.route
+                                route = Screens.TabScreen.route
                             ) {
-                                SearchDocumentsPage(documentViewModel, navController, context)
+                                TabScreenPage(navController, userViewModel, documentViewModel)
                             }
 
                             composable(

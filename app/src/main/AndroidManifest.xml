@@ -16,6 +16,11 @@
         android:theme="@style/Theme.SyncRealtimeContentWriting"
         tools:targetApi="31">
         <activity
+            android:name=".presentation.tabScreens.TabScreen"
+            android:exported="false"
+            android:label="@string/title_activity_tab_screen"
+            android:theme="@style/Theme.SyncRealtimeContentWriting" />
+        <activity
             android:name=".presentation.appActivities.DocumentActivity"
             android:exported="false"
             android:label="@string/title_activity_document"
@@ -33,8 +38,7 @@
         <activity
             android:name=".presentation.appActivities.MainActivity"
             android:exported="false"
-            android:theme="@style/Theme.SyncRealtimeContentWriting">
-        </activity>
+            android:theme="@style/Theme.SyncRealtimeContentWriting"></activity>
     </application>
 
 </manifest>

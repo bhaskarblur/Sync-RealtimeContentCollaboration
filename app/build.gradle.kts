@@ -53,6 +53,9 @@ android {
 }
 
 dependencies {
+    implementation ("androidx.compose.ui:ui:1.5.4")
+    implementation ("androidx.compose.material:material:1.5.4")
+    implementation ("androidx.navigation:navigation-compose:2.7.6")
     implementation ("at.favre.lib:bcrypt:0.9.0")
     implementation ("androidx.compose.material:material-icons-extended:")
     implementation("com.google.firebase:firebase-database:20.3.0")
@@ -61,6 +64,8 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.6")
     implementation("androidx.navigation:navigation-runtime-ktx:2.7.6")
     implementation(platform("androidx.compose:compose-bom:2023.08.00"))
+    implementation(platform("androidx.compose:compose-bom:2023.08.00"))
+    androidTestImplementation(platform("androidx.compose:compose-bom:2023.08.00"))
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.08.00"))
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.08.00"))
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.08.00"))
