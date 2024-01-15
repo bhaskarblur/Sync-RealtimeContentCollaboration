@@ -111,6 +111,8 @@ class DocumentViewModel @Inject constructor(
                 Log.d("userDocumentCreated", doc.documentId.toString())
                 userDocuments.add(doc)
                 _eventFlow.emit(UIEvents.ShowCreateLoading("0"))
+                _eventFlow.emit(UIEvents.DocumentCreated(doc.documentId ?:""))
+
             }
         }
     }
@@ -371,6 +373,9 @@ class DocumentViewModel @Inject constructor(
         data class ShowCodeLoading(val message: String = "0") : UIEvents()
 
         data class ShowCreateLoading(val message: String = "0") : UIEvents()
+
+        // This data class added to handle the intent after New Document create and it is used in above createDocument function
+        data class DocumentCreated(val documentId:String):UIEvents()
     }
 
 

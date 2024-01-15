@@ -1,5 +1,6 @@
 package com.bhaskarblur.sync_realtimecontentwriting.presentation.appActivities
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -39,6 +40,8 @@ import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.backgroundColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterIsInstance
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -82,6 +85,23 @@ class MainActivity : ComponentActivity() {
                     currentPage.value = Screens.NoInternet.route
                 }
             }
+
+            /*
+              This code intent to DocumentActivity after creating a new document
+            */
+            LaunchedEffect(documentViewModel.eventFlow){
+                documentViewModel.eventFlow
+                    .filterIsInstance<DocumentViewModel.UIEvents.DocumentCreated>()
+                    .collectLatest {documentCreated->
+                        documentCreated.documentId?.let {documentId->
+                            val intent= Intent(context,DocumentActivity::class.java)
+                            intent.putExtra("documentId",documentId)
+                            context.startActivity(intent)
+                        }
+
+                    }
+            }
+
 
             Scaffold(
                 snackbarHost = { SnackbarHost(hostState = scaffoldState) }) {
