@@ -8,7 +8,7 @@ Sync is a realtime content collaboration app with multiple people developed in K
 
 
 ## Open to Contributors
-I and We warmly welcome contributors to contribute to this app and improve the App, add new features and more, especially the Jetpack compose UI part. 
+I and We warmly welcome anyone & everyone to contribute to this app and improve the App, add new features & more, especially the Jetpack compose UI part. 
 
 ### Technologies used:
 1. Language: Kotlin
@@ -18,3 +18,6 @@ I and We warmly welcome contributors to contribute to this app and improve the A
 5. AI: Open AI Chat GPT Api
 
 #### Note: In order to setup the environment and work on the app locally, you've to add the firebase db url, Open AI Api & other credentials in values/string files, i know it's not a good approach to save keys this way, but it is what it is :))
+
+## Submit a change or new feature
+If you wish to contribute and want to submit feature/improvement ideas before/after implementing them, you can make an issue for them in this repository or DM me directly on Linkedin(find it from my profile) so that we can have a chat over it.
