@@ -264,9 +264,9 @@ fun DocumentsList(
                         DocumentItem(documentModel = doc, onDelete = {
                             documentViewModel.deleteDocument(doc.documentId ?: "")
                         }, onItemClick = {
-                            val intent = Intent(context, DocumentActivity::class.java)
-                            intent.putExtra("documentId", doc.documentId)
-                            context.startActivity(intent)
+                            documentViewModel.emitUIEvent(
+                                UIEvents.DocumentCodeApplied(doc.documentId?:"")
+                            )
                         }, onShare = {
                             documentViewModel.emitUIEvent(
                                 UIEvents.ShareDocument(

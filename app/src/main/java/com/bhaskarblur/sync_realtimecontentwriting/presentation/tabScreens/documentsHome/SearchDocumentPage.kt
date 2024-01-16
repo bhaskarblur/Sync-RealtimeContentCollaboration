@@ -77,8 +77,10 @@ fun SearchDocumentsPage(
                     searchText.value = it
                 },
                 suffix = {
-                    Icon(Icons.Filled.Search, contentDescription = "",
-                        tint = textColorPrimary, modifier = Modifier.size(24.dp))
+                    Icon(
+                        Icons.Filled.Search, contentDescription = "",
+                        tint = textColorPrimary, modifier = Modifier.size(24.dp)
+                    )
                 },
                 placeholder = {
                     Text(
@@ -106,8 +108,11 @@ fun SearchDocumentsPage(
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
-        Column(Modifier.fillMaxSize()
-            .padding(horizontal = 18.dp)) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(horizontal = 18.dp)
+        ) {
             Text(
                 text = "Search results will be shown below, you can search with title, document code and even the content inside the document.",
                 fontSize = 13.sp,
@@ -123,9 +128,12 @@ fun SearchDocumentsPage(
             ) {
                 items(items = documentViewModel.userDocuments.reversed()
                     .filter {
-                        it.documentName?.lowercase()?.contains(searchText.value.lowercase()) == true ||
-                                it.documentId?.lowercase()?.contains(searchText.value.lowercase()) == true ||
-                                it.content?.content?.lowercase()?.contains(searchText.value.lowercase()) == true
+                        it.documentName?.lowercase()
+                            ?.contains(searchText.value.lowercase()) == true ||
+                                it.documentId?.lowercase()
+                                    ?.contains(searchText.value.lowercase()) == true ||
+                                it.content?.content?.lowercase()
+                                    ?.contains(searchText.value.lowercase()) == true
                     },
                     key = {
                         it.documentId ?: ""
@@ -133,11 +141,13 @@ fun SearchDocumentsPage(
                     DocumentItem(documentModel = doc, onDelete = {
                         documentViewModel.deleteDocument(doc.documentId ?: "")
                     }, onItemClick = {
-                        val intent = Intent(context, DocumentActivity::class.java)
-                        intent.putExtra("documentId", doc.documentId)
-                        context.startActivity(intent)
+                        documentViewModel.emitUIEvent(
+                            UIEvents.DocumentCodeApplied(
+                                doc.documentId ?: ""
+                            )
+                        )
                     }, onShare = {
-                        documentViewModel.emitUIEvent(UIEvents.ShareDocument(doc.documentId?:""))
+                        documentViewModel.emitUIEvent(UIEvents.ShareDocument(doc.documentId ?: ""))
                     }, context = context)
                 }
             }

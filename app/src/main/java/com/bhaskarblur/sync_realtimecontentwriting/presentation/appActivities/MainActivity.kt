@@ -46,8 +46,10 @@ import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
+import okhttp3.internal.wait
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -69,22 +71,11 @@ class MainActivity : ComponentActivity() {
                     Log.d("validDeepLinkUrl", appLinkData.toString())
                     val docCode = showDeepLinkDocument(appLinkAction, appLinkData)
                     if (docCode.isNotEmpty()) {
-                        lifecycle.coroutineScope.launch {
-                            val validCode = documentViewModel.getDocumentById(docCode)
-
-                            if (validCode) {
-                                val intent_ =
-                                    Intent(this@MainActivity, DocumentActivity::class.java)
-                                intent_.putExtra("documentId", docCode)
-                                startActivity(intent_)
-                            }
-                            else {
-                                Toast.makeText(
-                                    this@MainActivity, "Unknown Error! Please check the document link and try again.",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
+                        val intent_ =
+                            Intent(this@MainActivity, DocumentActivity::class.java)
+                        intent_.putExtra("documentId", docCode)
+                        intent_.putExtra("applyDocCheck", true)
+                        startActivity(intent_)
 
                     }
                 } else {
@@ -130,48 +121,39 @@ class MainActivity : ComponentActivity() {
 
             LaunchedEffect(documentViewModel.eventFlow) {
 
-                documentViewModel.eventFlow
-                    .filterIsInstance<UIEvents.ShareDocument>()
-                    .collectLatest { documentShared ->
-                        documentShared.documentId.let { documentId ->
-                            val sendIntent = Intent()
-                            sendIntent.setAction(Intent.ACTION_SEND)
-                            sendIntent.putExtra(
-                                Intent.EXTRA_TEXT,
-                                "Hey there! I invite you to collaborate with me in my content creation on Sync App: ${
-                                    Constants.appDeepLinkUrl.plus(
-                                        documentId
-                                    )
-                                }"
-                            )
-                            sendIntent.setType("text/plain")
-                            startActivity(Intent.createChooser(sendIntent, "Share Document"))
-                            documentViewModel.emitUIEvent(UIEvents.DefaultState())
+                documentViewModel.eventFlow.collectLatest { event ->
+                    when (event) {
+                        is UIEvents.ShareDocument -> {
+                           val collectedEvent : UIEvents.ShareDocument = event
+                            collectedEvent.documentId.let { documentId ->
+                                val sendIntent = Intent()
+                                sendIntent.setAction(Intent.ACTION_SEND)
+                                sendIntent.putExtra(
+                                    Intent.EXTRA_TEXT,
+                                    "Hey there! I invite you to collaborate with me in my content creation on Sync App: ${
+                                        Constants.appDeepLinkUrl.plus(
+                                            documentId
+                                        )
+                                    }"
+                                )
+                                sendIntent.setType("text/plain")
+                                startActivity(Intent.createChooser(sendIntent, "Share Document"))
+                                documentViewModel.emitUIEvent(UIEvents.DefaultState())
+                            }
+                        }
+                        is UIEvents.DocumentCodeApplied -> {
+                            val collectedEvent : UIEvents.DocumentCodeApplied = event
+                            collectedEvent.documentId.let { documentId ->
+                                val intent = Intent(context, DocumentActivity::class.java)
+                                intent.putExtra("documentId", documentId)
+                                context.startActivity(intent)
+                            }
+
                         }
 
+                        else -> {}
                     }
-
-                documentViewModel.eventFlow
-                    .filterIsInstance<UIEvents.DocumentCreated>()
-                    .collectLatest { documentCreated ->
-                        documentCreated.documentId.let { documentId ->
-                            val intent = Intent(context, DocumentActivity::class.java)
-                            intent.putExtra("documentId", documentId)
-                            context.startActivity(intent)
-                        }
-
-                    }
-
-                documentViewModel.eventFlow
-                    .filterIsInstance<UIEvents.DocumentCodeApplied>()
-                    .collectLatest { documentCreated ->
-                        documentCreated.documentId.let { documentId ->
-                            val intent = Intent(context, DocumentActivity::class.java)
-                            intent.putExtra("documentId", documentId)
-                            context.startActivity(intent)
-                        }
-
-                    }
+                }
 
             }
             Scaffold(

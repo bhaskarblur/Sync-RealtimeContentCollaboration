@@ -1,9 +1,7 @@
 package com.bhaskarblur.sync_realtimecontentwriting.presentation.document
 
 import android.util.Log
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -12,8 +10,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bhaskarblur.dictionaryapp.core.utils.Resources
 import com.bhaskarblur.gptbot.models.GptBody
-import com.bhaskarblur.gptbot.models.GptMessageModel
-import com.bhaskarblur.gptbot.models.MessageBody
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.AppNetworkManager
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.PromptModelDto
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.ContentModel
@@ -29,11 +25,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.util.Stack
 import javax.inject.Inject
 
@@ -116,7 +109,7 @@ class DocumentViewModel @Inject constructor(
                 Log.d("userDocumentCreated", doc.documentId.toString())
                 userDocuments.add(doc)
                 _eventFlow.emit(UIEvents.ShowCreateLoading("0"))
-                _eventFlow.emit(UIEvents.DocumentCreated(doc.documentId ?:""))
+                emitUIEvent(UIEvents.DocumentCodeApplied(doc.documentId ?:""))
 
             }
         }
@@ -160,16 +153,18 @@ class DocumentViewModel @Inject constructor(
     fun switchUserOn() {
         viewModelScope.launch(Dispatchers.IO) {
             userDetails.value.userName?.let {
+                if(!documentData.value.documentId.isNullOrEmpty()) {
                 if (!userDetails.value.userName.isNullOrEmpty()) {
                     viewModelScope.launch(Dispatchers.IO) {
                         if (documentData.value.documentId != null) {
                             documentUseCase.switchUserToOnline(
-                                documentData.value.documentId!!,
+                                documentData.value.documentId?:"",
                                 userDetails.value.id.toString()
                             )
                         }
                     }
                 }
+                    }
             }
         }
     }
@@ -186,10 +181,12 @@ class DocumentViewModel @Inject constructor(
 
     fun switchUserOff() {
         viewModelScope.launch(Dispatchers.IO) {
-            documentUseCase.switchUserToOffline(
-                documentData.value.documentId!!,
-                userDetails.value.id!!
-            )
+            if(!documentData.value.documentId.isNullOrEmpty()) {
+                documentUseCase.switchUserToOffline(
+                    documentData.value.documentId ?: "",
+                    userDetails.value.id!!
+                )
+            }
         }
     }
 
@@ -311,12 +308,11 @@ class DocumentViewModel @Inject constructor(
         )
         _documentData.value = tempMsg
         addMessageToPrompt(messageModel)
-        lateinit var body: GptBody
-        if (ignoreChatHistory) {
-            body = GptBody(messages = arrayListOf(messageModel.toMessageModel()))
+        val body: GptBody = if (ignoreChatHistory) {
+            GptBody(messages = arrayListOf(messageModel.toMessageModel()))
         } else {
 
-            body = GptBody(messages = _documentData.value.promptsList?.map { it.toMessageModel() }
+            GptBody(messages = _documentData.value.promptsList?.map { it.toMessageModel() }
                 ?: listOf())
         }
         Log.d("body", body.toString())
@@ -356,9 +352,6 @@ class DocumentViewModel @Inject constructor(
                         _gptData.value = "Generating..."
                     }
 
-                    else -> {
-                        _gptData.value = ""
-                    }
                 }
 
             }
