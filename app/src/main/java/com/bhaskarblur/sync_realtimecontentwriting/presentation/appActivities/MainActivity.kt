@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.coroutineScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -46,6 +47,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -67,9 +69,23 @@ class MainActivity : ComponentActivity() {
                     Log.d("validDeepLinkUrl", appLinkData.toString())
                     val docCode = showDeepLinkDocument(appLinkAction, appLinkData)
                     if (docCode.isNotEmpty()) {
-                        val intent_ = Intent(this, DocumentActivity::class.java)
-                        intent_.putExtra("documentId", docCode)
-                        startActivity(intent_)
+                        lifecycle.coroutineScope.launch {
+                            val validCode = documentViewModel.getDocumentById(docCode)
+
+                            if (validCode) {
+                                val intent_ =
+                                    Intent(this@MainActivity, DocumentActivity::class.java)
+                                intent_.putExtra("documentId", docCode)
+                                startActivity(intent_)
+                            }
+                            else {
+                                Toast.makeText(
+                                    this@MainActivity, "Unknown Error! Please check the document link and try again.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+
                     }
                 } else {
                     Toast.makeText(
@@ -113,7 +129,6 @@ class MainActivity : ComponentActivity() {
             }
 
             LaunchedEffect(documentViewModel.eventFlow) {
-                Log.d("valueChange", "yes")
 
                 documentViewModel.eventFlow
                     .filterIsInstance<UIEvents.ShareDocument>()
@@ -138,6 +153,17 @@ class MainActivity : ComponentActivity() {
 
                 documentViewModel.eventFlow
                     .filterIsInstance<UIEvents.DocumentCreated>()
+                    .collectLatest { documentCreated ->
+                        documentCreated.documentId.let { documentId ->
+                            val intent = Intent(context, DocumentActivity::class.java)
+                            intent.putExtra("documentId", documentId)
+                            context.startActivity(intent)
+                        }
+
+                    }
+
+                documentViewModel.eventFlow
+                    .filterIsInstance<UIEvents.DocumentCodeApplied>()
                     .collectLatest { documentCreated ->
                         documentCreated.documentId.let { documentId ->
                             val intent = Intent(context, DocumentActivity::class.java)

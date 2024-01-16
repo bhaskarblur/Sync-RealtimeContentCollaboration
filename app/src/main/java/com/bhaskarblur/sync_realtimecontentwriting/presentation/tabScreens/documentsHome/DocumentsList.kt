@@ -168,21 +168,16 @@ fun DocumentsList(
                                     .size(20.dp)
                                     .clickable {
                                         if (documentCode.value.isNotEmpty()) {
+                                            documentViewModel.emitUIEvent(UIEvents.ShowCodeLoading("1"))
                                             scope.launch {
                                                 val isValidCode =
                                                     documentViewModel.getDocumentById(documentCode.value)
+                                                documentViewModel.emitUIEvent(UIEvents.ShowCodeLoading("0"))
 
                                                 if (isValidCode) {
-                                                    val intent =
-                                                        Intent(
-                                                            context,
-                                                            DocumentActivity::class.java
-                                                        )
-                                                    intent.putExtra(
-                                                        "documentId",
+                                                    documentViewModel.emitUIEvent(UIEvents.DocumentCodeApplied(
                                                         documentCode.value
-                                                    )
-                                                    context.startActivity(intent)
+                                                    ))
                                                 } else {
                                                     userViewModel.event.value =
                                                         "Incorrect document code"
