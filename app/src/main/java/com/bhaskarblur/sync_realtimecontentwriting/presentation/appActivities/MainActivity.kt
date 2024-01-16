@@ -33,6 +33,7 @@ import androidx.navigation.compose.rememberNavController
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.Constants
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.Screens
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.UIEvents
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.appActivities.ActivityHelper.showDeepLinkDocument
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.DocumentViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.LoginPage
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.SignUpPage
@@ -57,7 +58,27 @@ class MainActivity : ComponentActivity() {
         userViewModel = viewModels<SignUpViewModel>().value
         val loggedData by userViewModel.userState
         val networkAvailable by userViewModel.isInternetAvailable
-        val data: Uri? = intent?.data
+
+        fun handleIntent(intent: Intent?) {
+            if (!intent?.dataString.isNullOrEmpty()) {
+                if (!userViewModel.userState.value.id.isNullOrEmpty()) {
+                    val appLinkAction: String? = intent?.action
+                    val appLinkData: Uri? = intent?.data
+                    Log.d("validDeepLinkUrl", appLinkData.toString())
+                    val docCode = showDeepLinkDocument(appLinkAction, appLinkData)
+                    if (docCode.isNotEmpty()) {
+                        val intent_ = Intent(this, DocumentActivity::class.java)
+                        intent_.putExtra("documentId", docCode)
+                        startActivity(intent_)
+                    }
+                } else {
+                    Toast.makeText(
+                        this, "You must be logged in to access the document.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
         setContent {
             val context = LocalContext.current
             val scaffoldState = remember { SnackbarHostState() }
@@ -84,6 +105,8 @@ class MainActivity : ComponentActivity() {
                     } else {
                         currentPage.value = Screens.RegistrationPage.route
                     }
+
+                    handleIntent(intent)
                 } else {
                     currentPage.value = Screens.NoInternet.route
                 }
@@ -107,7 +130,7 @@ class MainActivity : ComponentActivity() {
                                 }"
                             )
                             sendIntent.setType("text/plain")
-                            startActivity(Intent.createChooser(sendIntent,"Share Document"))
+                            startActivity(Intent.createChooser(sendIntent, "Share Document"))
                             documentViewModel.emitUIEvent(UIEvents.DefaultState())
                         }
 
@@ -124,12 +147,6 @@ class MainActivity : ComponentActivity() {
 
                     }
 
-            }
-
-            data?.let {
-                if(!userViewModel.userState.value.id.isNullOrEmpty()) {
-                    Log.d("receivedDeepLink", it.toString())
-                }
             }
             Scaffold(
                 snackbarHost = { SnackbarHost(hostState = scaffoldState) }) {
