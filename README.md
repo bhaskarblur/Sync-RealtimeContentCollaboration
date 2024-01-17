@@ -1,5 +1,5 @@
 # Sync- Realtime Content Collaboration
-Sync is a realtime content collaboration app with multiple people developed in Kotlin with Firebase realtime database, offers undo-redo changes and realtime collaborative AI Content generation.
+Sync is a realtime content collaboration app with multiple people developed in Kotlin with Firebase realtime database, offers undo-redo changes and realtime collaborative AI Content generation along with many other collaborative features.
 
 ### Screenshots
 
@@ -19,5 +19,15 @@ I and We warmly welcome anyone & everyone to contribute to this app and improve 
 
 #### Note: In order to setup the environment and work on the app locally, you've to add the firebase db url, Open AI Api & other credentials in values/string files, i know it's not a good approach to save keys this way, but it is what it is :))
 
+
+## Features:
+1. Realtime content collaboration and editing with multiple people.
+3. Users can see each other's cursor/location on document.
+4. Users can do collaborative AI Prompting and add the AI Content into the document.
+5. Share document & Deep Linking enabled to open document via it's link
+6. Multi Text Styling i.e different text styles like Text Size, Weight, Color, Background etc. (Coming soon)
+7. Drop comments in the document. (Coming soon)
+8. 2. Multiple document support & Explore section to see public document. (Coming soon)
+   
 ## Submit a change or new feature
 If you wish to contribute and want to submit feature/improvement ideas before/after implementing them, you can make an issue for them in this repository or DM me directly on Linkedin(find it from my profile) so that we can have a chat over it.
