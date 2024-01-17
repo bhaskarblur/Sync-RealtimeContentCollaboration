@@ -21,6 +21,8 @@ class SharedPreferencesManager @Inject constructor(
         editor.putString("id", userData.id)
         editor.putString("userName", userData.userName)
         editor.putString("fullName", userData.fullName)
+        editor.putString("userEmail",userData.userEmail)
+        editor.putString("userPicture",userData.userPicture)
         editor.apply()
         Log.d("sessionStored", userData.toUserModel().toString())
     }

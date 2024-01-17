@@ -1,6 +1,7 @@
 package com.bhaskarblur.sync_realtimecontentwriting.data.remote
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -19,14 +20,21 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.lang.Exception
+import java.util.UUID
 import javax.inject.Inject
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 class FirebaseManager @Inject constructor(
+    private val storageReference: StorageReference,
     private val documentRef: DatabaseReference,
     private val usersModelRef: DatabaseReference,
     private val shpRepo: SharedPreferencesManager,
@@ -40,12 +48,20 @@ class FirebaseManager @Inject constructor(
         fun DB_URL(context: Context): String {
             return context.getString(R.string.DB_URL)
         }
+        fun STORAGE_URL(context: Context):String{
+            return context.getString(R.string.STOARGE_URL)
+        }
     }
 
-    suspend fun createUser(userName: String, fullName: String, password: String): UserModel {
+    suspend fun createUser(userName: String, fullName: String,userEmail:String, password: String,userPictureUri:Uri): UserModel {
+        val imageUrl=uploadProfileImage(userName,userPictureUri)
         var user = UserModelDto(
             id = usersModelRef.push().key,
-            userName = userName, fullName = fullName
+            userName = userName,
+            fullName = fullName,
+            userEmail=userEmail,
+            password=password,
+            userPicture=imageUrl
         )
         withContext(Dispatchers.IO) {
             val checkUser = getUserByUserName(userName)
@@ -54,7 +70,11 @@ class FirebaseManager @Inject constructor(
                 usersModelRef.child(user.id ?: "").setValue(
                     UserModelDto(
                         id = user.id ?: "",
-                        userName, fullName, password
+                        user.userName,
+                        user.fullName,
+                        user.userEmail,
+                        user.password,
+                        user.userPicture
                     )
                 ).addOnCompleteListener {
                     try {
@@ -66,8 +86,11 @@ class FirebaseManager @Inject constructor(
                     if (it.isSuccessful) {
                         user = UserModelDto(
                             id = user.id,
-                            userName, fullName,
-                            password
+                            user.userName,
+                            user.fullName,
+                            user.userEmail,
+                            user.password,
+                            user.userPicture
                         )
                         return@addOnCompleteListener
                     }
@@ -79,6 +102,26 @@ class FirebaseManager @Inject constructor(
         }
         Log.d("FirebaseUserCreated", user.toUserModel().toString())
         return user.toUserModel()
+    }
+
+    private suspend fun uploadProfileImage(
+        userName:String,
+        imageUri:Uri
+    ):String{
+        val imgRef=storageReference.child("Profile/$userName/${UUID.randomUUID()}")
+        val uploadTask=imgRef.putFile(imageUri)
+
+        return suspendCoroutine {continuation ->
+            uploadTask
+                .addOnSuccessListener {snapShot->
+                imgRef.downloadUrl.addOnSuccessListener {uri->
+                    continuation.resume(uri.toString())
+                }
+            }
+                .addOnFailureListener{
+                    continuation.resumeWithException(it)
+                }
+        }
     }
 
     suspend fun getUserById(userId: String): UserModel {

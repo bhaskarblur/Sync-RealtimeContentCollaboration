@@ -28,15 +28,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.coroutineScope
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.Constants
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.Screens
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.UIEvents
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.appActivities.ActivityHelper.showDeepLinkDocument
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.DocumentViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.LoginPage
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.ProfileSetup
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.SignUpPage
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.SignUpViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.TabScreenPage
@@ -195,6 +198,28 @@ class MainActivity : ComponentActivity() {
                                     userViewModel.checkNetworkAvailable()
                                 }
 
+                            }
+                            composable(
+                                route = "${Screens.ProfileSetupPage.route}/{userEmail}/{userName}/{password}",
+                                arguments = listOf(
+                                    navArgument("userName") { type = NavType.StringType },
+                                    navArgument("userEmail") { type = NavType.StringType },
+                                    navArgument("password") { type = NavType.StringType }
+
+                                )
+                            ){backStackEntry->
+                                val userName = backStackEntry.arguments?.getString("userName") ?: ""
+                                val userEmail = backStackEntry.arguments?.getString("userEmail") ?: ""
+                                val password = backStackEntry.arguments?.getString("password") ?: ""
+
+                                ProfileSetup(
+                                    userName = userName,
+                                    userEmail = userEmail,
+                                    password= password,
+                                    viewModel=userViewModel,
+                                    navController =navController ,
+                                    context = context
+                                )
                             }
                         }
                     } else {
