@@ -1,5 +1,6 @@
 package com.bhaskarblur.sync_realtimecontentwriting.presentation.registration
 
+import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -48,9 +49,9 @@ class SignUpViewModel @Inject constructor(
          isInternetAvailable.value = appNetworkManager.isNetworkAvailable()
         return isInternetAvailable.value
     }
-    fun signUpUser(userName: String, fullName : String, password : String) {
+    fun signUpUser(userName: String, fullName : String,userEmail:String,password : String,userPicture:Uri) {
         viewModelScope.launch {
-            userUseCase.createUser(userName, fullName, password).collectLatest { user ->
+            userUseCase.createUser(userName, fullName,userEmail, password,userPicture).collectLatest { user ->
                 if(!user.id.isNullOrEmpty()) {
                     _userState.value = user
                     event.value = ""

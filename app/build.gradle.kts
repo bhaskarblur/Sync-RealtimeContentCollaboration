@@ -59,6 +59,7 @@ dependencies {
     implementation ("at.favre.lib:bcrypt:0.9.0")
     implementation ("androidx.compose.material:material-icons-extended:")
     implementation("com.google.firebase:firebase-database:20.3.0")
+    implementation("com.google.firebase:firebase-storage:20.3.0")
     implementation(platform("androidx.compose:compose-bom:2023.08.00"))
     implementation(platform("androidx.compose:compose-bom:2023.08.00"))
     implementation("androidx.navigation:navigation-compose:2.7.6")

@@ -8,17 +8,19 @@ data class UserModelDto(
     var id : String? = "",
     var userName : String? = "",
     var fullName : String? = "",
-    var password : String? = ""
+    var userEmail: String?="",
+    var password : String? = "",
+    var userPicture:String?=""
 ) {
 
     fun toUserModel() : UserModel {
-        return UserModel(id, userName, fullName)
+        return UserModel(id, userName, fullName,userEmail,userPicture)
     }
 
     companion object {
         fun fromUserModel(user: UserModel): UserModelDto {
             return UserModelDto(
-                user.id, user.userName, user.fullName
+                user.id, user.userName, user.fullName,user.userEmail,user.userPicture
             )
         }
     }

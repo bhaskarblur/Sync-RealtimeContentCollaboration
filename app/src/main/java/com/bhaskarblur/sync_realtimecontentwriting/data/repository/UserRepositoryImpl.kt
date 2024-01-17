@@ -1,5 +1,6 @@
 package com.bhaskarblur.sync_realtimecontentwriting.data.repository
 
+import android.net.Uri
 import android.util.Log
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.PasswordUtil
 import com.bhaskarblur.sync_realtimecontentwriting.data.local.SharedPreferencesManager
@@ -18,16 +19,16 @@ class UserRepositoryImpl @Inject constructor(
     private val spManager: SharedPreferencesManager,
     private val passUtil : PasswordUtil
 ): IUserRepository {
-    override fun signupUser(userName: String, fullName: String, password : String): Flow<UserModel> = flow {
+    override fun signupUser(userName: String, fullName: String,userEmail:String, password : String,userPicture:Uri): Flow<UserModel> = flow {
         val hashedPass = passUtil.hashPassword(password)
-        val user = firebaseManager.createUser(userName, fullName, hashedPass)
+        val user = firebaseManager.createUser(userName, fullName, userEmail,hashedPass,userPicture)
         if(!user.id.isNullOrEmpty()) {
             Log.d("FirebaseUserToBeStored", user.toString())
-            spManager.storeSession(UserModelDto(user.id, user.userName, user.fullName))
+            spManager.storeSession(UserModelDto(user.id, user.userName, user.fullName,user.userEmail,user.userPicture))
             emit(user)
         }
         else {
-            emit(UserModel(null, null, null))
+            emit(UserModel(null, null, null,null,null))
         }
 
     }.flowOn(Dispatchers.IO)
