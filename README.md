@@ -27,7 +27,7 @@ I and We warmly welcome anyone & everyone to contribute to this app and improve 
 5. Share document & Deep Linking enabled to open document via it's link
 6. Multi Text Styling i.e different text styles like Text Size, Weight, Color, Background etc. (Coming soon)
 7. Drop comments in the document. (Coming soon)
-8. 2. Multiple document support & Explore section to see public document. (Coming soon)
+8. Multiple document support & Explore section to see public document. (Coming soon)
    
 ## Submit a change or new feature
 If you wish to contribute and want to submit feature/improvement ideas before/after implementing them, you can make an issue for them in this repository or DM me directly on Linkedin(find it from my profile) so that we can have a chat over it.
