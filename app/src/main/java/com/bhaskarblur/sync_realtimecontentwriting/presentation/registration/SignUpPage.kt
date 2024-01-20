@@ -1,17 +1,10 @@
 package com.bhaskarblur.sync_realtimecontentwriting.presentation.registration
 
 import android.content.Context
-import android.net.Uri
-import android.os.Bundle
-import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import android.util.Patterns
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,11 +12,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
@@ -43,7 +34,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -54,17 +44,15 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.os.bundleOf
 import androidx.navigation.NavController
-import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import com.bhaskarblur.sync_realtimecontentwriting.R
-import com.bhaskarblur.sync_realtimecontentwriting.domain.model.UserModel
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.Screens
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorSecondary
+import java.util.regex.Pattern
+
 
 @Composable
 fun SignUpPage(
@@ -160,7 +148,9 @@ fun SignUpPage(
                 .fillMaxWidth()
                 .background(shape = RoundedCornerShape(90.dp), color = colorSecondary),
             onValueChange = { value ->
-                userEmail.value = value
+                userEmail.value = value.replaceFirstChar {
+                    it.lowercase()
+                }
             },
             placeholder = {
                 Text("Enter Email")
@@ -201,7 +191,6 @@ fun SignUpPage(
                     Icons.Filled.Visibility
                 else Icons.Filled.VisibilityOff
 
-                // Please provide localized description for accessibility services
                 val description = if (passwordVisible) "Hide password" else "Show password"
 
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
@@ -234,17 +223,22 @@ fun SignUpPage(
                             userEmail.value.isNotEmpty() &&
                             password.value.isNotEmpty()
                         ) {
-                            navController.navigate(
-                                "${Screens.ProfileSetupPage.route}/" +
-                                        "${userEmail.value}/${userName.value}/${password.value}"
-                            )
-                            isLoading = true
+                            val pattern: Pattern = Patterns.EMAIL_ADDRESS
+                            if(pattern.matcher(userEmail.value).matches()) {
+                                navController.navigate(
+                                    "${Screens.ProfileSetupPage.route}/" +
+                                            "${userEmail.value}/${userName.value}/${password.value}"
+                                )
+                                isLoading = true
+                            } else {
+                                viewModel.event.value = "Invalid email format!"
+                            }
                         } else {
                             viewModel.event.value = "Please fill all the details"
                         }
                     },
                 ) {
-                    Text("Create account", fontSize = 16.sp)
+                    Text("Create account", fontSize = 16.sp, color = textColorPrimary)
 
                 }
             }

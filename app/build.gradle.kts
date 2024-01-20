@@ -53,6 +53,7 @@ android {
 }
 
 dependencies {
+    implementation("io.coil-kt:coil-compose:2.4.0")
     implementation ("androidx.compose.ui:ui:1.5.4")
     implementation ("androidx.compose.material:material:1.5.4")
     implementation ("androidx.navigation:navigation-compose:2.7.6")
@@ -66,13 +67,14 @@ dependencies {
     implementation("androidx.navigation:navigation-runtime-ktx:2.7.6")
     implementation(platform("androidx.compose:compose-bom:2023.08.00"))
     implementation(platform("androidx.compose:compose-bom:2023.08.00"))
+    implementation("com.google.firebase:firebase-storage-ktx:20.3.0")
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.08.00"))
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.08.00"))
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.08.00"))
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.08.00"))
     val lifecycle_version = "2.6.2"
     val room_version = "2.6.1"
-
+    implementation("com.google.firebase:firebase-storage")
     implementation("androidx.room:room-runtime:$room_version")
     annotationProcessor("androidx.room:room-compiler:$room_version")
     // To use Kotlin annotation processing tool (kapt)

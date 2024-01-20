@@ -12,6 +12,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Person
@@ -24,12 +27,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.compose.AsyncImagePainter
+import coil.request.ImageRequest
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.DocumentViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.SignUpViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.AlertDialogComponent
@@ -77,26 +85,56 @@ fun ProfilePage(
             )
         }
 
-        Column(Modifier.fillMaxSize()
-            .padding(18.dp)) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(18.dp)
+        ) {
+            if (userViewModel.userState.value.userPicture.isNullOrEmpty()) {
+                Icon(
+                    Icons.Filled.AccountCircle, contentDescription = "pfp",
+                    modifier = Modifier.size(84.dp), tint = textColorSecondary
+                )
+            } else {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(userViewModel.userState.value.userPicture)
+                        .build(),
+                    contentScale = ContentScale.Crop,
+                    contentDescription = "User pfp",
+                    modifier = Modifier
+                        .size(84.dp)
+                        .clip(CircleShape)
+                        .background(color = colorSecondary, shape = RoundedCornerShape(90.dp))
+                )
+            }
 
-            Icon(Icons.Filled.AccountCircle, contentDescription = "pfp",
-                modifier = Modifier.size(84.dp), tint = textColorSecondary)
+            Spacer(Modifier.height(8.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    userViewModel.userState.value.fullName ?: "", style = TextStyle(
+                        textColorPrimary, fontSize = 20.sp, fontWeight = FontWeight.SemiBold
+                    )
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    "(@${userViewModel.userState.value.userName})", style = TextStyle(
+                        textColorSecondary, fontSize = 15.sp, fontWeight = FontWeight.Medium
+                    )
+                )
+            }
 
             Spacer(Modifier.height(8.dp))
 
             Text(
-                userViewModel.userState.value.fullName?:"", style = TextStyle(
-                    textColorPrimary, fontSize = 20.sp, fontWeight = FontWeight.SemiBold
-                ))
-
-                Spacer(Modifier.height(8.dp))
-
-            Text(
-                "@${userViewModel.userState.value.userName}", style = TextStyle(
+                "@${userViewModel.userState.value.userEmail}", style = TextStyle(
                     textColorSecondary, fontSize = 15.sp, fontWeight = FontWeight.Medium
-                ))
-
+                )
+            )
 
             Spacer(Modifier.height(24.dp))
             Text(

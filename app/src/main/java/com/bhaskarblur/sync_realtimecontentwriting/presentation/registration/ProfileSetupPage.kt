@@ -8,18 +8,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
@@ -75,14 +80,12 @@ fun ProfileSetup(
         isLoading = false
     }
 
-    // Image Picker
     var selectImage by remember { mutableStateOf<Uri?>(null) }
     val galleryLauncher= rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ){uri: Uri? ->
         selectImage=uri
     }
-
 
     Column(
         Modifier
@@ -91,9 +94,29 @@ fun ProfileSetup(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Spacer(Modifier.height(18.dp))
+        Spacer(Modifier.height(8.dp))
 
-        //Circular ImageView
+        Row(horizontalArrangement = Arrangement.Start,
+            modifier = Modifier.fillMaxWidth()) {
+            Icon(
+                Icons.Filled.ArrowBack,
+                tint = textColorPrimary,
+                contentDescription = "Back",
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable {
+                        navController.popBackStack()
+                    }
+            )
+            Spacer(Modifier.width(104.dp))
+            Text(
+                "Set Up Profile", fontSize = 18.sp, color = textColorPrimary,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+
+        Spacer(Modifier.height(36.dp))
+
         Box(
             Modifier
                 .size(95.dp)
@@ -112,17 +135,24 @@ fun ProfileSetup(
                         .clip(CircleShape)
                 )
             }else{
-                Image(
-                    painterResource(id = R.drawable.camera_icon),
-                    contentDescription = "App logo",
-                    Modifier
-                        .size(96.dp)
-                )
+                Box(
+                    Modifier.background(
+                        colorSecondary, RoundedCornerShape(90.dp)
+                    ).size(96.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Filled.CameraAlt,
+                        tint = textColorSecondary,
+                        contentDescription = "App logo",
+                        modifier = Modifier
+                            .size(48.dp)
+                    )
+                }
             }
         }
 
         Spacer(Modifier.height(36.dp))
-
 
         TextField(
             shape = RoundedCornerShape(10.dp),
@@ -185,7 +215,8 @@ fun ProfileSetup(
                         }
                     },
                 ) {
-                    Text("Set Up Profile", fontSize = 16.sp)
+                    Text("Complete profile", fontSize = 16.sp,
+                        color = textColorPrimary)
 
                 }
             }

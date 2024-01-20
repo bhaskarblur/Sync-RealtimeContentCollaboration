@@ -24,7 +24,7 @@ class UserRepositoryImpl @Inject constructor(
         val user = firebaseManager.createUser(userName, fullName, userEmail,hashedPass,userPicture)
         if(!user.id.isNullOrEmpty()) {
             Log.d("FirebaseUserToBeStored", user.toString())
-            spManager.storeSession(UserModelDto(user.id, user.userName, user.fullName,user.userEmail,user.userPicture))
+            spManager.storeSession(UserModelDto(user.id, user.userName, user.fullName,user.userEmail,"",user.userPicture))
             emit(user)
         }
         else {
@@ -39,7 +39,8 @@ class UserRepositoryImpl @Inject constructor(
         if(!user.id.isNullOrEmpty()) {
             if(passIsCorrect) {
                 Log.d("firebasePasswordCorrect", user.toString())
-                spManager.storeSession(UserModelDto(user.id, user.userName, user.fullName))
+                spManager.storeSession(UserModelDto(user.id, user.userName, user.fullName,
+                    userEmail = user.userEmail, userPicture = user.userPicture))
                 emit(user.toUserModel())
             }
             else {
@@ -55,9 +56,8 @@ class UserRepositoryImpl @Inject constructor(
         val userDetails = spManager.getSession().toUserModel()
         if(!userDetails.id.isNullOrEmpty()) {
             Log.d("checkUserInDB", userDetails.toString());
-            if(!userDetails.id.isNullOrBlank()) {
+            if(userDetails.id.isNotBlank()) {
                 emit(userDetails)
-                spManager.storeSession(UserModelDto.fromUserModel(userDetails))
                 return@flow
             }
             else {

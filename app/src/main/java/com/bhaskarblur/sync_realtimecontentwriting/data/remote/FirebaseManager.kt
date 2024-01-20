@@ -20,7 +20,6 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -49,7 +48,7 @@ class FirebaseManager @Inject constructor(
             return context.getString(R.string.DB_URL)
         }
         fun STORAGE_URL(context: Context):String{
-            return context.getString(R.string.STOARGE_URL)
+            return context.getString(R.string.STORAGE_URL)
         }
     }
 
