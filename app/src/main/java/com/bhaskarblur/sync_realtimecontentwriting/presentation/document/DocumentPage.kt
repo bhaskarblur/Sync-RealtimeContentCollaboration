@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,12 +25,17 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Comment
+import androidx.compose.material.icons.filled.FormatBold
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
@@ -61,6 +67,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bhaskarblur.sync_realtimecontentwriting.R
@@ -72,6 +79,7 @@ import com.bhaskarblur.sync_realtimecontentwriting.presentation.UIEvents
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets.ContributorsItems
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.SignUpViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.AlertDialogComponent
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.RichTextToolBox
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.backgroundColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
@@ -108,6 +116,13 @@ fun DocumentPage(
     }
     val contentState = rememberRichTextState()
 
+    contentState.setConfig(
+        linkColor = Color.Blue,
+        linkTextDecoration = TextDecoration.Underline,
+        codeColor = Color.Yellow,
+        codeBackgroundColor = colorSecondary,
+        codeStrokeColor = Color.LightGray,
+    )
     val contentSource = remember {
         MutableInteractionSource()
     }
@@ -218,10 +233,9 @@ fun DocumentPage(
         title.value = data.documentName.toString()
     }
 
-
     Scaffold(
         bottomBar = {
-
+                    RichTextToolBox()
         },
         floatingActionButtonPosition = FabPosition.End,
     ) {
