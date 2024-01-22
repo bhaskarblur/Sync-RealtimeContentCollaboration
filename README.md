@@ -26,5 +26,21 @@ I and We warmly welcome anyone & everyone to contribute to this app and improve 
 
 #### Note: In order to setup the environment and work on the app locally, you've to add the firebase db url, Open AI Api & other credentials in values/string files, i know it's not a good approach to save keys this way, but it is what it is :))
 
+### Sample String values
+```
+<resources>
+<string name="app_name">Sync - Realtime Collaboration</string>
+<string name="GPT_BASE_URl"></string>
+<string name="GPT_API_KEY"></string>
+<string name="STORAGE_URL"></string>
+<string name="DB_URL"></string>
+<string name="title_activity_splash_screen">SplashScreen</string>
+<string name="title_activity_register">RegisterActivity</string>
+<string name="title_activity_document">DocumentActivity</string>
+<string name="title_activity_tab_screen">TabScreen</string>
+<string name="title_activity_rich_text_test">RichTextTest</string>
+</resources>
+```
+
 ## Submit a change or new feature
 If you wish to contribute and want to submit feature/improvement ideas before/after implementing them, you can make an issue for them in this repository or DM me directly on Linkedin(find it from my profile) so that we can have a chat over it.
