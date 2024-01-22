@@ -125,6 +125,7 @@ fun DocumentPage(
     val content = remember {
         mutableStateOf(TextFieldValue(data.content?.content ?: ""))
     }
+    val backContentState = rememberRichTextState()
     val contentState = rememberRichTextState()
 
     contentState.setConfig(
@@ -206,6 +207,7 @@ fun DocumentPage(
         )
     }
     LaunchedEffect(contentState.annotatedString.text) {
+
         Log.d(
             "isSame", data.content?.content?.equals(contentState.toHtml()).toString()
         )
@@ -218,18 +220,19 @@ fun DocumentPage(
                 content.value.text, data.content?.content ?: ""
             )
             if (position > 0) {
-                viewModel.handleUndoRedoStack(contentState.toHtml())
+                viewModel.handleUndoRedoStack(backContentState.toHtml())
                 viewModel.updateContent(
                     contentState.toHtml(),
                     contentState.selection.start
                 )
             } else {
-                viewModel.handleUndoRedoStack(contentState.toHtml())
+                viewModel.handleUndoRedoStack(backContentState.toHtml())
                 viewModel.updateContent(
                     contentState.toHtml(),
                     contentState.selection.end
                 )
             }
+            backContentState.setHtml(contentState.toHtml())
         }
     }
 
@@ -248,6 +251,7 @@ fun DocumentPage(
         bottomBar = {
             RichTextToolBox(contentState,
                 onBoldClick = {
+                    viewModel.handleUndoRedoStack(contentState.toHtml())
                     contentState.toggleSpanStyle(
                         SpanStyle(
                             fontWeight = FontWeight.Bold,
@@ -258,6 +262,7 @@ fun DocumentPage(
 
                 },
                 onItalicClick = {
+                    viewModel.handleUndoRedoStack(contentState.toHtml())
                     contentState.toggleSpanStyle(
                         SpanStyle(
                             fontStyle = FontStyle.Italic
@@ -267,6 +272,7 @@ fun DocumentPage(
                         contentState.selection.end)
                 },
                 onUnderlineClick = {
+                    viewModel.handleUndoRedoStack(contentState.toHtml())
                     contentState.toggleSpanStyle(
                         SpanStyle(
                             textDecoration = TextDecoration.Underline
@@ -276,6 +282,7 @@ fun DocumentPage(
                         contentState.selection.end)
                 },
                 onLineThroughClick = {
+                    viewModel.handleUndoRedoStack(contentState.toHtml())
                     contentState.toggleSpanStyle(
                         SpanStyle(
                             textDecoration = TextDecoration.LineThrough
@@ -285,31 +292,37 @@ fun DocumentPage(
                         contentState.selection.end)
                 },
                 onTextFontChange = {
-                                   // TBD
+                    viewModel.handleUndoRedoStack(contentState.toHtml())
+                    // TBD
                     viewModel.updateContent(contentState.toHtml(),
                         contentState.selection.end)
                 },
                 onTextSizeClick = {
+                    viewModel.handleUndoRedoStack(contentState.toHtml())
                     // TBD
                     viewModel.updateContent(contentState.toHtml(),
                         contentState.selection.end)
                 },
                 onTextColorClick = {
+                    viewModel.handleUndoRedoStack(contentState.toHtml())
                     // TBD
                     viewModel.updateContent(contentState.toHtml(),
                         contentState.selection.end)
                 },
                 onTextBgClick = {
+                    viewModel.handleUndoRedoStack(contentState.toHtml())
                     // TBD
                     viewModel.updateContent(contentState.toHtml(),
                         contentState.selection.end)
                 },
                 onTextShadowClick = {
+                    viewModel.handleUndoRedoStack(contentState.toHtml())
                     // TBD
                     viewModel.updateContent(contentState.toHtml(),
                         contentState.selection.end)
                 },
                 onTextLeftClick = {
+                    viewModel.handleUndoRedoStack(contentState.toHtml())
                     contentState
                         .toggleParagraphStyle(
                             ParagraphStyle(
@@ -320,6 +333,7 @@ fun DocumentPage(
                         contentState.selection.end)
                 },
                 onTextCenterClick = {
+                    viewModel.handleUndoRedoStack(contentState.toHtml())
                     contentState
                         .toggleParagraphStyle(
                             ParagraphStyle(
@@ -330,6 +344,7 @@ fun DocumentPage(
                         contentState.selection.end)
                 },
                 onTextRightClick = {
+                    viewModel.handleUndoRedoStack(contentState.toHtml())
                     val cursorPos = contentState.selection.end
                     contentState
                         .toggleParagraphStyle(
@@ -343,16 +358,19 @@ fun DocumentPage(
                         contentState.selection.end)
                 },
                 onUnOrderedListClick = {
+                    viewModel.handleUndoRedoStack(contentState.toHtml())
                     contentState.toggleUnorderedList()
                     viewModel.updateContent(contentState.toHtml(),
                         contentState.selection.end)
                 },
                 onOrderedListClick = {
+                    viewModel.handleUndoRedoStack(contentState.toHtml())
                     contentState.toggleOrderedList()
                     viewModel.updateContent(contentState.toHtml(),
                         contentState.selection.end)
                 },
                 onCodeClick = {
+                    viewModel.handleUndoRedoStack(contentState.toHtml())
                     contentState.addCodeSpan()
                     viewModel.updateContent(contentState.toHtml(),
                         contentState.selection.end)
@@ -368,6 +386,7 @@ fun DocumentPage(
                     viewModel = viewModel,
                     data = data,
                     onAddMessage = { msg ->
+                        viewModel.handleUndoRedoStack(contentState.toHtml())
                         val tempContent = content.value.text
                             .substring(
                                 0,
@@ -395,7 +414,6 @@ fun DocumentPage(
                                     contentState.annotatedString.text.length
                                 )
                             )
-                        viewModel.handleUndoRedoStack(contentState.toHtml())
                         viewModel.updateContent(
                             contentState.toHtml(),
                             contentState.selection.end
@@ -556,15 +574,50 @@ fun DocumentPage(
                             }
 
                             Column {
-                                Spacer(modifier = Modifier.height(14.dp))
-
                                 if (data.liveCollaborators?.isNotEmpty() == true) {
                                     Row(
                                         Modifier
                                             .fillMaxWidth()
-                                            .padding(horizontal = 12.dp),
-                                        horizontalArrangement = Arrangement.End
+                                            .padding(end = 14.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
+                                        TextField(
+                                            modifier = Modifier
+                                                .fillMaxWidth(0.6f),
+                                            singleLine = true,
+                                            value = title.value,
+                                            onValueChange = { value ->
+                                                title.value = value
+                                                viewModel.updateTitle(value)
+                                            },
+                                            placeholder = {
+                                                Text(
+                                                    "Title",
+                                                    fontSize = 20.sp, fontWeight = FontWeight.SemiBold,
+                                                    fontFamily = MaterialTheme.typography.bodyMedium.fontFamily
+                                                )
+                                            },
+                                            colors = TextFieldDefaults.colors(
+                                                focusedContainerColor = Color.Transparent,
+                                                unfocusedContainerColor = Color.Transparent,
+                                                unfocusedTextColor = textColorPrimary,
+                                                focusedTextColor = textColorPrimary,
+                                                unfocusedPlaceholderColor = textColorSecondary,
+                                                focusedPlaceholderColor = textColorSecondary,
+                                                focusedIndicatorColor = Color.Transparent,
+                                                unfocusedIndicatorColor = Color.Transparent,
+                                                cursorColor = Color.White
+                                            ),
+                                            textStyle = TextStyle(
+                                                fontWeight = FontWeight.Medium,
+                                                fontSize = 20.sp,
+                                                fontFamily = MaterialTheme.typography.bodyMedium.fontFamily,
+                                            )
+                                        )
+
+                                        Column {
+                                            Spacer(modifier = Modifier.height(12.dp))
+
                                         LazyRow(
                                             modifier = Modifier
                                                 .scrollable(
@@ -586,43 +639,9 @@ fun DocumentPage(
                                                 })
                                             }
                                         }
+                                        }
                                     }
                                 }
-
-                                TextField(
-                                    shape = RoundedCornerShape(10.dp),
-                                    modifier = Modifier
-                                        .fillMaxWidth(),
-                                    singleLine = true,
-                                    value = title.value,
-                                    onValueChange = { value ->
-                                        title.value = value
-                                        viewModel.updateTitle(value)
-                                    },
-                                    placeholder = {
-                                        Text(
-                                            "Title",
-                                            fontSize = 20.sp, fontWeight = FontWeight.SemiBold,
-                                            fontFamily = MaterialTheme.typography.bodyMedium.fontFamily
-                                        )
-                                    },
-                                    colors = TextFieldDefaults.colors(
-                                        focusedContainerColor = Color.Transparent,
-                                        unfocusedContainerColor = Color.Transparent,
-                                        unfocusedTextColor = textColorPrimary,
-                                        focusedTextColor = textColorPrimary,
-                                        unfocusedPlaceholderColor = textColorSecondary,
-                                        focusedPlaceholderColor = textColorSecondary,
-                                        focusedIndicatorColor = Color.Transparent,
-                                        unfocusedIndicatorColor = Color.Transparent,
-                                        cursorColor = Color.White
-                                    ),
-                                    textStyle = TextStyle(
-                                        fontWeight = FontWeight.Medium,
-                                        fontSize = 20.sp,
-                                        fontFamily = MaterialTheme.typography.bodyMedium.fontFamily,
-                                    )
-                                )
 
                                 Box {
                                     TextField(
