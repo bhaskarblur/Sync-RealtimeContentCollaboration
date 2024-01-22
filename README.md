@@ -26,7 +26,7 @@ I and We warmly welcome anyone & everyone to contribute to this app and improve 
 
 #### Note: In order to setup the environment and work on the app locally, you've to add the firebase db url, Open AI Api & other credentials in values/string files, i know it's not a good approach to save keys this way, but it is what it is :))
 
-### Sample String values
+#### Sample String values
 ```
 <resources>
 <string name="app_name">Sync - Realtime Collaboration</string>
