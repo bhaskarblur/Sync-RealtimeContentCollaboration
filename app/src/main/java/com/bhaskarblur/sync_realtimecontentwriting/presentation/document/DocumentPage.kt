@@ -374,6 +374,18 @@ fun DocumentPage(
                     contentState.addCodeSpan()
                     viewModel.updateContent(contentState.toHtml(),
                         contentState.selection.end)
+                },
+                onLetterSpacingClick = {
+                    viewModel.handleUndoRedoStack(contentState.toHtml())
+                    // TBD
+                    viewModel.updateContent(contentState.toHtml(),
+                        contentState.selection.end)
+                },
+                onLineHeightClick = {
+                    viewModel.handleUndoRedoStack(contentState.toHtml())
+                    // TBD
+                    viewModel.updateContent(contentState.toHtml(),
+                        contentState.selection.end)
                 })
         },
         floatingActionButtonPosition = FabPosition.End,

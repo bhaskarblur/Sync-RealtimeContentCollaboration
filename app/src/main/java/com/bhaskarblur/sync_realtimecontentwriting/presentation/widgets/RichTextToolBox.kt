@@ -25,12 +25,14 @@ import androidx.compose.material.icons.filled.FormatBold
 import androidx.compose.material.icons.filled.FormatColorFill
 import androidx.compose.material.icons.filled.FormatColorText
 import androidx.compose.material.icons.filled.FormatItalic
+import androidx.compose.material.icons.filled.FormatLineSpacing
 import androidx.compose.material.icons.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.FormatListNumbered
 import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material.icons.filled.FormatStrikethrough
 import androidx.compose.material.icons.filled.FormatUnderlined
 import androidx.compose.material.icons.filled.InvertColors
+import androidx.compose.material.icons.filled.SortByAlpha
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -55,8 +57,8 @@ fun RichTextToolBox(
     onTextShadowClick: () -> Unit, onTextColorClick: () -> Unit,
     onTextLeftClick: () -> Unit, onTextRightClick: () -> Unit,
     onTextCenterClick: () -> Unit, onOrderedListClick: () -> Unit,
-    onUnOrderedListClick: () -> Unit, onCodeClick: () -> Unit
-) {
+    onUnOrderedListClick: () -> Unit, onCodeClick: () -> Unit,
+    onLineHeightClick : () -> Unit, onLetterSpacingClick : () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -317,6 +319,52 @@ fun RichTextToolBox(
                     .height(20.dp)
                     .width(1.4.dp)
             )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Column(
+                Modifier
+                    .height(32.dp)
+                    .width(32.dp)
+                    .background(
+                        color = colorSecondary,
+                        shape = RoundedCornerShape(90.dp)
+                    )
+                    .clickable {
+                        onLineHeightClick()
+                    },
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    Icons.Filled.FormatLineSpacing, contentDescription = "Line Height text",
+                    modifier = Modifier.size(22.dp),
+                    tint = textColorPrimary
+                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Column(
+                Modifier
+                    .height(32.dp)
+                    .width(32.dp)
+                    .background(
+                        color = colorSecondary,
+                        shape = RoundedCornerShape(90.dp)
+                    )
+                    .clickable {
+                        onLetterSpacingClick()
+                    },
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    Icons.Filled.SortByAlpha, contentDescription = "Letter Spacing text",
+                    modifier = Modifier.size(22.dp),
+                    tint = textColorPrimary
+                )
+            }
 
             Spacer(modifier = Modifier.width(8.dp))
 
