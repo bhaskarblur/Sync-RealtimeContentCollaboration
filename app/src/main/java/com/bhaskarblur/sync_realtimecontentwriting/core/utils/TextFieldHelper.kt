@@ -19,74 +19,7 @@ import java.util.regex.Pattern
 
 fun buildAnnotatedStringWithColors(items : List<UserModelCursor>, text : String): AnnotatedString{
     val builder = AnnotatedString.Builder()
-    buildAnnotatedString {
-        val htmlTagPattern = Pattern.compile(
-            "(?i)<a([^>]+)>(.+?)</a>",
-            Pattern.CASE_INSENSITIVE or Pattern.MULTILINE or Pattern.DOTALL
-        )
-        val matcher = htmlTagPattern.matcher(text)
-        var matchStart: Int
-        var matchEnd = 0
-        var previousMatchStart = 0
-        //while there are links in the text we add them to the annotated string:
-        while (matcher.find()) {
-            matchStart = matcher.start(1)
-            matchEnd = matcher.end()
-            //first we find the text that is before/between links
-            val beforeMatch = text.substring(
-                startIndex = previousMatchStart,
-                endIndex = matchStart - 2
-            )
-            //the html tag that we will use as text
-            val tagMatch = text.substring(
-                startIndex = text.indexOf(
-                    char = '>',
-                    startIndex = matchStart
-                ) + 1,
-                endIndex = text.indexOf(
-                    char = '<',
-                    startIndex = matchStart + 1
-                ),
-            )
-
-            append(
-                beforeMatch
-            )
-
-            val annotation = text.substring(
-                startIndex = matchStart + 7,//omit '<a hreh ='
-                endIndex = text.indexOf(
-                    char = '"',
-                    startIndex = matchStart + 7,
-                )
-            )
-
-            pushStringAnnotation(tag = "link_tag", annotation = annotation)
-            withStyle(
-                SpanStyle(
-                    color = Color.Green,
-                    textDecoration = TextDecoration.Underline
-                )
-            ) {
-                append(
-                    tagMatch
-                )
-            }
-            pop()
-            previousMatchStart = matchEnd
-        }
-
-        if (text.length > matchEnd) {
-            append(
-                text.substring(
-                    startIndex = matchEnd,
-                    endIndex = text.length
-                )
-            )
-            builder.append(this.toAnnotatedString())
-//            builder.append(this.toAnnotatedString().text)
-        }
-    }
+    builder.append(text)
     try {
         for ((count, cursor) in items.withIndex()) {
             cursor.position?.let {

@@ -48,7 +48,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun AIBottomSheet(
-    viewModel: DocumentViewModel, data: DocumentModel, onHideSheet: (msg: String) -> Unit,
+    viewModel: DocumentViewModel, data: DocumentModel, onAddMessage: (msg: String) -> Unit,
     onClearHistory: () -> Unit
 ) {
 
@@ -134,7 +134,7 @@ fun AIBottomSheet(
                 }) { msgModel ->
                 PromptItem(msgModel) { msg ->
                     if (msg.isNotEmpty()) {
-                        onHideSheet(msg)
+                        onAddMessage(msg)
                     }
                 }
 

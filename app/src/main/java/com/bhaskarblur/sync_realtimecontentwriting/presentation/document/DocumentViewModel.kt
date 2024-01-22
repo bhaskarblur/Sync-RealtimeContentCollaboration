@@ -194,7 +194,6 @@ class DocumentViewModel @Inject constructor(
         useOldPromptsHistory.value = value
     }
 
-
     fun undoChanges() {
         if (undoStack.size > 0) {
             Log.d("calledForUndo", undoStack.peek().toString())
@@ -247,6 +246,13 @@ class DocumentViewModel @Inject constructor(
         }
     }
 
+    fun updateCursorPosition(cursorPosition: Int) {
+        documentUseCase.updateCursorPosition(
+            documentId = _documentData.value.documentId!!,
+            position = cursorPosition, userDetails.value.id!!
+        )
+        switchUserOn()
+    }
     fun updateContent(content: String, cursorPosition: Int) {
         updateJob?.cancel()
         updateJob = viewModelScope.launch {

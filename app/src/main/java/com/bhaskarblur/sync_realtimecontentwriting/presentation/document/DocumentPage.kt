@@ -9,6 +9,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,6 +25,10 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Comment
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -61,7 +66,9 @@ import androidx.compose.ui.unit.sp
 import com.bhaskarblur.sync_realtimecontentwriting.R
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.buildAnnotatedStringWithColors
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.findFirstDifferenceIndex
+import com.bhaskarblur.sync_realtimecontentwriting.domain.model.UserModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.UserModelCursor
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.UIEvents
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets.ContributorsItems
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.SignUpViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.AlertDialogComponent
@@ -70,6 +77,9 @@ import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorSecondary
+import com.mohamedrejeb.richeditor.model.rememberRichTextState
+import com.mohamedrejeb.richeditor.ui.material3.RichTextEditor
+import com.mohamedrejeb.richeditor.ui.material3.RichTextEditorDefaults
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -96,6 +106,8 @@ fun DocumentPage(
     val content = remember {
         mutableStateOf(TextFieldValue(data.content?.content ?: ""))
     }
+    val contentState = rememberRichTextState()
+
     val contentSource = remember {
         MutableInteractionSource()
     }
@@ -124,11 +136,15 @@ fun DocumentPage(
         mutableStateOf(false)
     }
     if (showDialog.value) {
-        AlertDialogComponent(context, title = "Are you sure you want to clear history?",
-            bodyMsg = "Clearing the prompts history will clear it for everyone, you can't undo this change.", onYesPressed = {
+        AlertDialogComponent(context,
+            title = "Are you sure you want to clear history?",
+            bodyMsg = "Clearing the prompts history will clear it for everyone, you can't undo this change.",
+            onYesPressed = {
                 showDialog.value = false
                 viewModel.clearPromptHistory()
-            }, yesLabel = "Yes", onClose = {
+            },
+            yesLabel = "Yes",
+            onClose = {
                 showDialog.value = false;
             })
     }
@@ -149,11 +165,48 @@ fun DocumentPage(
         } else {
             delay(10)
         }
+        contentState.setHtml(data.content?.content.toString())
         content.value = TextFieldValue(
-            text = data.content?.content.toString(),
+            text = contentState.annotatedString.text,
             selection = content.value.selection
         )
     }
+
+
+    LaunchedEffect(contentState.selection) {
+        viewModel.updateCursorPosition(
+            contentState
+                .selection.end
+        )
+    }
+    LaunchedEffect(contentState.annotatedString.text) {
+        Log.d(
+            "isSame", data.content?.content?.equals(contentState.toHtml()).toString()
+        )
+        if (data.content?.content?.equals(contentState.toHtml()) == false) {
+            content.value = TextFieldValue(
+                text = contentState.annotatedString.text,
+                selection = contentState.selection
+            )
+            val position = findFirstDifferenceIndex(
+                content.value.text, data.content?.content ?: ""
+            )
+            if (position > 0) {
+                viewModel.handleUndoRedoStack(contentState.toHtml())
+                viewModel.updateContent(
+                    contentState.toHtml(),
+                    contentState.selection.start
+                )
+            } else {
+                viewModel.handleUndoRedoStack(contentState.toHtml())
+                viewModel.updateContent(
+                    contentState.toHtml(),
+                    contentState.selection.end
+                )
+            }
+        }
+    }
+
 
     LaunchedEffect(key1 = data.documentName) {
         if (!dataGot.value) {
@@ -167,6 +220,9 @@ fun DocumentPage(
 
 
     Scaffold(
+        bottomBar = {
+
+        },
         floatingActionButtonPosition = FabPosition.End,
     ) {
         it
@@ -176,7 +232,7 @@ fun DocumentPage(
                 AIBottomSheet(
                     viewModel = viewModel,
                     data = data,
-                    onHideSheet = { msg ->
+                    onAddMessage = { msg ->
                         val tempContent = content.value.text
                             .substring(
                                 0,
@@ -189,15 +245,23 @@ fun DocumentPage(
                                     content.value.text.length
                                 )
                             )
+                        // Need to test this msg whether it will affect UI
+                        contentState.setText(contentState
+                            .toHtml().plus(" $tempContent"))
+                        contentState.selection = TextRange(
+                            contentState.annotatedString.text.length
+                        )
                         content.value =
                             TextFieldValue(
-                                tempContent,
-                                TextRange(content.value.text.length)
+                                contentState.annotatedString.text,
+                                TextRange(
+                                    contentState.annotatedString.text.length
+                                )
                             )
-                        viewModel.handleUndoRedoStack(content.value.text)
+                        viewModel.handleUndoRedoStack(contentState.toHtml())
                         viewModel.updateContent(
-                            content.value.text,
-                            content.value.selection.start
+                            contentState.toHtml(),
+                            contentState.selection.end
                         )
                         Toast
                             .makeText(
@@ -271,6 +335,7 @@ fun DocumentPage(
                                         }
                                         .padding(horizontal = 10.dp, vertical = 8.dp)
                                 )
+
                                 Row(
                                     horizontalArrangement = Arrangement.Center,
                                     verticalAlignment = Alignment.CenterVertically,
@@ -317,32 +382,76 @@ fun DocumentPage(
                                     }
 
                                 }
-                                LazyRow(
-                                    Modifier
-                                        .scrollable(contributorScrollState, Orientation.Horizontal)
-                                        .widthIn(max = configuration.screenWidthDp.dp / 2)
-                                ) {
-                                    items(
-                                        key = { user ->
-                                            user.userDetails?.id!!
-                                        },
-                                        items = data.liveCollaborators
-                                            ?: listOf<UserModelCursor>()
-                                    ) {
-                                        ContributorsItems(item = it, onClick = { pos ->
-                                            if (pos != -1) {
-                                                content.value = TextFieldValue(
-                                                    text = content.value.text,
-                                                    selection = TextRange(pos)
+
+                                Row {
+                                    Icon(Icons.Filled.Comment,
+                                        contentDescription = "Put comment",
+                                        tint = textColorPrimary,
+                                        modifier = Modifier
+                                            .height(24.dp)
+                                            .clickable {
+                                                Toast
+                                                    .makeText(
+                                                        context,
+                                                        "Comments coming soon", Toast.LENGTH_SHORT
+                                                    )
+                                                    .show()
+                                            }
+                                    )
+
+                                    Spacer(Modifier.width(12.dp))
+
+                                    Icon(Icons.Filled.Share,
+                                        contentDescription = "Share comment",
+                                        tint = textColorPrimary,
+                                        modifier = Modifier
+                                            .height(24.dp)
+                                            .clickable {
+                                                viewModel.emitUIEvent(
+                                                    UIEvents.ShareDocument(
+                                                        viewModel.documentData.value.documentId
+                                                            ?: ""
+                                                    )
                                                 )
                                             }
-                                        })
-                                    }
+                                    )
                                 }
                             }
 
                             Column {
-                                Spacer(modifier = Modifier.height(6.dp))
+                                Spacer(modifier = Modifier.height(14.dp))
+
+                                if (data.liveCollaborators?.isNotEmpty() == true) {
+                                    Row(
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 12.dp),
+                                        horizontalArrangement = Arrangement.End
+                                    ) {
+                                        LazyRow(
+                                            modifier = Modifier
+                                                .scrollable(
+                                                    contributorScrollState,
+                                                    Orientation.Horizontal
+                                                )
+                                        ) {
+                                            items(
+                                                key = { user ->
+                                                    user.userDetails?.id!!
+                                                },
+                                                items = data.liveCollaborators
+                                                    ?: listOf()
+                                            ) {
+                                                ContributorsItems(item = it, onClick = { pos ->
+                                                    if (pos != -1) {
+                                                        contentState.selection = TextRange(pos)
+                                                    }
+                                                })
+                                            }
+                                        }
+                                    }
+                                }
+
                                 TextField(
                                     shape = RoundedCornerShape(10.dp),
                                     modifier = Modifier
@@ -366,7 +475,7 @@ fun DocumentPage(
                                         unfocusedTextColor = textColorPrimary,
                                         focusedTextColor = textColorPrimary,
                                         unfocusedPlaceholderColor = textColorSecondary,
-                                        focusedPlaceholderColor =textColorSecondary,
+                                        focusedPlaceholderColor = textColorSecondary,
                                         focusedIndicatorColor = Color.Transparent,
                                         unfocusedIndicatorColor = Color.Transparent,
                                         cursorColor = Color.White
@@ -378,67 +487,74 @@ fun DocumentPage(
                                     )
                                 )
 
-                                TextField(
-                                    shape = RoundedCornerShape(10.dp),
-                                    interactionSource = contentSource,
-                                    modifier = Modifier
-                                        .fillMaxHeight()
-                                        .fillMaxWidth(),
-                                    value = content.value,
-                                    onValueChange = { value ->
-                                        content.value = value
-                                        Log.d("cursorPos", value.selection.start.toString())
-                                        val position = findFirstDifferenceIndex(
-                                            content.value.text, data.content?.content ?: ""
-                                        )
-                                        if (position > 0) {
-                                            viewModel.handleUndoRedoStack(value.text)
-                                            viewModel.updateContent(
-                                                value.text,
-                                                value.selection.start
+                                Box {
+                                    TextField(
+                                        readOnly = true,
+                                        shape = RoundedCornerShape(10.dp),
+                                        interactionSource = contentSource,
+                                        modifier = Modifier
+                                            .fillMaxHeight()
+                                            .fillMaxWidth(),
+                                        value = content.value,
+                                        onValueChange = {},
+                                        placeholder = {
+                                            Text(
+                                                "Write what you want or use help of AI ✨",
+                                                fontSize = 16.sp, fontWeight = FontWeight.Normal,
+                                                fontFamily = MaterialTheme.typography.bodyMedium.fontFamily
                                             )
-                                        } else {
-                                            viewModel.handleUndoRedoStack(value.text)
-                                            viewModel.updateContent(
-                                                value.text,
-                                                content.value.text.length
+                                        },
+                                        visualTransformation = {
+                                            TransformedText(
+                                                buildAnnotatedStringWithColors(data.liveCollaborators?.filter {
+                                                    it.userDetails?.id!! != viewModel.userDetails.value.id
+                                                } ?: listOf(), content.value.text),
+                                                OffsetMapping.Identity
                                             )
-                                        }
-                                    },
-                                    placeholder = {
-                                        Text(
-                                            "Write what you want or use help of AI ✨",
-                                            fontSize = 16.sp, fontWeight = FontWeight.Normal,
-                                            fontFamily = MaterialTheme.typography.bodyMedium.fontFamily
-                                        )
-                                    },
-                                    visualTransformation = {
-                                        TransformedText(
-                                            buildAnnotatedStringWithColors(data.liveCollaborators?.filter {
-                                                it.userDetails?.id!! != viewModel.userDetails.value.id
-                                            } ?: listOf(), content.value.text),
-                                            OffsetMapping.Identity
-                                        )
 
-                                    },
-                                    colors = TextFieldDefaults.colors(
-                                        focusedContainerColor = Color.Transparent,
-                                        unfocusedContainerColor = Color.Transparent,
-                                        unfocusedTextColor = textColorPrimary,
-                                        focusedTextColor = textColorPrimary,
-                                        unfocusedPlaceholderColor = textColorSecondary,
-                                        focusedPlaceholderColor =textColorSecondary,
-                                        focusedIndicatorColor = Color.Transparent,
-                                        unfocusedIndicatorColor = Color.Transparent,
-                                        cursorColor = textColorPrimary
-                                    ),
-                                    textStyle = TextStyle(
-                                        fontWeight = FontWeight.Normal,
-                                        fontSize = 16.sp,
-                                        fontFamily = MaterialTheme.typography.bodyMedium.fontFamily,
-                                        lineHeight = 22.sp
-                                    ),
-                                )
+                                        },
+                                        colors = TextFieldDefaults.colors(
+                                            focusedContainerColor = Color.Transparent,
+                                            unfocusedContainerColor = Color.Transparent,
+                                            unfocusedTextColor = Color.Transparent,
+                                            focusedTextColor = Color.Transparent,
+                                            unfocusedPlaceholderColor = textColorSecondary,
+                                            focusedPlaceholderColor = textColorSecondary,
+                                            focusedIndicatorColor = Color.Transparent,
+                                            unfocusedIndicatorColor = Color.Transparent,
+                                            cursorColor = Color.Transparent
+                                        ),
+                                        textStyle = TextStyle(
+                                            fontWeight = FontWeight.Normal,
+                                            fontSize = 16.sp,
+                                            fontFamily = MaterialTheme.typography.bodyMedium.fontFamily,
+                                            lineHeight = 22.sp
+                                        ),
+                                    )
+
+                                    RichTextEditor(
+                                        state = contentState,
+                                        shape = RoundedCornerShape(10.dp),
+                                        interactionSource = contentSource,
+                                        modifier = Modifier
+                                            .fillMaxHeight()
+                                            .fillMaxWidth(),
+                                        colors = RichTextEditorDefaults.richTextEditorColors(
+                                            containerColor = Color.Transparent,
+                                            placeholderColor = textColorSecondary,
+                                            textColor = textColorPrimary,
+                                            focusedIndicatorColor = Color.Transparent,
+                                            unfocusedIndicatorColor = Color.Transparent,
+                                            cursorColor = textColorPrimary
+                                        ),
+                                        textStyle = TextStyle(
+                                            fontWeight = FontWeight.Normal,
+                                            fontSize = 16.sp,
+                                            fontFamily = MaterialTheme.typography.bodyMedium.fontFamily,
+                                            lineHeight = 22.sp
+                                        ),
+                                    )
+                                }
 
                                 Spacer(modifier = Modifier.height(12.dp))
                             }
