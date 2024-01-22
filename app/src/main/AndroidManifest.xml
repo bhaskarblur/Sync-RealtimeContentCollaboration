@@ -19,6 +19,7 @@
             android:name=".presentation.appActivities.DocumentActivity"
             android:exported="false"
             android:label="@string/title_activity_document"
+            android:windowSoftInputMode="adjustResize"
             android:theme="@style/Theme.SyncRealtimeContentWriting" />
         <activity
             android:name=".presentation.appActivities.SplashScreen"

@@ -61,13 +61,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.ParagraphStyle
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bhaskarblur.sync_realtimecontentwriting.R
@@ -85,13 +93,16 @@ import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorSecondary
+import com.mohamedrejeb.richeditor.annotation.ExperimentalRichTextApi
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.mohamedrejeb.richeditor.ui.material3.RichTextEditor
 import com.mohamedrejeb.richeditor.ui.material3.RichTextEditorDefaults
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class,
+    ExperimentalRichTextApi::class
+)
 @Composable
 fun DocumentPage(
     viewModel: DocumentViewModel,
@@ -119,9 +130,9 @@ fun DocumentPage(
     contentState.setConfig(
         linkColor = Color.Blue,
         linkTextDecoration = TextDecoration.Underline,
-        codeColor = Color.Yellow,
-        codeBackgroundColor = colorSecondary,
-        codeStrokeColor = Color.LightGray,
+        codeColor = Color.Cyan,
+        codeBackgroundColor = Color.Black,
+        codeStrokeColor = Color.Transparent,
     )
     val contentSource = remember {
         MutableInteractionSource()
@@ -235,7 +246,117 @@ fun DocumentPage(
 
     Scaffold(
         bottomBar = {
-                    RichTextToolBox()
+            RichTextToolBox(contentState,
+                onBoldClick = {
+                    contentState.toggleSpanStyle(
+                        SpanStyle(
+                            fontWeight = FontWeight.Bold,
+                        )
+                    )
+                    viewModel.updateContent(contentState.toHtml(),
+                        contentState.selection.end)
+
+                },
+                onItalicClick = {
+                    contentState.toggleSpanStyle(
+                        SpanStyle(
+                            fontStyle = FontStyle.Italic
+                        )
+                    )
+                    viewModel.updateContent(contentState.toHtml(),
+                        contentState.selection.end)
+                },
+                onUnderlineClick = {
+                    contentState.toggleSpanStyle(
+                        SpanStyle(
+                            textDecoration = TextDecoration.Underline
+                        )
+                    )
+                    viewModel.updateContent(contentState.toHtml(),
+                        contentState.selection.end)
+                },
+                onLineThroughClick = {
+                    contentState.toggleSpanStyle(
+                        SpanStyle(
+                            textDecoration = TextDecoration.LineThrough
+                        )
+                    )
+                    viewModel.updateContent(contentState.toHtml(),
+                        contentState.selection.end)
+                },
+                onTextFontChange = {
+                                   // TBD
+                    viewModel.updateContent(contentState.toHtml(),
+                        contentState.selection.end)
+                },
+                onTextSizeClick = {
+                    // TBD
+                    viewModel.updateContent(contentState.toHtml(),
+                        contentState.selection.end)
+                },
+                onTextColorClick = {
+                    // TBD
+                    viewModel.updateContent(contentState.toHtml(),
+                        contentState.selection.end)
+                },
+                onTextBgClick = {
+                    // TBD
+                    viewModel.updateContent(contentState.toHtml(),
+                        contentState.selection.end)
+                },
+                onTextShadowClick = {
+                    // TBD
+                    viewModel.updateContent(contentState.toHtml(),
+                        contentState.selection.end)
+                },
+                onTextLeftClick = {
+                    contentState
+                        .toggleParagraphStyle(
+                            ParagraphStyle(
+                                textAlign = TextAlign.Left
+                            )
+                        )
+                    viewModel.updateContent(contentState.toHtml(),
+                        contentState.selection.end)
+                },
+                onTextCenterClick = {
+                    contentState
+                        .toggleParagraphStyle(
+                            ParagraphStyle(
+                                textAlign = TextAlign.Center
+                            )
+                        )
+                    viewModel.updateContent(contentState.toHtml(),
+                        contentState.selection.end)
+                },
+                onTextRightClick = {
+                    val cursorPos = contentState.selection.end
+                    contentState
+                        .toggleParagraphStyle(
+                            ParagraphStyle(
+                                textAlign = TextAlign.Right
+                            )
+                        )
+
+                    contentState.selection = TextRange(cursorPos)
+                    viewModel.updateContent(contentState.toHtml(),
+                        contentState.selection.end)
+                },
+                onUnOrderedListClick = {
+                    contentState.toggleUnorderedList()
+                    viewModel.updateContent(contentState.toHtml(),
+                        contentState.selection.end)
+                },
+                onOrderedListClick = {
+                    contentState.toggleOrderedList()
+                    viewModel.updateContent(contentState.toHtml(),
+                        contentState.selection.end)
+                },
+                onCodeClick = {
+                    contentState.addCodeSpan()
+                    viewModel.updateContent(contentState.toHtml(),
+                        contentState.selection.end)
+                })
         },
         floatingActionButtonPosition = FabPosition.End,
     ) {
@@ -260,8 +381,10 @@ fun DocumentPage(
                                 )
                             )
                         // Need to test this msg whether it will affect UI
-                        contentState.setText(contentState
-                            .toHtml().plus(" $tempContent"))
+                        contentState.setText(
+                            contentState
+                                .toHtml().plus(" $tempContent")
+                        )
                         contentState.selection = TextRange(
                             contentState.annotatedString.text.length
                         )

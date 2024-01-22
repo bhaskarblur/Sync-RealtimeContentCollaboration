@@ -17,6 +17,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.FontDownload
 import androidx.compose.material.icons.filled.FormatAlignCenter
 import androidx.compose.material.icons.filled.FormatAlignLeft
 import androidx.compose.material.icons.filled.FormatAlignRight
@@ -26,24 +27,36 @@ import androidx.compose.material.icons.filled.FormatColorText
 import androidx.compose.material.icons.filled.FormatItalic
 import androidx.compose.material.icons.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.FormatListNumbered
+import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material.icons.filled.FormatStrikethrough
 import androidx.compose.material.icons.filled.FormatUnderlined
-import androidx.compose.material.icons.filled.InsertLink
-import androidx.compose.material.icons.filled.TextDecrease
-import androidx.compose.material.icons.filled.TextIncrease
+import androidx.compose.material.icons.filled.InvertColors
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorSecondary
+import com.mohamedrejeb.richeditor.model.RichTextState
 
 @Composable
-fun RichTextToolBox() {
+fun RichTextToolBox(
+    state: RichTextState, onBoldClick: () -> Unit, onItalicClick: () -> Unit,
+    onUnderlineClick: () -> Unit, onLineThroughClick: () -> Unit,
+    onTextFontChange : () -> Unit, onTextSizeClick: () -> Unit, onTextBgClick: () -> Unit,
+    onTextShadowClick: () -> Unit, onTextColorClick: () -> Unit,
+    onTextLeftClick: () -> Unit, onTextRightClick: () -> Unit,
+    onTextCenterClick: () -> Unit, onOrderedListClick: () -> Unit,
+    onUnOrderedListClick: () -> Unit, onCodeClick: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -57,16 +70,21 @@ fun RichTextToolBox() {
                 .fillMaxHeight()
                 .background(colorSecondary)
                 .padding(vertical = 6.dp, horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically) {
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Column(
                 Modifier
                     .height(32.dp)
                     .width(32.dp)
                     .background(
-                        color = primaryColor,
+                        color = when (state.currentSpanStyle.fontWeight) {
+                            FontWeight.Bold -> primaryColor
+                            else -> colorSecondary
+                        },
                         shape = RoundedCornerShape(90.dp)
                     )
                     .clickable {
+                        onBoldClick()
                     },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
@@ -85,10 +103,14 @@ fun RichTextToolBox() {
                     .height(32.dp)
                     .width(32.dp)
                     .background(
-                        color = colorSecondary,
+                        color = when (state.currentSpanStyle.fontStyle) {
+                            FontStyle.Italic -> primaryColor
+                            else -> colorSecondary
+                        },
                         shape = RoundedCornerShape(90.dp)
                     )
                     .clickable {
+                        onItalicClick()
                     },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
@@ -107,10 +129,14 @@ fun RichTextToolBox() {
                     .height(32.dp)
                     .width(32.dp)
                     .background(
-                        color = colorSecondary,
+                        color = when (state.currentSpanStyle.textDecoration) {
+                            TextDecoration.Underline -> primaryColor
+                            else -> colorSecondary
+                        },
                         shape = RoundedCornerShape(90.dp)
                     )
                     .clickable {
+                        onUnderlineClick()
                     },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
@@ -129,10 +155,14 @@ fun RichTextToolBox() {
                     .height(32.dp)
                     .width(32.dp)
                     .background(
-                        color = colorSecondary,
+                        color = when (state.currentSpanStyle.textDecoration) {
+                            TextDecoration.LineThrough -> primaryColor
+                            else -> colorSecondary
+                        },
                         shape = RoundedCornerShape(90.dp)
                     )
                     .clickable {
+                        onLineThroughClick()
                     },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
@@ -155,16 +185,18 @@ fun RichTextToolBox() {
                         shape = RoundedCornerShape(90.dp)
                     )
                     .clickable {
+                        onTextFontChange()
                     },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
                 Icon(
-                    Icons.Filled.TextIncrease, contentDescription = "Increase size text",
+                    Icons.Filled.FontDownload, contentDescription = "Font change text",
                     modifier = Modifier.size(22.dp),
                     tint = textColorPrimary
                 )
             }
+
 
             Spacer(modifier = Modifier.width(8.dp))
             Column(
@@ -176,16 +208,39 @@ fun RichTextToolBox() {
                         shape = RoundedCornerShape(90.dp)
                     )
                     .clickable {
+                        onTextSizeClick()
                     },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
                 Icon(
-                    Icons.Filled.TextDecrease, contentDescription = "Decrease size text",
+                    Icons.Filled.FormatSize, contentDescription = "Increase size text",
                     modifier = Modifier.size(22.dp),
                     tint = textColorPrimary
                 )
             }
+
+
+//            Spacer(modifier = Modifier.width(8.dp))
+//            Column(
+//                Modifier
+//                    .height(32.dp)
+//                    .width(32.dp)
+//                    .background(
+//                        color = colorSecondary,
+//                        shape = RoundedCornerShape(90.dp)
+//                    )
+//                    .clickable {
+//                    },
+//                horizontalAlignment = Alignment.CenterHorizontally,
+//                verticalArrangement = Arrangement.Center
+//            ) {
+//                Icon(
+//                    Icons.Filled.TextDecrease, contentDescription = "Decrease size text",
+//                    modifier = Modifier.size(22.dp),
+//                    tint = textColorPrimary
+//                )
+//            }
 
             Spacer(modifier = Modifier.width(8.dp))
             Column(
@@ -197,6 +252,7 @@ fun RichTextToolBox() {
                         shape = RoundedCornerShape(90.dp)
                     )
                     .clickable {
+                        onTextColorClick()
                     },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
@@ -218,6 +274,7 @@ fun RichTextToolBox() {
                         shape = RoundedCornerShape(90.dp)
                     )
                     .clickable {
+                        onTextBgClick()
                     },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
@@ -229,13 +286,8 @@ fun RichTextToolBox() {
                 )
             }
 
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Divider(color = textColorSecondary,
-                modifier = Modifier.height(20.dp).width(1.4.dp))
 
             Spacer(modifier = Modifier.width(8.dp))
-
             Column(
                 Modifier
                     .height(32.dp)
@@ -245,6 +297,42 @@ fun RichTextToolBox() {
                         shape = RoundedCornerShape(90.dp)
                     )
                     .clickable {
+                        onTextShadowClick()
+                    },
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    Icons.Filled.InvertColors, contentDescription = "Color shadow text",
+                    modifier = Modifier.size(22.dp),
+                    tint = textColorPrimary
+                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Divider(
+                color = textColorSecondary,
+                modifier = Modifier
+                    .height(20.dp)
+                    .width(1.4.dp)
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Column(
+                Modifier
+                    .height(32.dp)
+                    .width(32.dp)
+                    .background(
+                        color = when (state.currentParagraphStyle.textAlign) {
+                            TextAlign.Left -> primaryColor
+                            else -> colorSecondary
+                        },
+                        shape = RoundedCornerShape(90.dp)
+                    )
+                    .clickable {
+                        onTextLeftClick()
                     },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
@@ -263,10 +351,14 @@ fun RichTextToolBox() {
                     .height(32.dp)
                     .width(32.dp)
                     .background(
-                        color = colorSecondary,
+                        color = when (state.currentParagraphStyle.textAlign) {
+                            TextAlign.Center -> primaryColor
+                            else -> colorSecondary
+                        },
                         shape = RoundedCornerShape(90.dp)
                     )
                     .clickable {
+                        onTextCenterClick()
                     },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
@@ -285,10 +377,14 @@ fun RichTextToolBox() {
                     .height(32.dp)
                     .width(32.dp)
                     .background(
-                        color = colorSecondary,
+                        color = when (state.currentParagraphStyle.textAlign) {
+                            TextAlign.Right -> primaryColor
+                            else -> colorSecondary
+                        },
                         shape = RoundedCornerShape(90.dp)
                     )
                     .clickable {
+                        onTextRightClick()
                     },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
@@ -302,8 +398,12 @@ fun RichTextToolBox() {
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            Divider(color = textColorSecondary,
-                modifier = Modifier.height(20.dp).width(1.4.dp))
+            Divider(
+                color = textColorSecondary,
+                modifier = Modifier
+                    .height(20.dp)
+                    .width(1.4.dp)
+            )
 
             Spacer(modifier = Modifier.width(8.dp))
 
@@ -312,10 +412,14 @@ fun RichTextToolBox() {
                     .height(32.dp)
                     .width(32.dp)
                     .background(
-                        color = colorSecondary,
+                        color = when (state.isUnorderedList) {
+                            true -> primaryColor
+                            else -> colorSecondary
+                        },
                         shape = RoundedCornerShape(90.dp)
                     )
                     .clickable {
+                        onUnOrderedListClick()
                     },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
@@ -334,10 +438,14 @@ fun RichTextToolBox() {
                     .height(32.dp)
                     .width(32.dp)
                     .background(
-                        color = colorSecondary,
+                        color = when (state.isOrderedList) {
+                            true -> primaryColor
+                            else -> colorSecondary
+                        },
                         shape = RoundedCornerShape(90.dp)
                     )
                     .clickable {
+                        onOrderedListClick()
                     },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
@@ -351,8 +459,12 @@ fun RichTextToolBox() {
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            Divider(color = textColorSecondary,
-                modifier = Modifier.height(20.dp).width(1.4.dp))
+            Divider(
+                color = textColorSecondary,
+                modifier = Modifier
+                    .height(20.dp)
+                    .width(1.4.dp)
+            )
 
             Spacer(modifier = Modifier.width(8.dp))
 
@@ -361,32 +473,14 @@ fun RichTextToolBox() {
                     .height(32.dp)
                     .width(32.dp)
                     .background(
-                        color = colorSecondary,
+                        color = when (state.isCodeSpan) {
+                            true -> primaryColor
+                            else -> colorSecondary
+                        },
                         shape = RoundedCornerShape(90.dp)
                     )
                     .clickable {
-                    },
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Icon(
-                    Icons.Filled.InsertLink, contentDescription = "Code block",
-                    modifier = Modifier.size(22.dp),
-                    tint = textColorPrimary
-                )
-            }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Column(
-                Modifier
-                    .height(32.dp)
-                    .width(32.dp)
-                    .background(
-                        color = colorSecondary,
-                        shape = RoundedCornerShape(90.dp)
-                    )
-                    .clickable {
+                        onCodeClick()
                     },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center

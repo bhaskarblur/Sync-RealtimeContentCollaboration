@@ -131,7 +131,7 @@ fun ProfilePage(
             Spacer(Modifier.height(8.dp))
 
             Text(
-                "@${userViewModel.userState.value.userEmail}", style = TextStyle(
+                "${userViewModel.userState.value.userEmail}", style = TextStyle(
                     textColorSecondary, fontSize = 15.sp, fontWeight = FontWeight.Medium
                 )
             )
