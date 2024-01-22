@@ -38,7 +38,6 @@ I and We warmly welcome anyone & everyone to contribute to this app and improve 
 <string name="title_activity_register">RegisterActivity</string>
 <string name="title_activity_document">DocumentActivity</string>
 <string name="title_activity_tab_screen">TabScreen</string>
-<string name="title_activity_rich_text_test">RichTextTest</string>
 </resources>
 ```
 
