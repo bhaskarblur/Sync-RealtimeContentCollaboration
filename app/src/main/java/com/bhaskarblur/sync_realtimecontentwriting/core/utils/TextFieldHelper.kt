@@ -1,5 +1,6 @@
 package com.bhaskarblur.sync_realtimecontentwriting.core.utils
 
+import android.text.Spannable
 import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawStyle
@@ -12,6 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
+import androidx.core.text.HtmlCompat
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.UserModelCursor
 import java.lang.IndexOutOfBoundsException
 import java.lang.StringBuilder

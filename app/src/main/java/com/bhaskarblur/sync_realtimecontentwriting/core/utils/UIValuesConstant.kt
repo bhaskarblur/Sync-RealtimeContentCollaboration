@@ -1,10 +1,14 @@
 package com.bhaskarblur.sync_realtimecontentwriting.core.utils
 
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.sp
+import com.bhaskarblur.sync_realtimecontentwriting.domain.model.FontFamilyModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.TextSizeModel
 
-object TextSizeValues {
+object UIValuesConstant {
     val textSizeList = listOf(
+        TextSizeModel("0 sp",0.sp), TextSizeModel("2 sp",2.sp),
+        TextSizeModel("4 sp", 4.sp), TextSizeModel("6 sp", 6.sp),
         TextSizeModel("8 sp",8.sp), TextSizeModel("10 sp", 10.sp),
         TextSizeModel("12 sp", 12.sp), TextSizeModel("14 sp", 14.sp),
         TextSizeModel("16 sp", 16.sp), TextSizeModel("18 sp", 18.sp),
@@ -16,5 +20,13 @@ object TextSizeValues {
         TextSizeModel("40 sp", 40.sp), TextSizeModel("42 sp", 42.sp),
         TextSizeModel("44 sp", 44.sp), TextSizeModel("46 sp", 46.sp),
         TextSizeModel("48 sp", 48.sp), TextSizeModel("50 sp", 50.sp),
+    )
+
+    val fontsList = listOf(
+        FontFamilyModel("Default", FontFamily.Default),
+        FontFamilyModel("Monospace", FontFamily.Monospace),
+        FontFamilyModel("Sans-Serif", FontFamily.SansSerif),
+        FontFamilyModel("Serif", FontFamily.Serif),
+        FontFamilyModel("Cursive", FontFamily.Cursive),
     )
 }

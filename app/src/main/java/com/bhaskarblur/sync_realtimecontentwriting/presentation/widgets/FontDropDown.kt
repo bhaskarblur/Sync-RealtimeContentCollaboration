@@ -23,18 +23,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bhaskarblur.sync_realtimecontentwriting.domain.model.FontFamilyModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.TextSizeModel
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
 
 @Composable
-fun UnitDropDown(selectedValue: Int, listItems : List<TextSizeModel>, onClosed : () -> Unit,
-                 onSelected : (TextUnit) -> Unit) {
+fun FontDropDown(selectedValue: FontFamily, listItems : List<FontFamilyModel>, onClosed : () -> Unit,
+                 onSelected : (FontFamily) -> Unit) {
+
     val expanded = remember {
         mutableStateOf(true)
     }
@@ -49,7 +52,7 @@ fun UnitDropDown(selectedValue: Int, listItems : List<TextSizeModel>, onClosed :
             }) {
 
                 Text(it.label, color = when(selectedValue) {
-                    it.size.value.toInt() -> primaryColor
+                    it.fontFamily -> primaryColor
                     else -> textColorPrimary
                 },
                     fontWeight = FontWeight.Medium,
@@ -57,7 +60,7 @@ fun UnitDropDown(selectedValue: Int, listItems : List<TextSizeModel>, onClosed :
                     modifier = Modifier
                         .padding(8.dp)
                         .clickable {
-                            onSelected(it.size)
+                            onSelected(it.fontFamily)
                             onClosed()
                         })
             }

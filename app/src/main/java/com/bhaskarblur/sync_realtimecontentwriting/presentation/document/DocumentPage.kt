@@ -7,7 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -50,11 +49,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -62,23 +57,26 @@ import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bhaskarblur.sync_realtimecontentwriting.R
-import com.bhaskarblur.sync_realtimecontentwriting.core.utils.TextSizeValues
+import com.bhaskarblur.sync_realtimecontentwriting.core.utils.UIValuesConstant
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.buildAnnotatedStringWithColors
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.findFirstDifferenceIndex
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.UIEvents
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets.ContributorsItems
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.AlertDialogComponent
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.ColorPickerDialog
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.FontDropDown
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.RichTextToolBox
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.UnitDropDown
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.backgroundColor
@@ -93,7 +91,8 @@ import com.mohamedrejeb.richeditor.ui.material3.RichTextEditorDefaults
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class,
+@OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class,
     ExperimentalRichTextApi::class
 )
 @Composable
@@ -251,226 +250,315 @@ fun DocumentPage(
             val unitDropDownType = remember {
                 mutableStateOf("")
             }
+            val isFontDropDownExpanded = remember {
+                mutableStateOf(false)
+            }
             val colorPopupType = remember {
                 mutableStateOf("")
             }
-            RichTextToolBox(contentState,
-                onBoldClick = {
-                    viewModel.handleUndoRedoStack(contentState.toHtml())
-                    contentState.toggleSpanStyle(
-                        SpanStyle(
-                            fontWeight = FontWeight.Bold,
-                        )
-                    )
-                    viewModel.updateContent(contentState.toHtml(),
-                        contentState.selection.end)
 
-                },
-                onItalicClick = {
-                    viewModel.handleUndoRedoStack(contentState.toHtml())
-                    contentState.toggleSpanStyle(
-                        SpanStyle(
-                            fontStyle = FontStyle.Italic
-                        )
-                    )
-                    viewModel.updateContent(contentState.toHtml(),
-                        contentState.selection.end)
-                },
-                onUnderlineClick = {
-                    viewModel.handleUndoRedoStack(contentState.toHtml())
-                    contentState.toggleSpanStyle(
-                        SpanStyle(
-                            textDecoration = TextDecoration.Underline
-                        )
-                    )
-                    viewModel.updateContent(contentState.toHtml(),
-                        contentState.selection.end)
-                },
-                onLineThroughClick = {
-                    viewModel.handleUndoRedoStack(contentState.toHtml())
-                    contentState.toggleSpanStyle(
-                        SpanStyle(
-                            textDecoration = TextDecoration.LineThrough
-                        )
-                    )
-                    viewModel.updateContent(contentState.toHtml(),
-                        contentState.selection.end)
-                },
-                onTextFontChange = {
-                    viewModel.handleUndoRedoStack(contentState.toHtml())
-                    // TBD
-                    viewModel.updateContent(contentState.toHtml(),
-                        contentState.selection.end)
-                },
-                onTextSizeClick = {
-                    viewModel.handleUndoRedoStack(contentState.toHtml())
-                    // TBD
-                    viewModel.updateContent(contentState.toHtml(),
-                        contentState.selection.end)
-                },
-                onTextColorClick = {
-                    isColorPopupExpanded.value = true
-                    colorPopupType.value = "textColor"
-                },
-                onTextBgClick = {
-                    isColorPopupExpanded.value = true
-                    colorPopupType.value = "bgColor"
-                },
-                onTextLeftClick = {
-                    viewModel.handleUndoRedoStack(contentState.toHtml())
-                    contentState
-                        .toggleParagraphStyle(
-                            ParagraphStyle(
-                                textAlign = TextAlign.Left
-                            )
-                        )
-                    viewModel.updateContent(contentState.toHtml(),
-                        contentState.selection.end)
-                },
-                onTextCenterClick = {
-                    viewModel.handleUndoRedoStack(contentState.toHtml())
-                    contentState
-                        .toggleParagraphStyle(
-                            ParagraphStyle(
-                                textAlign = TextAlign.Center
-                            )
-                        )
-                    viewModel.updateContent(contentState.toHtml(),
-                        contentState.selection.end)
-                },
-                onTextRightClick = {
-                    viewModel.handleUndoRedoStack(contentState.toHtml())
-                    val cursorPos = contentState.selection.end
-                    contentState
-                        .toggleParagraphStyle(
-                            ParagraphStyle(
-                                textAlign = TextAlign.Right
-                            )
-                        )
-
-                    contentState.selection = TextRange(cursorPos)
-                    viewModel.updateContent(contentState.toHtml(),
-                        contentState.selection.end)
-                },
-                onUnOrderedListClick = {
-                    viewModel.handleUndoRedoStack(contentState.toHtml())
-                    contentState.toggleUnorderedList()
-                    viewModel.updateContent(contentState.toHtml(),
-                        contentState.selection.end)
-                },
-                onOrderedListClick = {
-                    viewModel.handleUndoRedoStack(contentState.toHtml())
-                    contentState.toggleOrderedList()
-                    viewModel.updateContent(contentState.toHtml(),
-                        contentState.selection.end)
-                },
-                onCodeClick = {
-                    viewModel.handleUndoRedoStack(contentState.toHtml())
-                    contentState.addCodeSpan()
-                    viewModel.updateContent(contentState.toHtml(),
-                        contentState.selection.end)
-                },
-                onLetterSpacingClick = {
-                    viewModel.handleUndoRedoStack(contentState.toHtml())
-                    // TBD
-                    viewModel.updateContent(contentState.toHtml(),
-                        contentState.selection.end)
-                },
-                onLineHeightClick = {
-
-                })
-
-            if(isColorPopupExpanded.value) {
-                Column {
-                    ColorPickerDialog(
-                        onSetColor = {
+            Box {
+                RichTextToolBox(contentState,
+                    onBoldClick = {
                         viewModel.handleUndoRedoStack(contentState.toHtml())
-                        when(colorPopupType.value) {
-                            "textColor" -> {
-                                contentState.toggleSpanStyle(SpanStyle(
-                                    color =  it
-                                ))
-                            }
-                            "bgColor" -> {
-                                contentState.toggleSpanStyle(SpanStyle(
-                                    background = it
-                                ))
-                            }
-                        }
-                        viewModel.updateContent(contentState.toHtml(),
-                            contentState.selection.end)
-                        isColorPopupExpanded.value = false
-                        colorPopupType.value = ""
-                    }, onResetColor = {
-                        viewModel.handleUndoRedoStack(contentState.toHtml())
-                        when(colorPopupType.value) {
-                            "textColor" -> {
-                                contentState.toggleSpanStyle(SpanStyle(
-                                  color =  Color.White
-                                ))
-                            }
-                            "bgColor" -> {
-                                contentState.toggleSpanStyle(SpanStyle(
-                                    background = Color.Transparent
-                                ))
-                            }
+                        contentState.toggleSpanStyle(
+                            SpanStyle(
+                                fontWeight = FontWeight.Bold,
+                            )
+                        )
+                        viewModel.updateContent(
+                            contentState.toHtml(),
+                            contentState.selection.end
+                        )
 
-                        }
-                        viewModel.updateContent(contentState.toHtml(),
-                            contentState.selection.end)
-                        isColorPopupExpanded.value = false
-                        colorPopupType.value = ""
-                    }, onCloseClick = {
-                        isColorPopupExpanded.value = false
-                        colorPopupType.value = ""
-                    })
-                }
-            }
-
-            if(isUnitDropDownExpanded.value) {
-                UnitDropDown(
-                    selectedValue = when(unitDropDownType.value) {
-                                                                 "textSize" -> contentState.currentSpanStyle.fontSize.value.toInt()
-                        "lineHeight" -> contentState.currentParagraphStyle.lineHeight.value.toInt()
-                        "letterSpacing" -> contentState.currentSpanStyle.letterSpacing.value.toInt()
-                        else -> 0 } ,
-                    listItems = TextSizeValues.textSizeList,
-                    onClosed = {
-                        isUnitDropDownExpanded.value = false
-                        unitDropDownType.value = ""
                     },
-                    onSelected = {
+                    onItalicClick = {
                         viewModel.handleUndoRedoStack(contentState.toHtml())
+                        contentState.toggleSpanStyle(
+                            SpanStyle(
+                                fontStyle = FontStyle.Italic
+                            )
+                        )
+                        viewModel.updateContent(
+                            contentState.toHtml(),
+                            contentState.selection.end
+                        )
+                    },
+                    onUnderlineClick = {
+                        viewModel.handleUndoRedoStack(contentState.toHtml())
+                        contentState.toggleSpanStyle(
+                            SpanStyle(
+                                textDecoration = TextDecoration.Underline
+                            )
+                        )
+                        viewModel.updateContent(
+                            contentState.toHtml(),
+                            contentState.selection.end
+                        )
+                    },
+                    onLineThroughClick = {
+                        viewModel.handleUndoRedoStack(contentState.toHtml())
+                        contentState.toggleSpanStyle(
+                            SpanStyle(
+                                textDecoration = TextDecoration.LineThrough
+                            )
+                        )
+                        viewModel.updateContent(
+                            contentState.toHtml(),
+                            contentState.selection.end
+                        )
+                    },
+                    onTextFontChange = {
+                        isFontDropDownExpanded.value = !isFontDropDownExpanded.value
+                    },
+                    onTextSizeClick = {
+                        if (isUnitDropDownExpanded.value) {
+                            isUnitDropDownExpanded.value = false
+                            colorPopupType.value = ""
+                        } else {
+                            isUnitDropDownExpanded.value = true
+                            unitDropDownType.value = "textSize"
+                        }
+                    },
+                    onTextColorClick = {
+                        isColorPopupExpanded.value = true
+                        colorPopupType.value = "textColor"
+                    },
+                    onTextBgClick = {
+                        isColorPopupExpanded.value = true
+                        colorPopupType.value = "bgColor"
+                    },
+                    onTextLeftClick = {
+                        viewModel.handleUndoRedoStack(contentState.toHtml())
+                        contentState
+                            .toggleParagraphStyle(
+                                ParagraphStyle(
+                                    textAlign = TextAlign.Left
+                                )
+                            )
+                        viewModel.updateContent(
+                            contentState.toHtml(),
+                            contentState.selection.end
+                        )
+                    },
+                    onTextCenterClick = {
+                        viewModel.handleUndoRedoStack(contentState.toHtml())
+                        contentState
+                            .toggleParagraphStyle(
+                                ParagraphStyle(
+                                    textAlign = TextAlign.Center
+                                )
+                            )
+                        viewModel.updateContent(
+                            contentState.toHtml(),
+                            contentState.selection.end
+                        )
+                    },
+                    onTextRightClick = {
+                        viewModel.handleUndoRedoStack(contentState.toHtml())
+                        val cursorPos = contentState.selection.end
+                        contentState
+                            .toggleParagraphStyle(
+                                ParagraphStyle(
+                                    textAlign = TextAlign.Right
+                                )
+                            )
 
-                        when(unitDropDownType.value) {
-                            "textSize" -> {
+                        contentState.selection = TextRange(cursorPos)
+                        viewModel.updateContent(
+                            contentState.toHtml(),
+                            contentState.selection.end
+                        )
+                    },
+                    onUnOrderedListClick = {
+                        viewModel.handleUndoRedoStack(contentState.toHtml())
+                        contentState.toggleUnorderedList()
+                        viewModel.updateContent(
+                            contentState.toHtml(),
+                            contentState.selection.end
+                        )
+                    },
+                    onOrderedListClick = {
+                        viewModel.handleUndoRedoStack(contentState.toHtml())
+                        contentState.toggleOrderedList()
+                        viewModel.updateContent(
+                            contentState.toHtml(),
+                            contentState.selection.end
+                        )
+                    },
+                    onCodeClick = {
+                        viewModel.handleUndoRedoStack(contentState.toHtml())
+                        contentState.addCodeSpan()
+                        viewModel.updateContent(
+                            contentState.toHtml(),
+                            contentState.selection.end
+                        )
+                    },
+                    onLetterSpacingClick = {
+                        if (isUnitDropDownExpanded.value) {
+                            isUnitDropDownExpanded.value = false
+                            colorPopupType.value = ""
+                        } else {
+                            isUnitDropDownExpanded.value = true
+                            unitDropDownType.value = "letterSpacing"
+                        }
+                    },
+                    onLineHeightClick = {
+                        if (isUnitDropDownExpanded.value) {
+                            isUnitDropDownExpanded.value = false
+                            colorPopupType.value = ""
+                        } else {
+                            isUnitDropDownExpanded.value = true
+                            unitDropDownType.value = "lineHeight"
+                        }
+                    })
+
+
+                if (isFontDropDownExpanded.value) {
+                    Column(
+                        Modifier
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        FontDropDown(
+                            selectedValue = contentState.currentSpanStyle.fontFamily
+                                ?: FontFamily.Default,
+                            listItems = UIValuesConstant.fontsList,
+                            onClosed = {
+                                isFontDropDownExpanded.value = false
+                            },
+                            onSelected = {
+                                viewModel.handleUndoRedoStack(contentState.toHtml())
                                 contentState.toggleSpanStyle(
                                     SpanStyle(
-                                    fontSize = it
-                                )
-                                )
-                            }
-                            "lineHeight" -> {
-                                contentState.toggleParagraphStyle(
-                                    ParagraphStyle(
-                                    lineHeight = it
-                                )
-                                )
-                            }
-                            "letterSpacing" -> {
-                                contentState.toggleSpanStyle(
-                                    SpanStyle(
-                                        letterSpacing = it
+                                        fontFamily = it
                                     )
                                 )
+                                viewModel.updateContent(
+                                    contentState.toHtml(),
+                                    contentState.selection.end
+                                )
                             }
-                        }
-                        viewModel.updateContent(contentState.toHtml(),
-                            contentState.selection.end)
+                        )
                     }
-                )
-            }
+                }
 
+                if (isUnitDropDownExpanded.value) {
+                    Column(
+                        Modifier
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        UnitDropDown(
+                            selectedValue = when (unitDropDownType.value) {
+                                "textSize" -> contentState.currentSpanStyle.fontSize.value.toInt()
+                                "lineHeight" -> contentState.currentParagraphStyle.lineHeight.value.toInt()
+                                "letterSpacing" -> contentState.currentSpanStyle.letterSpacing.value.toInt()
+                                else -> 0
+                            },
+                            listItems = UIValuesConstant.textSizeList,
+                            onClosed = {
+                                isUnitDropDownExpanded.value = false
+                                unitDropDownType.value = ""
+                            },
+                            onSelected = {
+                                viewModel.handleUndoRedoStack(contentState.toHtml())
+
+                                when (unitDropDownType.value) {
+                                    "textSize" -> {
+                                        contentState.toggleSpanStyle(
+                                            SpanStyle(
+                                                fontSize = it
+                                            )
+                                        )
+                                    }
+
+                                    "lineHeight" -> {
+                                        contentState.toggleParagraphStyle(
+                                            ParagraphStyle(
+                                                lineHeight = it
+                                            )
+                                        )
+                                    }
+
+                                    "letterSpacing" -> {
+                                        contentState.toggleSpanStyle(
+                                            SpanStyle(
+                                                letterSpacing = it
+                                            )
+                                        )
+                                    }
+                                }
+                                viewModel.updateContent(
+                                    contentState.toHtml(),
+                                    contentState.selection.end
+                                )
+                            }
+                        )
+                    }
+                }
+
+                if (isColorPopupExpanded.value) {
+                    Column {
+                        ColorPickerDialog(
+                            onSetColor = {
+                                viewModel.handleUndoRedoStack(contentState.toHtml())
+                                when (colorPopupType.value) {
+                                    "textColor" -> {
+                                        contentState.toggleSpanStyle(
+                                            SpanStyle(
+                                                color = it
+                                            )
+                                        )
+                                    }
+
+                                    "bgColor" -> {
+                                        contentState.toggleSpanStyle(
+                                            SpanStyle(
+                                                background = it
+                                            )
+                                        )
+                                    }
+                                }
+                                viewModel.updateContent(
+                                    contentState.toHtml(),
+                                    contentState.selection.end
+                                )
+                                isColorPopupExpanded.value = false
+                                colorPopupType.value = ""
+                            }, onResetColor = {
+                                viewModel.handleUndoRedoStack(contentState.toHtml())
+                                when (colorPopupType.value) {
+                                    "textColor" -> {
+                                        contentState.toggleSpanStyle(
+                                            SpanStyle(
+                                                color = Color.White
+                                            )
+                                        )
+                                    }
+
+                                    "bgColor" -> {
+                                        contentState.toggleSpanStyle(
+                                            SpanStyle(
+                                                background = Color.Transparent
+                                            )
+                                        )
+                                    }
+
+                                }
+                                viewModel.updateContent(
+                                    contentState.toHtml(),
+                                    contentState.selection.end
+                                )
+                                isColorPopupExpanded.value = false
+                                colorPopupType.value = ""
+                            }, onCloseClick = {
+                                isColorPopupExpanded.value = false
+                                colorPopupType.value = ""
+                            })
+                    }
+                }
+            }
 
         },
         floatingActionButtonPosition = FabPosition.End,
@@ -690,7 +778,8 @@ fun DocumentPage(
                                             placeholder = {
                                                 Text(
                                                     "Title",
-                                                    fontSize = 20.sp, fontWeight = FontWeight.SemiBold,
+                                                    fontSize = 20.sp,
+                                                    fontWeight = FontWeight.SemiBold,
                                                     fontFamily = MaterialTheme.typography.bodyMedium.fontFamily
                                                 )
                                             },
@@ -715,27 +804,27 @@ fun DocumentPage(
                                         Column {
                                             Spacer(modifier = Modifier.height(12.dp))
 
-                                        LazyRow(
-                                            modifier = Modifier
-                                                .scrollable(
-                                                    contributorScrollState,
-                                                    Orientation.Horizontal
-                                                )
-                                        ) {
-                                            items(
-                                                key = { user ->
-                                                    user.userDetails?.id!!
-                                                },
-                                                items = data.liveCollaborators
-                                                    ?: listOf()
+                                            LazyRow(
+                                                modifier = Modifier
+                                                    .scrollable(
+                                                        contributorScrollState,
+                                                        Orientation.Horizontal
+                                                    )
                                             ) {
-                                                ContributorsItems(item = it, onClick = { pos ->
-                                                    if (pos != -1) {
-                                                        contentState.selection = TextRange(pos)
-                                                    }
-                                                })
+                                                items(
+                                                    key = { user ->
+                                                        user.userDetails?.id!!
+                                                    },
+                                                    items = data.liveCollaborators
+                                                        ?: listOf()
+                                                ) {
+                                                    ContributorsItems(item = it, onClick = { pos ->
+                                                        if (pos != -1) {
+                                                            contentState.selection = TextRange(pos)
+                                                        }
+                                                    })
+                                                }
                                             }
-                                        }
                                         }
                                     }
                                 }
@@ -748,7 +837,7 @@ fun DocumentPage(
                                         modifier = Modifier
                                             .fillMaxHeight()
                                             .fillMaxWidth(),
-                                        value = content.value,
+                                        value = content.value.text,
                                         onValueChange = {},
                                         placeholder = {
                                             Text(
@@ -758,12 +847,27 @@ fun DocumentPage(
                                             )
                                         },
                                         visualTransformation = {
-                                            TransformedText(
-                                                buildAnnotatedStringWithColors(data.liveCollaborators?.filter {
-                                                    it.userDetails?.id!! != viewModel.userDetails.value.id
-                                                } ?: listOf(), content.value.text),
-                                                OffsetMapping.Identity
-                                            )
+                                            try {
+                                                TransformedText(
+                                                    buildAnnotatedStringWithColors(
+                                                        data.liveCollaborators?.filter {
+                                                            it.userDetails?.id!! != viewModel.userDetails.value.id
+                                                        } ?: listOf(),
+                                                        text = content.value.text
+                                                    ),
+                                                    OffsetMapping.Identity
+                                                )
+                                            } catch(e: Exception) {
+                                                TransformedText(
+                                                    buildAnnotatedStringWithColors(
+                                                        data.liveCollaborators?.filter {
+                                                            it.userDetails?.id!! != viewModel.userDetails.value.id
+                                                        } ?: listOf(),
+                                                        text = content.value.text,
+                                                    ),
+                                                    OffsetMapping.Identity
+                                                )
+                                            }
 
                                         },
                                         colors = TextFieldDefaults.colors(
