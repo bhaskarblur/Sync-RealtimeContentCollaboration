@@ -184,8 +184,9 @@ fun DocumentPage(
             delay(1200)
             dataGot.value = true
         }
+        Log.d("undoRedoDone", viewModel.hasDoneUndoRedo.value.toString() )
         if (contentState.annotatedString.text.length > 0) {
-            if (data.content?.lastEditedBy.equals(viewModel.userDetails.value.id) == false) {
+            if (data.content?.lastEditedBy.equals(viewModel.userDetails.value.id) == false || viewModel.hasDoneUndoRedo.value) {
                 contentChangedFromType.value = false
                 if (contentState.annotatedString.text.equals(data.content?.content.toString()) == false) {
                     contentState.setHtml(data.content?.content.toString())
@@ -205,6 +206,7 @@ fun DocumentPage(
                     )
                 }
         }
+        viewModel.hasDoneUndoRedo.value = false
     }
 
     LaunchedEffect(contentState.selection) {
@@ -857,13 +859,6 @@ fun DocumentPage(
                                             .fillMaxWidth(),
                                         value = content.value.text,
                                         onValueChange = {},
-                                        placeholder = {
-                                            Text(
-                                                "Write what you want or use help of AI ✨",
-                                                fontSize = 16.sp, fontWeight = FontWeight.Normal,
-                                                fontFamily = MaterialTheme.typography.bodyMedium.fontFamily
-                                            )
-                                        },
                                         visualTransformation = {
                                             try {
                                                 TransformedText(
@@ -911,6 +906,13 @@ fun DocumentPage(
                                         state = contentState,
                                         shape = RoundedCornerShape(10.dp),
                                         interactionSource = contentSource,
+                                        placeholder = {
+                                            Text(
+                                                "Write what you want or use help of AI ✨",
+                                                fontSize = 16.sp, fontWeight = FontWeight.Normal,
+                                                fontFamily = MaterialTheme.typography.bodyMedium.fontFamily
+                                            )
+                                        },
                                         modifier = Modifier
                                             .fillMaxHeight()
                                             .fillMaxWidth(),

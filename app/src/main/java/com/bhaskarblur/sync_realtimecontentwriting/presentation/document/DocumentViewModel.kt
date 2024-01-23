@@ -42,6 +42,7 @@ class DocumentViewModel @Inject constructor(
     val documentData: State<DocumentModel> = _documentData
     val undoStack by mutableStateOf(Stack<String>())
     var redoStack by mutableStateOf(Stack<String>())
+    var hasDoneUndoRedo = mutableStateOf(false)
 
     private val _gptData = mutableStateOf("")
     val gptMessagesList by mutableStateOf(documentData.value.promptsList)
@@ -130,6 +131,7 @@ class DocumentViewModel @Inject constructor(
     fun getDocumentData(documentId: String) {
         undoStack.clear()
         redoStack.clear()
+        hasDoneUndoRedo.value = false
         viewModelScope.launch(Dispatchers.IO) {
             documentUseCase.getDocumentDetails(documentId, userDetails.value.id!!).collectLatest {
                 when (it) {
@@ -197,6 +199,7 @@ class DocumentViewModel @Inject constructor(
     fun undoChanges() {
         if (undoStack.size > 0) {
             Log.d("calledForUndo", undoStack.peek().toString())
+            hasDoneUndoRedo.value = true
             _documentData.value = DocumentModel(
                 documentId = _documentData.value.documentId,
                 documentName = _documentData.value.documentName,
@@ -217,6 +220,7 @@ class DocumentViewModel @Inject constructor(
     fun redoChanges() {
         if (redoStack.size > 0) {
             Log.d("calledForRedo", redoStack.peek())
+            hasDoneUndoRedo.value = true
             _documentData.value = DocumentModel(
                 documentId = _documentData.value.documentId,
                 _documentData.value.documentName,
@@ -244,6 +248,7 @@ class DocumentViewModel @Inject constructor(
                 e.printStackTrace()
             }
         }
+        hasDoneUndoRedo.value = false
     }
 
     fun updateCursorPosition(cursorPosition: Int) {
