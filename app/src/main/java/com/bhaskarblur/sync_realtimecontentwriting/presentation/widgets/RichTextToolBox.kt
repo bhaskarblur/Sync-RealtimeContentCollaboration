@@ -57,7 +57,7 @@ import com.mohamedrejeb.richeditor.model.RichTextState
 fun RichTextToolBox(
     state: RichTextState, onBoldClick: () -> Unit, onItalicClick: () -> Unit,
     onUnderlineClick: () -> Unit, onLineThroughClick: () -> Unit,
-    onTextFontChange: () -> Unit, onTextSizeClick: () -> Unit,
+    onTextSizeClick: () -> Unit,
     onTextBgClick: () -> Unit, onTextColorClick: () -> Unit,
     onTextLeftClick: () -> Unit, onTextRightClick: () -> Unit,
     onTextCenterClick: () -> Unit, onOrderedListClick: () -> Unit,
@@ -182,27 +182,6 @@ fun RichTextToolBox(
                 )
             }
 
-            Spacer(modifier = Modifier.width(8.dp))
-            Column(
-                Modifier
-                    .height(32.dp)
-                    .width(32.dp)
-                    .background(
-                        color = colorSecondary,
-                        shape = RoundedCornerShape(90.dp)
-                    )
-                    .clickable {
-                        onTextFontChange()
-                    },
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Icon(
-                    Icons.Filled.FontDownload, contentDescription = "Font change text",
-                    modifier = Modifier.size(22.dp),
-                    tint = textColorPrimary
-                )
-            }
 
 
             Spacer(modifier = Modifier.width(8.dp))
