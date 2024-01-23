@@ -21,21 +21,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Comment
-import androidx.compose.material.icons.filled.FormatBold
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.BottomSheetScaffold
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CardElevation
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
@@ -57,7 +50,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -66,28 +63,24 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
-import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bhaskarblur.sync_realtimecontentwriting.R
+import com.bhaskarblur.sync_realtimecontentwriting.core.utils.TextSizeValues
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.buildAnnotatedStringWithColors
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.findFirstDifferenceIndex
-import com.bhaskarblur.sync_realtimecontentwriting.domain.model.UserModel
-import com.bhaskarblur.sync_realtimecontentwriting.domain.model.UserModelCursor
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.UIEvents
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets.ContributorsItems
-import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.SignUpViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.AlertDialogComponent
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.ColorPickerDialog
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.RichTextToolBox
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.UnitDropDown
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.backgroundColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
@@ -249,6 +242,18 @@ fun DocumentPage(
 
     Scaffold(
         bottomBar = {
+            val isColorPopupExpanded = remember {
+                mutableStateOf(false)
+            }
+            val isUnitDropDownExpanded = remember {
+                mutableStateOf(false)
+            }
+            val unitDropDownType = remember {
+                mutableStateOf("")
+            }
+            val colorPopupType = remember {
+                mutableStateOf("")
+            }
             RichTextToolBox(contentState,
                 onBoldClick = {
                     viewModel.handleUndoRedoStack(contentState.toHtml())
@@ -304,22 +309,12 @@ fun DocumentPage(
                         contentState.selection.end)
                 },
                 onTextColorClick = {
-                    viewModel.handleUndoRedoStack(contentState.toHtml())
-                    // TBD
-                    viewModel.updateContent(contentState.toHtml(),
-                        contentState.selection.end)
+                    isColorPopupExpanded.value = true
+                    colorPopupType.value = "textColor"
                 },
                 onTextBgClick = {
-                    viewModel.handleUndoRedoStack(contentState.toHtml())
-                    // TBD
-                    viewModel.updateContent(contentState.toHtml(),
-                        contentState.selection.end)
-                },
-                onTextShadowClick = {
-                    viewModel.handleUndoRedoStack(contentState.toHtml())
-                    // TBD
-                    viewModel.updateContent(contentState.toHtml(),
-                        contentState.selection.end)
+                    isColorPopupExpanded.value = true
+                    colorPopupType.value = "bgColor"
                 },
                 onTextLeftClick = {
                     viewModel.handleUndoRedoStack(contentState.toHtml())
@@ -382,11 +377,101 @@ fun DocumentPage(
                         contentState.selection.end)
                 },
                 onLineHeightClick = {
-                    viewModel.handleUndoRedoStack(contentState.toHtml())
-                    // TBD
-                    viewModel.updateContent(contentState.toHtml(),
-                        contentState.selection.end)
+
                 })
+
+            if(isColorPopupExpanded.value) {
+                Column {
+                    ColorPickerDialog(
+                        onSetColor = {
+                        viewModel.handleUndoRedoStack(contentState.toHtml())
+                        when(colorPopupType.value) {
+                            "textColor" -> {
+                                contentState.toggleSpanStyle(SpanStyle(
+                                    color =  it
+                                ))
+                            }
+                            "bgColor" -> {
+                                contentState.toggleSpanStyle(SpanStyle(
+                                    background = it
+                                ))
+                            }
+                        }
+                        viewModel.updateContent(contentState.toHtml(),
+                            contentState.selection.end)
+                        isColorPopupExpanded.value = false
+                        colorPopupType.value = ""
+                    }, onResetColor = {
+                        viewModel.handleUndoRedoStack(contentState.toHtml())
+                        when(colorPopupType.value) {
+                            "textColor" -> {
+                                contentState.toggleSpanStyle(SpanStyle(
+                                  color =  Color.White
+                                ))
+                            }
+                            "bgColor" -> {
+                                contentState.toggleSpanStyle(SpanStyle(
+                                    background = Color.Transparent
+                                ))
+                            }
+
+                        }
+                        viewModel.updateContent(contentState.toHtml(),
+                            contentState.selection.end)
+                        isColorPopupExpanded.value = false
+                        colorPopupType.value = ""
+                    }, onCloseClick = {
+                        isColorPopupExpanded.value = false
+                        colorPopupType.value = ""
+                    })
+                }
+            }
+
+            if(isUnitDropDownExpanded.value) {
+                UnitDropDown(
+                    selectedValue = when(unitDropDownType.value) {
+                                                                 "textSize" -> contentState.currentSpanStyle.fontSize.value.toInt()
+                        "lineHeight" -> contentState.currentParagraphStyle.lineHeight.value.toInt()
+                        "letterSpacing" -> contentState.currentSpanStyle.letterSpacing.value.toInt()
+                        else -> 0 } ,
+                    listItems = TextSizeValues.textSizeList,
+                    onClosed = {
+                        isUnitDropDownExpanded.value = false
+                        unitDropDownType.value = ""
+                    },
+                    onSelected = {
+                        viewModel.handleUndoRedoStack(contentState.toHtml())
+
+                        when(unitDropDownType.value) {
+                            "textSize" -> {
+                                contentState.toggleSpanStyle(
+                                    SpanStyle(
+                                    fontSize = it
+                                )
+                                )
+                            }
+                            "lineHeight" -> {
+                                contentState.toggleParagraphStyle(
+                                    ParagraphStyle(
+                                    lineHeight = it
+                                )
+                                )
+                            }
+                            "letterSpacing" -> {
+                                contentState.toggleSpanStyle(
+                                    SpanStyle(
+                                        letterSpacing = it
+                                    )
+                                )
+                            }
+                        }
+                        viewModel.updateContent(contentState.toHtml(),
+                            contentState.selection.end)
+                    }
+                )
+            }
+
+
         },
         floatingActionButtonPosition = FabPosition.End,
     ) {

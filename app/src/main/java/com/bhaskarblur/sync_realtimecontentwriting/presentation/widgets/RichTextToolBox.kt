@@ -1,5 +1,6 @@
 package com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -28,6 +29,7 @@ import androidx.compose.material.icons.filled.FormatItalic
 import androidx.compose.material.icons.filled.FormatLineSpacing
 import androidx.compose.material.icons.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.FormatListNumbered
+import androidx.compose.material.icons.filled.FormatShapes
 import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material.icons.filled.FormatStrikethrough
 import androidx.compose.material.icons.filled.FormatUnderlined
@@ -38,6 +40,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -53,12 +57,13 @@ import com.mohamedrejeb.richeditor.model.RichTextState
 fun RichTextToolBox(
     state: RichTextState, onBoldClick: () -> Unit, onItalicClick: () -> Unit,
     onUnderlineClick: () -> Unit, onLineThroughClick: () -> Unit,
-    onTextFontChange : () -> Unit, onTextSizeClick: () -> Unit, onTextBgClick: () -> Unit,
-    onTextShadowClick: () -> Unit, onTextColorClick: () -> Unit,
+    onTextFontChange: () -> Unit, onTextSizeClick: () -> Unit,
+    onTextBgClick: () -> Unit, onTextColorClick: () -> Unit,
     onTextLeftClick: () -> Unit, onTextRightClick: () -> Unit,
     onTextCenterClick: () -> Unit, onOrderedListClick: () -> Unit,
     onUnOrderedListClick: () -> Unit, onCodeClick: () -> Unit,
-    onLineHeightClick : () -> Unit, onLetterSpacingClick : () -> Unit) {
+    onLineHeightClick: () -> Unit, onLetterSpacingClick: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -250,7 +255,11 @@ fun RichTextToolBox(
                     .height(32.dp)
                     .width(32.dp)
                     .background(
-                        color = colorSecondary,
+                        color = when (state.currentSpanStyle.color) {
+                            Color.White -> colorSecondary
+                            Color.Transparent -> colorSecondary
+                            else -> state.currentSpanStyle.color
+                        },
                         shape = RoundedCornerShape(90.dp)
                     )
                     .clickable {
@@ -272,7 +281,11 @@ fun RichTextToolBox(
                     .height(32.dp)
                     .width(32.dp)
                     .background(
-                        color = colorSecondary,
+                        color = when (state.currentSpanStyle.background) {
+                            Color.White -> colorSecondary
+                            Color.Transparent -> colorSecondary
+                            else -> state.currentSpanStyle.background
+                        },
                         shape = RoundedCornerShape(90.dp)
                     )
                     .clickable {
@@ -283,29 +296,6 @@ fun RichTextToolBox(
             ) {
                 Icon(
                     Icons.Filled.FormatColorFill, contentDescription = "Color background text",
-                    modifier = Modifier.size(22.dp),
-                    tint = textColorPrimary
-                )
-            }
-
-
-            Spacer(modifier = Modifier.width(8.dp))
-            Column(
-                Modifier
-                    .height(32.dp)
-                    .width(32.dp)
-                    .background(
-                        color = colorSecondary,
-                        shape = RoundedCornerShape(90.dp)
-                    )
-                    .clickable {
-                        onTextShadowClick()
-                    },
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Icon(
-                    Icons.Filled.InvertColors, contentDescription = "Color shadow text",
                     modifier = Modifier.size(22.dp),
                     tint = textColorPrimary
                 )
