@@ -43,11 +43,7 @@ class DocumentViewModel @Inject constructor(
     val undoStack by mutableStateOf(Stack<String>())
     var redoStack by mutableStateOf(Stack<String>())
     var hasDoneUndoRedo = mutableStateOf(false)
-
     private val _gptData = mutableStateOf("")
-    val gptMessagesList by mutableStateOf(documentData.value.promptsList)
-
-    private val useOldPromptsHistory = mutableStateOf(true)
     private val _eventFlow = MutableSharedFlow<UIEvents>()
     val eventFlow = _eventFlow
 
@@ -192,10 +188,6 @@ class DocumentViewModel @Inject constructor(
         }
     }
 
-    fun toggleUseOldPrompts(value: Boolean) {
-        useOldPromptsHistory.value = value
-    }
-
     fun undoChanges() {
         if (undoStack.size > 0) {
             Log.d("calledForUndo", undoStack.peek().toString())
@@ -323,7 +315,6 @@ class DocumentViewModel @Inject constructor(
         val body: GptBody = if (ignoreChatHistory) {
             GptBody(messages = arrayListOf(messageModel.toMessageModel()))
         } else {
-
             GptBody(messages = _documentData.value.promptsList?.map { it.toMessageModel() }
                 ?: listOf())
         }

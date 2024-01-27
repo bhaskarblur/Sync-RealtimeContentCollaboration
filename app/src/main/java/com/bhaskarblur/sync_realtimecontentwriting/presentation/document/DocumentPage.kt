@@ -1,5 +1,6 @@
 package com.bhaskarblur.sync_realtimecontentwriting.presentation.document
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
@@ -50,7 +51,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.ParagraphStyle
@@ -63,7 +63,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -91,6 +90,7 @@ import com.mohamedrejeb.richeditor.ui.material3.RichTextEditorDefaults
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@SuppressLint("MutableCollectionMutableState")
 @OptIn(
     ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class,
     ExperimentalRichTextApi::class
@@ -100,7 +100,6 @@ fun DocumentPage(
     viewModel: DocumentViewModel,
     context: Context
 ) {
-    val configuration = LocalConfiguration.current
     val data by viewModel.documentData
     val undoStack = remember {
         mutableStateOf(viewModel.undoStack)
@@ -166,7 +165,7 @@ fun DocumentPage(
             },
             yesLabel = "Yes",
             onClose = {
-                showDialog.value = false;
+                showDialog.value = false
             })
     }
 
@@ -185,10 +184,10 @@ fun DocumentPage(
             dataGot.value = true
         }
         Log.d("undoRedoDone", viewModel.hasDoneUndoRedo.value.toString() )
-        if (contentState.annotatedString.text.length > 0) {
-            if (data.content?.lastEditedBy.equals(viewModel.userDetails.value.id) == false || viewModel.hasDoneUndoRedo.value) {
+        if (contentState.annotatedString.text.isNotEmpty()) {
+            if (!data.content?.lastEditedBy.equals(viewModel.userDetails.value.id) || viewModel.hasDoneUndoRedo.value) {
                 contentChangedFromType.value = false
-                if (contentState.annotatedString.text.equals(data.content?.content.toString()) == false) {
+                if (contentState.annotatedString.text != data.content?.content.toString()) {
                     contentState.setHtml(data.content?.content.toString())
                     content.value = TextFieldValue(
                         text = contentState.annotatedString.text,
@@ -198,7 +197,7 @@ fun DocumentPage(
             }
         } else {
                 contentChangedFromType.value = false
-                if (contentState.annotatedString.text.equals(data.content?.content.toString()) == false) {
+                if (contentState.annotatedString.text != data.content?.content.toString()) {
                     contentState.setHtml(data.content?.content.toString())
                     content.value = TextFieldValue(
                         text = contentState.annotatedString.text,
@@ -836,8 +835,8 @@ fun DocumentPage(
                                                     },
                                                     items = data.liveCollaborators
                                                         ?: listOf()
-                                                ) {
-                                                    ContributorsItems(item = it, onClick = { pos ->
+                                                ) {model ->
+                                                    ContributorsItems(item = model, onClick = { pos ->
                                                         if (pos != -1) {
                                                             contentState.selection = TextRange(pos)
                                                         }
@@ -861,8 +860,8 @@ fun DocumentPage(
                                             try {
                                                 TransformedText(
                                                     buildAnnotatedStringWithColors(
-                                                        data.liveCollaborators?.filter {
-                                                            it.userDetails?.id!! != viewModel.userDetails.value.id
+                                                        data.liveCollaborators?.filter {model ->
+                                                            model.userDetails?.id!! != viewModel.userDetails.value.id
                                                         } ?: listOf(),
                                                         text = content.value.text
                                                     ),
@@ -871,8 +870,8 @@ fun DocumentPage(
                                             } catch (e: Exception) {
                                                 TransformedText(
                                                     buildAnnotatedStringWithColors(
-                                                        data.liveCollaborators?.filter {
-                                                            it.userDetails?.id!! != viewModel.userDetails.value.id
+                                                        data.liveCollaborators?.filter {model ->
+                                                            model.userDetails?.id!! != viewModel.userDetails.value.id
                                                         } ?: listOf(),
                                                         text = content.value.text,
                                                     ),
