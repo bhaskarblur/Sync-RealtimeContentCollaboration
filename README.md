@@ -6,13 +6,13 @@ Sync is a realtime content collaboration app with multiple people developed in K
 3. Users can see each other's cursor/location on document.
 4. Users can do collaborative AI Prompting and add the AI Content into the document.
 5. Share document & Deep Linking enabled to open document via it's link
-6. Multi Text Styling i.e different text styles like Text Size, Weight, Color, Background etc. (Coming soon)
+6. Multi Text Styling i.e different text styles like Text Size, Weight, Color, Background etc.
 7. Drop comments in the document. (Coming soon)
 8. Multiple document support & Explore section to see public document. (Coming soon)
    
 ### Screenshots
 
-|   <img src="https://github.com/bhaskarblur/Sync-RealtimeContentWriting/assets/85757758/a1f32e34-c2c9-4cc8-911b-6c5f6c069146" height="480">   |  <img src="https://github.com/bhaskarblur/Sync-RealtimeContentWriting/assets/85757758/9c609f99-481f-491d-b199-44aa2808b314" height="480">   |  <img src="https://github.com/bhaskarblur/Sync-RealtimeContentCollaboration/assets/85757758/5c103fcf-4b28-492a-82c8-2895fc82a93d" height="480">  |   <img src="https://github.com/bhaskarblur/Sync-RealtimeContentWriting/assets/85757758/cf6f9c59-6afe-4151-b2d0-febe25698e57" height="480">   |
+|   <img src="https://github.com/bhaskarblur/Sync-RealtimeContentWriting/assets/85757758/a1f32e34-c2c9-4cc8-911b-6c5f6c069146" height="480">   |  <img src="https://github.com/bhaskarblur/Sync-RealtimeContentCollaboration/assets/85757758/a251d944-980b-42e7-b857-78daea41dc7c" height="480">   |  <img src="https://github.com/bhaskarblur/Sync-RealtimeContentCollaboration/assets/85757758/5c103fcf-4b28-492a-82c8-2895fc82a93d" height="480">  |   <img src="https://github.com/bhaskarblur/Sync-RealtimeContentWriting/assets/85757758/cf6f9c59-6afe-4151-b2d0-febe25698e57" height="480">   |
 
 ## Open to Contributors
 I and We warmly welcome anyone & everyone to contribute to this app and improve the App, add new features & more, especially the Jetpack compose UI part. 
