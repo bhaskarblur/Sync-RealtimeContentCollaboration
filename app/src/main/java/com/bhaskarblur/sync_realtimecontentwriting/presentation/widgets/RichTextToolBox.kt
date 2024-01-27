@@ -102,20 +102,16 @@ fun RichTextToolBox(
             ToolBoxIcon(icon = Icons.Filled.FormatUnderlined, contentDescription = "Underline Text",
                 onClick = {
                     onUnderlineClick()
-                },isHighlighted = when (state.currentSpanStyle.textDecoration) {
-                    TextDecoration.Underline -> true
-                    else -> false
-                })
+                },isHighlighted = state.currentSpanStyle.textDecoration
+                    ?.equals(TextDecoration.Underline)?:false)
 
             Spacer(modifier = Modifier.width(8.dp))
 
             ToolBoxIcon(icon = Icons.Filled.FormatStrikethrough, contentDescription = "Linethrough Text",
                 onClick = {
                     onLineThroughClick()
-                },isHighlighted = when (state.currentSpanStyle.textDecoration) {
-                    TextDecoration.LineThrough ->  true
-                    else -> false
-                })
+                },isHighlighted = state.currentSpanStyle.textDecoration
+                    ?.equals(TextDecoration.LineThrough)?:false)
 
             Spacer(modifier = Modifier.width(8.dp))
 

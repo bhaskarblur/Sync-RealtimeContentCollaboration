@@ -308,7 +308,7 @@ fun DocumentPage(
                         },
                         onUnderlineClick = {
                             viewModel.handleUndoRedoStack(contentState.toHtml())
-                            contentState.toggleSpanStyle(
+                                    contentState.toggleSpanStyle(
                                 SpanStyle(
                                     textDecoration = TextDecoration.Underline
                                 )
