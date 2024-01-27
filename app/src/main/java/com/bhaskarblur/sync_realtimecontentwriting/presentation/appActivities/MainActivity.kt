@@ -147,9 +147,11 @@ class MainActivity : ComponentActivity() {
                         is UIEvents.DocumentCodeApplied -> {
                             val collectedEvent : UIEvents.DocumentCodeApplied = event
                             collectedEvent.documentId.let { documentId ->
-                                val intent = Intent(context, DocumentActivity::class.java)
-                                intent.putExtra("documentId", documentId)
-                                context.startActivity(intent)
+                                if(documentId.isNotEmpty()) {
+                                    val intent = Intent(context, DocumentActivity::class.java)
+                                    intent.putExtra("documentId", documentId)
+                                    context.startActivity(intent)
+                                }
                             }
 
                         }
@@ -188,7 +190,7 @@ class MainActivity : ComponentActivity() {
                             composable(
                                 route = Screens.TabScreen.route
                             ) {
-                                TabScreenPage(navController, userViewModel, documentViewModel)
+                                TabScreenPage(userViewModel, documentViewModel)
                             }
 
                             composable(

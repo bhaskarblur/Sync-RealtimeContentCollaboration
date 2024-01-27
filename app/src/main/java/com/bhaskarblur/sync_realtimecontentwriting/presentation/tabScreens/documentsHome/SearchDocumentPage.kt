@@ -133,7 +133,8 @@ fun SearchDocumentsPage(
                                 it.documentId?.lowercase()
                                     ?.contains(searchText.value.lowercase()) == true ||
                                 it.content?.content?.lowercase()
-                                    ?.contains(searchText.value.lowercase()) == true
+                                    ?.contains(searchText.value.lowercase()) == true || "No Title".lowercase()
+                            .contains(searchText.value.lowercase())
                     },
                     key = {
                         it.documentId ?: ""

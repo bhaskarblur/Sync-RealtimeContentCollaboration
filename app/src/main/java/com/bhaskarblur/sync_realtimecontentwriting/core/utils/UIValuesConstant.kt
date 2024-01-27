@@ -1,9 +1,16 @@
 package com.bhaskarblur.sync_realtimecontentwriting.core.utils
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Dataset
+import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.sp
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.FontFamilyModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.TextSizeModel
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.TabScreenBottomModel
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.TabScreens
 
 object UIValuesConstant {
     val textSizeList = listOf(
@@ -28,5 +35,11 @@ object UIValuesConstant {
         FontFamilyModel("Sans-Serif", FontFamily.SansSerif),
         FontFamilyModel("Serif", FontFamily.Serif),
         FontFamilyModel("Cursive", FontFamily.Cursive),
+    )
+
+    val bottomItemsList = listOf<TabScreenBottomModel>(
+        TabScreenBottomModel("Home", TabScreens.HomePage.route, Icons.Filled.Home),
+        TabScreenBottomModel("My Documents", TabScreens.MyDocumentsPage.route, Icons.Filled.Dataset),
+        TabScreenBottomModel("Profile", TabScreens.ProfilePage.route, Icons.Filled.AccountCircle),
     )
 }

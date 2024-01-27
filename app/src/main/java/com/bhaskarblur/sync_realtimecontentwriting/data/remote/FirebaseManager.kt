@@ -112,7 +112,7 @@ class FirebaseManager @Inject constructor(
 
         return suspendCoroutine {continuation ->
             uploadTask
-                .addOnSuccessListener {snapShot->
+                .addOnSuccessListener {_->
                 imgRef.downloadUrl.addOnSuccessListener {uri->
                     continuation.resume(uri.toString())
                 }
@@ -307,7 +307,7 @@ class FirebaseManager @Inject constructor(
                 )
             }
         }
-        delay(1500)
+       delay(1500)
         return document.toDocumentModel()
     }
 

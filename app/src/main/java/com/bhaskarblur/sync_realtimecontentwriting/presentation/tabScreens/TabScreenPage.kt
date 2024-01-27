@@ -1,26 +1,15 @@
 package com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Explore
-import androidx.compose.material.icons.filled.FormatBold
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItem
@@ -42,12 +31,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.bhaskarblur.sync_realtimecontentwriting.core.utils.UIValuesConstant
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.DocumentViewModel
-import com.bhaskarblur.sync_realtimecontentwriting.presentation.profile.ExplorePage
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.profile.MyDocumentsPage
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.documentsHome.DocumentsList
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.documentsHome.SearchDocumentsPage
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.profile.ProfilePage
@@ -61,7 +50,6 @@ import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorSecondary
 
 @Composable
 fun TabScreenPage(
-    parentNavController: NavController,
     userViewModel: SignUpViewModel,
     documentViewModel: DocumentViewModel
 ) {
@@ -71,11 +59,7 @@ fun TabScreenPage(
     val currentPage = rememberSaveable {
         mutableStateOf<String>(TabScreens.HomePage.route)
     }
-    val bottomItemsList = listOf<TabScreenBottomModel>(
-        TabScreenBottomModel("Home", TabScreens.HomePage.route, Icons.Filled.Home),
-        TabScreenBottomModel("Explore", TabScreens.ExplorePage.route, Icons.Filled.Explore),
-        TabScreenBottomModel("Profile", TabScreens.ProfilePage.route, Icons.Filled.AccountCircle),
-    )
+
 
     val networkAvailable by userViewModel.isInternetAvailable
 
@@ -97,7 +81,7 @@ fun TabScreenPage(
                 elevation = 4.dp,
                 modifier = Modifier.height(62.dp)
             ) {
-                bottomItemsList.forEachIndexed { index, navItem ->
+                UIValuesConstant.bottomItemsList.forEachIndexed { index, navItem ->
                     NavigationBarItem(selected = when (navItem.route) {
                         currentPage.value -> true
                         else -> false
@@ -164,9 +148,9 @@ fun TabScreenPage(
                     }
 
                     composable(
-                        route = TabScreens.ExplorePage.route
+                        route = TabScreens.MyDocumentsPage.route
                     ) {
-                        ExplorePage(userViewModel, documentViewModel)
+                        MyDocumentsPage(userViewModel, documentViewModel)
                     }
 
                     composable(
