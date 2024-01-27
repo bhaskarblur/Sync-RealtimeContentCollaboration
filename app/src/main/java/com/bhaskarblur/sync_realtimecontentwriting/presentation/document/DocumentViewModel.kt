@@ -209,7 +209,8 @@ class DocumentViewModel @Inject constructor(
                     content = undoStack.peek().toString(),
                     lastEditedBy = userDetails.value.id
                 ),
-                liveCollaborators = _documentData.value.liveCollaborators
+                liveCollaborators = _documentData.value.liveCollaborators,
+                promptsList = _documentData.value.promptsList
             )
             updateContent(undoStack.peek(), undoStack.peek().length - 1)
             redoStack.push(undoStack.peek())

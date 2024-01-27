@@ -605,7 +605,7 @@ fun DocumentPage(
                                 )
                             )
                         // Need to test this msg whether it will affect UI
-                        contentState.setText(
+                        contentState.setHtml(
                             contentState
                                 .toHtml().plus(" $tempContent")
                         )
@@ -779,7 +779,6 @@ fun DocumentPage(
                             }
 
                             Column {
-                                if (data.liveCollaborators?.isNotEmpty() == true) {
                                     Row(
                                         Modifier
                                             .fillMaxWidth()
@@ -847,7 +846,6 @@ fun DocumentPage(
                                             }
                                         }
                                     }
-                                }
 
                                 Box {
                                     TextField(
