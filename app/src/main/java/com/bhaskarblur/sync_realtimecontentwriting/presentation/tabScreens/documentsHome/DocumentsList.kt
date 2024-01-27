@@ -1,52 +1,27 @@
 package com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.documentsHome
 
 import android.content.Context
-import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.FormatAlignCenter
-import androidx.compose.material.icons.filled.FormatAlignLeft
-import androidx.compose.material.icons.filled.FormatAlignRight
-import androidx.compose.material.icons.filled.FormatBold
-import androidx.compose.material.icons.filled.FormatColorFill
-import androidx.compose.material.icons.filled.FormatColorText
-import androidx.compose.material.icons.filled.FormatItalic
-import androidx.compose.material.icons.filled.FormatListBulleted
-import androidx.compose.material.icons.filled.FormatListNumbered
-import androidx.compose.material.icons.filled.FormatSize
-import androidx.compose.material.icons.filled.FormatStrikethrough
-import androidx.compose.material.icons.filled.FormatUnderlined
-import androidx.compose.material.icons.filled.InsertLink
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Send
-import androidx.compose.material.icons.filled.TextDecrease
-import androidx.compose.material.icons.filled.TextIncrease
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -67,14 +42,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.bhaskarblur.sync_realtimecontentwriting.core.utils.Constants
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.UIEvents
-import com.bhaskarblur.sync_realtimecontentwriting.presentation.appActivities.DocumentActivity
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.DocumentViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.documentsHome.widgets.DocumentItem
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.SignUpViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.TabScreens
-import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.chatBoxColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
@@ -91,16 +63,18 @@ fun DocumentsList(
     val isLoading = rememberSaveable {
         mutableStateOf(true)
     }
+    val reload = remember {
+        mutableStateOf(true)
+    }
 
     val documentCode = remember {
         mutableStateOf("")
     }
     val scope = rememberCoroutineScope()
-    LaunchedEffect(documentViewModel.userDocuments) {
-        if (documentViewModel.userDocuments.size < 1) {
-            documentViewModel.getUserDocuments()
+
+    LaunchedEffect(documentViewModel.recentDocuments, reload) {
+            documentViewModel.getRecentDocuments()
             delay(2500)
-        }
         isLoading.value = false
     }
 
@@ -268,7 +242,7 @@ fun DocumentsList(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        "Your documents",
+                        "Recent documents",
                         color = textColorPrimary,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium
@@ -286,7 +260,7 @@ fun DocumentsList(
 
                 Spacer(modifier = Modifier.height(16.dp))
                 LazyColumn {
-                    items(items = documentViewModel.userDocuments.reversed(),
+                    items(items = documentViewModel.recentDocuments.reversed(),
                         key = {
                             it.documentId ?: ""
                         }) { doc ->

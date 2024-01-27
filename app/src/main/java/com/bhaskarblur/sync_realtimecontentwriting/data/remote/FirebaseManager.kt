@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import com.bhaskarblur.sync_realtimecontentwriting.R
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.ColorHelper
@@ -14,23 +15,29 @@ import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.DocumentModel
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.PromptModelDto
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.UserModelCursorDto
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.UserModelDto
+import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.UserRecentDocsDto
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.DocumentModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.UserModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.GenericTypeIndicator
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.StorageReference
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import java.lang.Exception
 import java.util.UUID
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+
 
 class FirebaseManager @Inject constructor(
     private val storageReference: StorageReference,
@@ -41,26 +48,35 @@ class FirebaseManager @Inject constructor(
 
     private val _documentDetails = mutableStateOf(DocumentModel(null, null, null, "", 0, null))
     val documentDetails: MutableState<DocumentModel> = _documentDetails
+    val recentDocuments: MutableState<ArrayList<DocumentModel>> =
+        mutableStateOf(arrayListOf<DocumentModel>())
     private var userDetails: UserModelDto = UserModelDto()
 
     companion object {
         fun DB_URL(context: Context): String {
             return context.getString(R.string.DB_URL)
         }
-        fun STORAGE_URL(context: Context):String{
+
+        fun STORAGE_URL(context: Context): String {
             return context.getString(R.string.STORAGE_URL)
         }
     }
 
-    suspend fun createUser(userName: String, fullName: String,userEmail:String, password: String,userPictureUri:Uri): UserModel {
-        val imageUrl=uploadProfileImage(userName,userPictureUri)
+    suspend fun createUser(
+        userName: String,
+        fullName: String,
+        userEmail: String,
+        password: String,
+        userPictureUri: Uri
+    ): UserModel {
+        val imageUrl = uploadProfileImage(userName, userPictureUri)
         var user = UserModelDto(
             id = usersModelRef.push().key,
             userName = userName,
             fullName = fullName,
-            userEmail=userEmail,
-            password=password,
-            userPicture=imageUrl
+            userEmail = userEmail,
+            password = password,
+            userPicture = imageUrl
         )
         withContext(Dispatchers.IO) {
             val checkUser = getUserByUserName(userName)
@@ -104,20 +120,20 @@ class FirebaseManager @Inject constructor(
     }
 
     private suspend fun uploadProfileImage(
-        userName:String,
-        imageUri:Uri
-    ):String{
-        val imgRef=storageReference.child("Profile/$userName/${UUID.randomUUID()}")
-        val uploadTask=imgRef.putFile(imageUri)
+        userName: String,
+        imageUri: Uri
+    ): String {
+        val imgRef = storageReference.child("Profile/$userName/${UUID.randomUUID()}")
+        val uploadTask = imgRef.putFile(imageUri)
 
-        return suspendCoroutine {continuation ->
+        return suspendCoroutine { continuation ->
             uploadTask
-                .addOnSuccessListener {_->
-                imgRef.downloadUrl.addOnSuccessListener {uri->
-                    continuation.resume(uri.toString())
+                .addOnSuccessListener { _ ->
+                    imgRef.downloadUrl.addOnSuccessListener { uri ->
+                        continuation.resume(uri.toString())
+                    }
                 }
-            }
-                .addOnFailureListener{
+                .addOnFailureListener {
                     continuation.resumeWithException(it)
                 }
         }
@@ -168,7 +184,7 @@ class FirebaseManager @Inject constructor(
         return user
     }
 
-    suspend fun getDocumentById(documentId: String) : DocumentModel {
+    suspend fun getDocumentById(documentId: String): DocumentModel {
         var document = DocumentModelDto(
             "",
             "",
@@ -180,7 +196,7 @@ class FirebaseManager @Inject constructor(
         documentRef.child(documentId)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    if(snapshot.exists()) {
+                    if (snapshot.exists()) {
                         val value = snapshot.getValue(DocumentModelDtoNoList::class.java)!!
                         val contributorsList = arrayListOf<UserModelCursorDto>()
                         snapshot.child("liveCollaborators").children.forEach {
@@ -195,7 +211,7 @@ class FirebaseManager @Inject constructor(
                         document = DocumentModelDto(
                             documentId = value.documentId,
                             value.documentName,
-                            value.createdBy,0,
+                            value.createdBy, value.creationDateTime,
                             value.content,
                             contributorsList,
                             promptsList = PromptModelDto.listToArrayList(
@@ -216,6 +232,8 @@ class FirebaseManager @Inject constructor(
         delay(1000)
         return document.toDocumentModel()
     }
+
+
     suspend fun getDocumentDetails(documentId: String): DocumentModel {
         var document = DocumentModelDto(
             documentId,
@@ -227,7 +245,7 @@ class FirebaseManager @Inject constructor(
         )
         userDetails = shpRepo.getSession()
         withContext(Dispatchers.IO) {
-          documentRef.child(documentId)
+            documentRef.child(documentId)
                 .addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         if (snapshot.exists()) {
@@ -245,7 +263,7 @@ class FirebaseManager @Inject constructor(
                             document = DocumentModelDto(
                                 documentId = value.documentId,
                                 value.documentName,
-                                value.createdBy,0,
+                                value.createdBy, 0,
                                 value.content,
                                 contributorsList,
                                 promptsList = PromptModelDto.listToArrayList(
@@ -284,60 +302,95 @@ class FirebaseManager @Inject constructor(
     fun deleteDocument(documentId: String) {
         documentRef.child(documentId).removeValue()
     }
+
     suspend fun createDocument(userId: String): DocumentModel {
         var document = DocumentModelDto(
             "",
             "",
-            userId,    System.currentTimeMillis(),
+            userId, System.currentTimeMillis(),
             ContentModelDto("", ""),
             null
         )
         val dId = documentRef.push().key ?: ""
         documentRef.child(dId).setValue(
-            DocumentModelDto(dId, "", userId,
-                System.currentTimeMillis(),ContentModelDto("", ""), null)
+            DocumentModelDto(
+                dId, "", userId,
+                System.currentTimeMillis(), ContentModelDto("", ""), null
+            )
         ).addOnCompleteListener {
             if (it.isSuccessful) {
                 document = DocumentModelDto(
                     dId,
                     "",
-                    createdBy = userId,System.currentTimeMillis(),
+                    createdBy = userId, System.currentTimeMillis(),
                     ContentModelDto("", ""),
                     null
                 )
             }
         }
-       delay(1500)
+        delay(1500)
         return document.toDocumentModel()
     }
 
-    suspend fun getDocumentsByUserId(userId: String) : List<DocumentModel> {
+    suspend fun getUserDocumentsByUserId(userId: String): List<DocumentModel> {
         val docsList = arrayListOf<DocumentModelDto>()
         documentRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    snapshot.children.forEach { doc ->
+                        val docValue = doc.getValue(DocumentModelDtoNoList::class.java)
+                        docValue?.let {
+                            Log.d(
+                                "firebaseUserDocs",
+                                docValue.createdBy?.equals(userId).toString()
+                            )
+                            if (docValue.createdBy?.equals(userId) == true) {
+                                docsList.add(
+                                    DocumentModelDto(
+                                        documentId = docValue.documentId,
+                                        documentName = docValue.documentName,
+                                        content = docValue.content,
+                                        createdBy = docValue.createdBy,
+                                        creationDateTime = docValue.creationDateTime,
+                                        liveCollaborators = listOf(),
+                                        promptsList = arrayListOf()
+                                    )
+                                )
+                            }
+                        }
+
+                    }
+                }
+
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+
+        })
+        delay(3500)
+        return docsList.map { it.toDocumentModel() }
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    fun getRecentDocumentsByUserId(userId: String) {
+        usersModelRef.child(userId).child("recentDocuments")
+            .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
-                        snapshot.children.forEach { doc ->
-                            val docValue = doc.getValue(DocumentModelDtoNoList::class.java)
-                            docValue?.let {
-                                Log.d(
-                                    "firebaseUserDocs",
-                                    docValue.createdBy?.equals(userId).toString()
-                                )
-                                if (docValue.createdBy?.equals(userId) == true) {
-                                    docsList.add(
-                                        DocumentModelDto(
-                                            documentId = docValue.documentId,
-                                            documentName = docValue.documentName,
-                                            content = docValue.content,
-                                            createdBy = docValue.createdBy,
-                                            creationDateTime = docValue.creationDateTime,
-                                            liveCollaborators = listOf(),
-                                            promptsList = arrayListOf()
-                                        )
-                                    )
-                                }
+                        val t: GenericTypeIndicator<ArrayList<UserRecentDocsDto>> =
+                            object : GenericTypeIndicator<ArrayList<UserRecentDocsDto>>() {}
+                        val documents: ArrayList<UserRecentDocsDto> =
+                            snapshot.getValue(t) ?: arrayListOf()
+                        Log.d("gotDocToRecent",
+                            documents.toString())
+                        GlobalScope.launch {
+                            val listDocs = arrayListOf<DocumentModel>()
+                            documents.forEach { document ->
+                                val documentData = getDocumentById(document.documentId?:"")
+                                listDocs.add(documentData)
                             }
-
+                            recentDocuments.value = listDocs
                         }
                     }
 
@@ -347,8 +400,47 @@ class FirebaseManager @Inject constructor(
                 }
 
             })
-        delay(3500)
-        return docsList.map { it.toDocumentModel() }
+    }
+    fun addToRecentDocuments(userId: String, documentId: String) {
+        Log.d("addedDocToRecentId",documentId)
+        usersModelRef.child(userId).child("recentDocuments")
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        val t: GenericTypeIndicator<ArrayList<UserRecentDocsDto>> =
+                            object : GenericTypeIndicator<ArrayList<UserRecentDocsDto>>() {}
+                        val documents: ArrayList<UserRecentDocsDto> =
+                            snapshot.getValue(t) ?: arrayListOf()
+
+                        documents.removeIf{
+                            it.documentId == documentId
+                        }
+                        documents.add(UserRecentDocsDto(documentId))
+                        usersModelRef.child(userId)
+                            .child("recentDocuments")
+                            .setValue(documents).addOnCompleteListener {
+                                if(it.isSuccessful) {
+                                    Log.d("addedDocToRecent","yes")
+                                }
+                            }
+                    }
+                    else {
+                        val listDocs = arrayListOf<UserRecentDocsDto>()
+                        listDocs.add(UserRecentDocsDto(documentId))
+                        usersModelRef.child(userId)
+                            .child("recentDocuments")
+                            .setValue(listDocs).addOnCompleteListener {
+                                if(it.isSuccessful) {
+                                    Log.d("addedDocToRecent","yes")
+                                }
+                            }
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                }
+
+            })
     }
     fun updateDocumentContent(documentId: String, content: String): Boolean {
         var flag = false

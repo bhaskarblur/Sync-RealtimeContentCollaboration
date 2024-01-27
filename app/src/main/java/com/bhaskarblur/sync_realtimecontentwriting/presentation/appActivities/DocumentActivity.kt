@@ -1,20 +1,15 @@
 package com.bhaskarblur.sync_realtimecontentwriting.presentation.appActivities
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.coroutineScope
-import com.bhaskarblur.sync_realtimecontentwriting.core.utils.Constants
-import com.bhaskarblur.sync_realtimecontentwriting.presentation.UIEvents
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.DocumentPage
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.DocumentViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

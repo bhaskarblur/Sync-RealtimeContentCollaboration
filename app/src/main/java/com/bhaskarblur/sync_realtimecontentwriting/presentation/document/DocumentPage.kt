@@ -171,6 +171,9 @@ fun DocumentPage(
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
+    LaunchedEffect(data.documentId) {
+        viewModel.addToRecentDocuments()
+    }
     LaunchedEffect(key1 = viewModel.redoStack) {
         redoStack.value = viewModel.redoStack
 

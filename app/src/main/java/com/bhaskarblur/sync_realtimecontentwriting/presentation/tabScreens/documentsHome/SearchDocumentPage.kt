@@ -126,7 +126,7 @@ fun SearchDocumentsPage(
                     .fillMaxSize()
                     .padding(vertical = 18.dp)
             ) {
-                items(items = documentViewModel.userDocuments.reversed()
+                items(items = documentViewModel.recentDocuments.reversed()
                     .filter {
                         it.documentName?.lowercase()
                             ?.contains(searchText.value.lowercase()) == true ||

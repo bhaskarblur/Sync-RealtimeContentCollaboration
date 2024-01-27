@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface IDocumentRepository {
 
     var documentDetails: MutableState<DocumentModel>
+    var recentDocuments: MutableState<ArrayList<DocumentModel>>
     fun updateContent(documentId : String, content : String) : Flow<Boolean>
     fun updateCursorPosition(documentId : String, position: Int,userId: String) : Flow<Boolean>
     fun getDocumentDetails(documentId: String, userId: String) : Flow<Resources<DocumentModel>>
@@ -22,7 +23,9 @@ interface IDocumentRepository {
     fun addPromptMessage(documentId : String, message : PromptModel) : Flow<Boolean>
     fun createDocument(userId: String) : Flow<DocumentModel>
     fun deleteDocument(documentId: String)
-    fun getDocumentsByUserId(userId: String) : Flow<List<DocumentModel>>
+    fun getUserDocumentsByUserId(userId: String) : Flow<List<DocumentModel>>
+    suspend fun getRecentDocumentsByUserId(userId: String)
 
     fun getDocumentById(documentId: String) : Flow<DocumentModel>
+    fun addToRecentDocuments(userId: String, documentId: String)
 }

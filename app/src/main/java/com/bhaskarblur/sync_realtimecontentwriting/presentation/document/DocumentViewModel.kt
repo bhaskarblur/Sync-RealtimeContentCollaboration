@@ -12,6 +12,7 @@ import com.bhaskarblur.dictionaryapp.core.utils.Resources
 import com.bhaskarblur.gptbot.models.GptBody
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.AppNetworkManager
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.PromptModelDto
+import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.UserRecentDocsDto
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.ContentModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.DocumentModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.PromptModel
@@ -50,6 +51,7 @@ class DocumentViewModel @Inject constructor(
     private var updateJob: Job? = null
 
     val userDocuments = mutableStateListOf<DocumentModel>()
+    val recentDocuments by documentUseCase.recentDocuments
     val userDetails = mutableStateOf(UserModel())
 
     fun setUser() {
@@ -71,13 +73,10 @@ class DocumentViewModel @Inject constructor(
             _eventFlow.emit(value)
         }
     }
-    fun isInternetAvailable() : Boolean {
-        return appNetworkManager.isNetworkAvailable()
-    }
     fun getUserDocuments() {
         viewModelScope.launch {
             delay(800)
-            documentUseCase.getDocumentsByUserId(userDetails.value.id ?: "").collectLatest {
+            documentUseCase.getUserDocumentsByUserId(userDetails.value.id ?: "").collectLatest {
                 userDocuments.clear()
                 it.forEach { doc ->
                     Log.d("userDocuments", doc.documentId.toString())
@@ -87,6 +86,25 @@ class DocumentViewModel @Inject constructor(
         }
     }
 
+    fun getRecentDocuments() {
+        viewModelScope.launch {
+            documentUseCase.getRecentDocumentsByUserId(userDetails.value.id ?: "")
+        }
+    }
+
+    fun addToRecentDocuments() {
+        Log.d("ViewModelAddToRecent","yes")
+        viewModelScope.launch {
+           if(recentDocuments.isNotEmpty()) {
+               recentDocuments.removeIf {
+                   (it.documentId ?: "") == (_documentData.value.documentId ?: "")
+               }
+           }
+            recentDocuments.add(0, _documentData.value)
+            documentUseCase.addToRecentDocuments(userDetails.value
+                .id?:"",_documentData.value.documentId?:"" )
+        }
+    }
     suspend fun getDocumentById(documentId: String): Boolean {
         var flag = false
         documentUseCase.getDocumentById(documentId).collectLatest {

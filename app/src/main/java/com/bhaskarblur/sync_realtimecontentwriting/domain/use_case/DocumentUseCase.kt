@@ -15,7 +15,7 @@ class DocumentUseCase(
 ) {
 
     val _documentDetails = documentRepository.documentDetails
-
+    var recentDocuments: MutableState<ArrayList<DocumentModel>> = documentRepository.recentDocuments
     fun updateContent(documentId : String, content : String) : Flow<Boolean> {
         return documentRepository.updateContent(documentId, content)
     }
@@ -62,13 +62,23 @@ class DocumentUseCase(
 
     }
 
-    fun getDocumentsByUserId(userId: String): Flow<List<DocumentModel>> {
-        return documentRepository.getDocumentsByUserId(userId)
+    fun getUserDocumentsByUserId(userId: String): Flow<List<DocumentModel>> {
+        return documentRepository.getUserDocumentsByUserId(userId)
+
+    }
+
+    suspend fun getRecentDocumentsByUserId(userId: String) {
+        documentRepository.getRecentDocumentsByUserId(userId)
 
     }
 
     fun getDocumentById(documentId: String) : Flow<DocumentModel> {
         return documentRepository.getDocumentById(documentId)
+    }
+
+    fun addToRecentDocuments(userId: String,documentId : String) {
+        Log.d("UseCaseAddToRecent","yes")
+        documentRepository.addToRecentDocuments(userId, documentId)
     }
 
 }
