@@ -44,7 +44,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.UIEvents
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.DocumentViewModel
-import com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.documentsHome.widgets.DocumentItem
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.DocumentItem
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.SignUpViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.TabScreens
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
@@ -276,7 +276,10 @@ fun DocumentsList(
                                     doc.documentId ?: ""
                                 )
                             )
-                        }, context = context)
+                        },
+                            isMyDocument = documentViewModel.
+                            isMyDocument(doc.createdBy),
+                            context = context)
                     }
                 }
                 Spacer(modifier = Modifier.height(28.dp))

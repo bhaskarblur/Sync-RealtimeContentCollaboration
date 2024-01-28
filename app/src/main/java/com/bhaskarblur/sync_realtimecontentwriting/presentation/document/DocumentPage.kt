@@ -74,10 +74,10 @@ import com.bhaskarblur.sync_realtimecontentwriting.core.utils.findFirstDifferenc
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.UIEvents
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets.ContributorsItems
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.AlertDialogComponent
-import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.ColorPickerDialog
-import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.FontDropDown
-import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.RichTextToolBox
-import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.UnitDropDown
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets.ColorPickerDialog
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets.FontDropDown
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets.RichTextToolBox
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets.UnitDropDown
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.backgroundColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor

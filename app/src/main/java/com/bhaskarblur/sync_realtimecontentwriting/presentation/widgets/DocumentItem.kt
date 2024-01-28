@@ -1,4 +1,4 @@
-package com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.documentsHome.widgets
+package com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets
 
 import android.content.Context
 import android.widget.Toast
@@ -32,13 +32,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.UiUtils
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.DocumentModel
-import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.AlertDialogComponent
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.chatBoxColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
 
 @Composable
-fun DocumentItem(documentModel: DocumentModel, onItemClick : () -> Unit, onDelete : () -> Unit, onShare : () -> Unit,
-                 context:Context) {
+fun DocumentItem(
+    documentModel: DocumentModel,
+    onItemClick: () -> Unit,
+    onDelete: () -> Unit,
+    onShare: () -> Unit,
+    context: Context,
+    isMyDocument: Boolean
+) {
 
     val showDeleteDialog = remember {
         mutableStateOf(false)
@@ -46,7 +51,7 @@ fun DocumentItem(documentModel: DocumentModel, onItemClick : () -> Unit, onDelet
 
     val clipBoard = LocalClipboardManager.current
 
-    if(showDeleteDialog.value) {
+    if (showDeleteDialog.value) {
         AlertDialogComponent(
             context = context,
             title = "Delete document?",
@@ -67,34 +72,48 @@ fun DocumentItem(documentModel: DocumentModel, onItemClick : () -> Unit, onDelet
                 onItemClick()
             }
             .padding(16.dp)
-            ) {
+    ) {
 
         Row(
             Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text (
+            Text(
                 modifier = Modifier.fillMaxWidth(0.8f),
                 text =
-                when(documentModel.documentName) {
+                when (documentModel.documentName) {
                     "" -> "No Title"
-                    else -> {documentModel.documentName.toString()}
+                    else -> {
+                        documentModel.documentName.toString()
+                    }
                 }, color = textColorPrimary,
                 fontSize = 17.sp, fontWeight = FontWeight.SemiBold
             )
 
-            Icon(Icons.Filled.Delete,
-                contentDescription = "Delete", tint = Color.Red,
-                modifier = Modifier
-                    .size(22.dp)
-                    .clickable {
-                        showDeleteDialog.value = true
-                    } )
+            if (isMyDocument) {
+                Icon(Icons.Filled.Delete,
+                    contentDescription = "Delete", tint = Color.Red,
+                    modifier = Modifier
+                        .size(22.dp)
+                        .clickable {
+                            showDeleteDialog.value = true
+                        })
+            } else {
+                Icon(Icons.Filled.Share,
+                    contentDescription = "Share", tint = Color.White,
+                    modifier = Modifier
+                        .size(22.dp)
+                        .clickable {
+                            onShare()
+                        })
+            }
         }
         Spacer(modifier = Modifier.height(8.dp))
 
-        Row(horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Row {
                 Text(
                     text = "Document code: ${documentModel.documentId.toString()}",
@@ -102,6 +121,7 @@ fun DocumentItem(documentModel: DocumentModel, onItemClick : () -> Unit, onDelet
                 )
 
                 Spacer(modifier = Modifier.width(8.dp))
+
 
                 Icon(Icons.Filled.ContentCopy, "Copy code",
                     tint = textColorPrimary, modifier = Modifier
@@ -112,20 +132,23 @@ fun DocumentItem(documentModel: DocumentModel, onItemClick : () -> Unit, onDelet
                                 .makeText(context, "Code Copied", Toast.LENGTH_SHORT)
                                 .show()
                         })
+
             }
-
-            Icon(Icons.Filled.Share,
-                contentDescription = "Share", tint = Color.White,
-                modifier = Modifier
-                    .size(22.dp)
-                    .clickable {
-                        onShare()
-                    } )
-
+            if (isMyDocument) {
+                Icon(Icons.Filled.Share,
+                    contentDescription = "Share", tint = Color.White,
+                    modifier = Modifier
+                        .size(22.dp)
+                        .clickable {
+                            onShare()
+                        })
+            }
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Created on: ${UiUtils.getDate(documentModel.creationDateTime.toString())}",
-            color = textColorPrimary, fontSize = 13.sp)
+        Text(
+            text = "Created on: ${UiUtils.getDate(documentModel.creationDateTime.toString())}",
+            color = textColorPrimary, fontSize = 13.sp
+        )
     }
     Spacer(modifier = Modifier.height(16.dp))
 

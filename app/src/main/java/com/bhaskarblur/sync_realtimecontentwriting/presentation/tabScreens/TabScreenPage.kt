@@ -41,7 +41,6 @@ import com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.docum
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.documentsHome.SearchDocumentsPage
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.profile.ProfilePage
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.SignUpViewModel
-import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.NoInternetPage
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.backgroundColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor

@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.sp
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.UIEvents
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.DocumentViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.registration.SignUpViewModel
-import com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.documentsHome.widgets.DocumentItem
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.DocumentItem
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
@@ -194,7 +194,9 @@ fun MyDocumentsPage(
                         )
                     }, onShare = {
                         documentViewModel.emitUIEvent(UIEvents.ShareDocument(doc.documentId ?: ""))
-                    }, context = LocalContext.current)
+                    },   isMyDocument = documentViewModel.
+                    isMyDocument(doc.createdBy),
+                        context = LocalContext.current)
                 }
             }
         }

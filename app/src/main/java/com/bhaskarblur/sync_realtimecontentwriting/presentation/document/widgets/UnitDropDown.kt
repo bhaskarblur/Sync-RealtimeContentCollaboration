@@ -1,4 +1,4 @@
-package com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets
+package com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,21 +23,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bhaskarblur.sync_realtimecontentwriting.domain.model.FontFamilyModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.TextSizeModel
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
 
 @Composable
-fun FontDropDown(selectedValue: FontFamily, listItems : List<FontFamilyModel>, onClosed : () -> Unit,
-                 onSelected : (FontFamily) -> Unit) {
-
+fun UnitDropDown(selectedValue: Int, listItems : List<TextSizeModel>, onClosed : () -> Unit,
+                 onSelected : (TextUnit) -> Unit) {
     val expanded = remember {
         mutableStateOf(true)
     }
@@ -52,7 +49,7 @@ fun FontDropDown(selectedValue: FontFamily, listItems : List<FontFamilyModel>, o
             }) {
 
                 Text(it.label, color = when(selectedValue) {
-                    it.fontFamily -> primaryColor
+                    it.size.value.toInt() -> primaryColor
                     else -> textColorPrimary
                 },
                     fontWeight = FontWeight.Medium,
@@ -60,7 +57,7 @@ fun FontDropDown(selectedValue: FontFamily, listItems : List<FontFamilyModel>, o
                     modifier = Modifier
                         .padding(8.dp)
                         .clickable {
-                            onSelected(it.fontFamily)
+                            onSelected(it.size)
                             onClosed()
                         })
             }

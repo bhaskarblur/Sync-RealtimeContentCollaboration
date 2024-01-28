@@ -105,8 +105,13 @@ class DocumentViewModel @Inject constructor(
                 .id?:"",_documentData.value.documentId?:"" )
         }
     }
-    suspend fun getDocumentById(documentId: String): Boolean {
+
+    fun isMyDocument(docOwnerId: String) : Boolean {
+        return docOwnerId == userDetails.value.id
+    }
+    fun getDocumentById(documentId: String): Boolean {
         var flag = false
+        viewModelScope.launch {
         documentUseCase.getDocumentById(documentId).collectLatest {
             if (it.documentId!!.isNotEmpty()) {
                 flag = true
@@ -114,6 +119,7 @@ class DocumentViewModel @Inject constructor(
             Log.d("documentIsValid", flag.toString())
         }
         delay(1500)
+        }
         return flag
     }
 

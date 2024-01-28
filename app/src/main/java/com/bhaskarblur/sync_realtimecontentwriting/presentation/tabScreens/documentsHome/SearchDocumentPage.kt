@@ -1,7 +1,6 @@
 package com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.documentsHome
 
 import android.content.Context
-import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -34,11 +33,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.bhaskarblur.sync_realtimecontentwriting.core.utils.Constants
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.UIEvents
-import com.bhaskarblur.sync_realtimecontentwriting.presentation.appActivities.DocumentActivity
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.DocumentViewModel
-import com.bhaskarblur.sync_realtimecontentwriting.presentation.tabScreens.documentsHome.widgets.DocumentItem
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.DocumentItem
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.chatBoxColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
@@ -149,7 +146,10 @@ fun SearchDocumentsPage(
                         )
                     }, onShare = {
                         documentViewModel.emitUIEvent(UIEvents.ShareDocument(doc.documentId ?: ""))
-                    }, context = context)
+                    },
+                        isMyDocument = documentViewModel.
+                        isMyDocument(doc.createdBy),
+                        context = context)
                 }
             }
         }

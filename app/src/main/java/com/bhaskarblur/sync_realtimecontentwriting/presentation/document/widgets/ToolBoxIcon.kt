@@ -1,4 +1,4 @@
-package com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets
+package com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets
 
 import android.graphics.drawable.Icon
 import androidx.compose.foundation.background
