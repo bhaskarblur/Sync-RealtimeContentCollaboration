@@ -256,7 +256,6 @@ fun DocumentsList(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Spacer(modifier = Modifier.height(48.dp))
                     CircularProgressIndicator(
                         color = primaryColor, modifier = Modifier.size(42.dp)
                     )
