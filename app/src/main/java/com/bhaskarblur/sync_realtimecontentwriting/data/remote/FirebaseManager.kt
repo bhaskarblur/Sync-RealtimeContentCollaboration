@@ -388,7 +388,16 @@ class FirebaseManager @Inject constructor(
                             val listDocs = arrayListOf<DocumentModel>()
                             documents.forEach { document ->
                                 val documentData = getDocumentById(document.documentId?:"")
-                                listDocs.add(documentData)
+                                if(documentData.createdBy.isEmpty() && documentData.creationDateTime.toInt() == 0) {
+                                    listDocs.add(
+                                        DocumentModel(documentId = document.documentId,
+                                        documentName = "", content = null, liveCollaborators = listOf()
+                                        )
+                                    )
+                                }
+                                else {
+                                    listDocs.add(documentData)
+                                }
                             }
                             recentDocuments.value = listDocs
                         }

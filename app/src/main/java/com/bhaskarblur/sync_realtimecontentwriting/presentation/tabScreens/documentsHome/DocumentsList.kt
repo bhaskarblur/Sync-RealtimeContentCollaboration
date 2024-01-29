@@ -8,14 +8,19 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Send
@@ -100,19 +105,6 @@ fun DocumentsList(
                 .fillMaxSize()
                 .padding(18.dp)
         ) {
-
-            if (isLoading.value) {
-                Column(
-                    Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    CircularProgressIndicator(
-                        color = primaryColor, modifier = Modifier.size(42.dp)
-                    )
-                }
-            } else {
-
                 TextField(
                     shape = RoundedCornerShape(10.dp),
                     value = documentCode.value,
@@ -258,6 +250,18 @@ fun DocumentsList(
 
                 }
 
+            if (isLoading.value) {
+                Column(
+                    Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Spacer(modifier = Modifier.height(48.dp))
+                    CircularProgressIndicator(
+                        color = primaryColor, modifier = Modifier.size(42.dp)
+                    )
+                }
+            } else {
                 Spacer(modifier = Modifier.height(16.dp))
                 LazyColumn {
                     items(items = documentViewModel.recentDocuments.reversed(),
@@ -268,7 +272,7 @@ fun DocumentsList(
                             documentViewModel.deleteDocument(doc.documentId ?: "")
                         }, onItemClick = {
                             documentViewModel.emitUIEvent(
-                                UIEvents.DocumentCodeApplied(doc.documentId?:"")
+                                UIEvents.DocumentCodeApplied(doc.documentId ?: "")
                             )
                         }, onShare = {
                             documentViewModel.emitUIEvent(
@@ -277,13 +281,16 @@ fun DocumentsList(
                                 )
                             )
                         },
-                            isMyDocument = documentViewModel.
-                            isMyDocument(doc.createdBy),
-                            context = context)
+                            isMyDocument = documentViewModel.isMyDocument(doc.createdBy),
+                            context = context
+                        )
+                    }
+                    item{
+                        Spacer(modifier = Modifier.height(48.dp))
                     }
                 }
-                Spacer(modifier = Modifier.height(28.dp))
 
+                Spacer(modifier = Modifier.height(28.dp))
             }
         }
     }

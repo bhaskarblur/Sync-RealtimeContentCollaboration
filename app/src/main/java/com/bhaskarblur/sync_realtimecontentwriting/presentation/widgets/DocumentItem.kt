@@ -23,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -64,91 +65,115 @@ fun DocumentItem(
                 showDeleteDialog.value = false
             })
     }
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .background(chatBoxColor, RoundedCornerShape(14.dp))
-            .clickable {
-                onItemClick()
-            }
-            .padding(16.dp)
-    ) {
-
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+    if(documentModel.createdBy.isEmpty() &&  documentModel.creationDateTime.toInt() == 0) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .background(chatBoxColor, RoundedCornerShape(14.dp))
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
-                modifier = Modifier.fillMaxWidth(0.8f),
-                text =
-                when (documentModel.documentName) {
-                    "" -> "No Title"
-                    else -> {
-                        documentModel.documentName.toString()
-                    }
-                }, color = textColorPrimary,
-                fontSize = 17.sp, fontWeight = FontWeight.SemiBold
+                text = "Document has been deleted",
+                color = textColorPrimary, fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold
             )
-
-            if (isMyDocument) {
-                Icon(Icons.Filled.Delete,
-                    contentDescription = "Delete", tint = Color.Red,
-                    modifier = Modifier
-                        .size(22.dp)
-                        .clickable {
-                            showDeleteDialog.value = true
-                        })
-            } else {
-                Icon(Icons.Filled.Share,
-                    contentDescription = "Share", tint = Color.White,
-                    modifier = Modifier
-                        .size(22.dp)
-                        .clickable {
-                            onShare()
-                        })
-            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Document code: ${documentModel.documentId.toString()}",
+                color = textColorPrimary, fontSize = 13.sp
+            )
         }
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
+    }
+    else {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .background(chatBoxColor, RoundedCornerShape(14.dp))
+                .clickable {
+                    onItemClick()
+                }
+                .padding(16.dp)
         ) {
-            Row {
+
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text(
-                    text = "Document code: ${documentModel.documentId.toString()}",
-                    color = textColorPrimary, fontSize = 13.sp
+                    modifier = Modifier.fillMaxWidth(0.8f),
+                    text =
+                    when (documentModel.documentName) {
+                        "" -> "No Title"
+                        else -> {
+                            documentModel.documentName.toString()
+                        }
+                    }, color = textColorPrimary,
+                    fontSize = 17.sp, fontWeight = FontWeight.SemiBold
                 )
 
-                Spacer(modifier = Modifier.width(8.dp))
-
-
-                Icon(Icons.Filled.ContentCopy, "Copy code",
-                    tint = textColorPrimary, modifier = Modifier
-                        .size(16.dp)
-                        .clickable {
-                            clipBoard.setText(AnnotatedString(documentModel.documentId.toString()))
-                            Toast
-                                .makeText(context, "Code Copied", Toast.LENGTH_SHORT)
-                                .show()
-                        })
-
+                if (isMyDocument) {
+                    Icon(Icons.Filled.Delete,
+                        contentDescription = "Delete", tint = Color.Red,
+                        modifier = Modifier
+                            .size(22.dp)
+                            .clickable {
+                                showDeleteDialog.value = true
+                            })
+                } else {
+                    Icon(Icons.Filled.Share,
+                        contentDescription = "Share", tint = Color.White,
+                        modifier = Modifier
+                            .size(22.dp)
+                            .clickable {
+                                onShare()
+                            })
+                }
             }
-            if (isMyDocument) {
-                Icon(Icons.Filled.Share,
-                    contentDescription = "Share", tint = Color.White,
-                    modifier = Modifier
-                        .size(22.dp)
-                        .clickable {
-                            onShare()
-                        })
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row {
+                    Text(
+                        text = "Document code: ${documentModel.documentId.toString()}",
+                        color = textColorPrimary, fontSize = 13.sp
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+
+                    Icon(Icons.Filled.ContentCopy, "Copy code",
+                        tint = textColorPrimary, modifier = Modifier
+                            .size(16.dp)
+                            .clickable {
+                                clipBoard.setText(AnnotatedString(documentModel.documentId.toString()))
+                                Toast
+                                    .makeText(context, "Code Copied", Toast.LENGTH_SHORT)
+                                    .show()
+                            })
+
+                }
+                if (isMyDocument) {
+                    Icon(Icons.Filled.Share,
+                        contentDescription = "Share", tint = Color.White,
+                        modifier = Modifier
+                            .size(22.dp)
+                            .clickable {
+                                onShare()
+                            })
+                }
             }
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "Created on: ${UiUtils.getDate(documentModel.creationDateTime.toString())}",
-            color = textColorPrimary, fontSize = 13.sp
-        )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Created on: ${UiUtils.getDate(documentModel.creationDateTime.toString())}",
+                color = textColorPrimary, fontSize = 13.sp
+            )
+
+    }
     }
     Spacer(modifier = Modifier.height(16.dp))
 

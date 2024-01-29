@@ -151,6 +151,9 @@ fun SearchDocumentsPage(
                         isMyDocument(doc.createdBy),
                         context = context)
                 }
+                item{
+                    Spacer(modifier = Modifier.height(48.dp))
+                }
             }
         }
     }

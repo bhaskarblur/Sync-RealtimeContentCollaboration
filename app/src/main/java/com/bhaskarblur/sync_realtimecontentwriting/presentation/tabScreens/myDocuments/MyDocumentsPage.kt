@@ -198,7 +198,11 @@ fun MyDocumentsPage(
                     isMyDocument(doc.createdBy),
                         context = LocalContext.current)
                 }
+                item{
+                    Spacer(modifier = Modifier.height(48.dp))
+                }
             }
+
         }
     }
 }

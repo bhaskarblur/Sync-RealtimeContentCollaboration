@@ -129,9 +129,9 @@ class DocumentViewModel @Inject constructor(
             documentUseCase.createDocument(userDetails.value.id ?: "").collectLatest { doc ->
                 Log.d("userDocumentCreated", doc.documentId.toString())
                 userDocuments.add(doc)
+                recentDocuments.add(doc)
                 _eventFlow.emit(UIEvents.ShowCreateLoading("0"))
                 emitUIEvent(UIEvents.DocumentCodeApplied(doc.documentId ?:""))
-
             }
         }
     }
