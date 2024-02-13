@@ -13,11 +13,13 @@ import com.bhaskarblur.gptbot.models.GptBody
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.AppNetworkManager
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.PromptModelDto
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.UserRecentDocsDto
+import com.bhaskarblur.sync_realtimecontentwriting.domain.model.CommentsModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.ContentModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.DocumentModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.PromptModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.UserModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.repository.IUserRepository
+import com.bhaskarblur.sync_realtimecontentwriting.domain.use_case.CommentsUseCase
 import com.bhaskarblur.sync_realtimecontentwriting.domain.use_case.DocumentUseCase
 import com.bhaskarblur.sync_realtimecontentwriting.domain.use_case.GptUseCase
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.UIEvents
@@ -36,6 +38,7 @@ class DocumentViewModel @Inject constructor(
     private val documentUseCase: DocumentUseCase,
     private val userRepo: IUserRepository,
     private val gptRepo: GptUseCase,
+    private val commentsUseCase: CommentsUseCase,
     private val appNetworkManager: AppNetworkManager
 ) : ViewModel() {
 
@@ -393,6 +396,22 @@ class DocumentViewModel @Inject constructor(
 
     }
 
+    fun getAllComments() {
+        viewModelScope.launch {
+            commentsUseCase.getAllComments()
+        }
+    }
 
+    fun addComment(documentId : String, comment : CommentsModel) {
+        viewModelScope.launch {
+            commentsUseCase.addComment(documentId, comment)
+        }
+    }
+
+    fun deleteComment(documentId : String, commentId : String) {
+        viewModelScope.launch {
+            commentsUseCase.deleteComment(documentId, commentId)
+        }
+    }
 
 }

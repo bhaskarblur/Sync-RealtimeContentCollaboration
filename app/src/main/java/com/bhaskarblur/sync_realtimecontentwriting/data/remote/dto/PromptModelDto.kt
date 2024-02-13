@@ -26,7 +26,6 @@ data class PromptModelDto(
                 UserModelDto.fromUserModel(message.sentBy?: UserModel()), message.timeStamp
             )
         }
-
         fun listToArrayList(list: List<PromptModel>) : ArrayList<PromptModel> {
             val arrayList = arrayListOf<PromptModel>()
 

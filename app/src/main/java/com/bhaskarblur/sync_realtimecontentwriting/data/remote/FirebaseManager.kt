@@ -4,11 +4,11 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import com.bhaskarblur.sync_realtimecontentwriting.R
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.ColorHelper
 import com.bhaskarblur.sync_realtimecontentwriting.data.local.SharedPreferencesManager
+import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.CommentsModelDto
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.ContentModelDto
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.DocumentModelDto
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.DocumentModelDtoNoList
@@ -16,6 +16,7 @@ import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.PromptModelDt
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.UserModelCursorDto
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.UserModelDto
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.UserRecentDocsDto
+import com.bhaskarblur.sync_realtimecontentwriting.domain.model.CommentsModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.DocumentModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.UserModel
 import com.google.firebase.database.DataSnapshot
@@ -27,7 +28,6 @@ import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -204,9 +204,14 @@ class FirebaseManager @Inject constructor(
                             contributorsList.add(child)
                         }
                         val promptsList = arrayListOf<PromptModelDto>()
+                        val commentsList = arrayListOf<CommentsModelDto>()
                         snapshot.child("promptsList").children.forEach {
                             val child = it.getValue(PromptModelDto::class.java)!!
                             promptsList.add(child)
+                        }
+                        snapshot.child("commentsList").children.forEach {
+                            val child = it.getValue(CommentsModelDto::class.java)!!
+                            commentsList.add(child)
                         }
                         document = DocumentModelDto(
                             documentId = value.documentId,
@@ -220,6 +225,11 @@ class FirebaseManager @Inject constructor(
                                 }.sortedBy {
                                     it.timeStamp
                                 }
+                            ),
+                            commentsList = CommentsModelDto.listToArrayList(
+                                commentsList.map {
+                                    it.toCommentsModel()
+                                }.sortedBy { it.commentDateTime }
                             )
                         )
                     }
@@ -256,9 +266,14 @@ class FirebaseManager @Inject constructor(
                                 contributorsList.add(child)
                             }
                             val promptsList = arrayListOf<PromptModelDto>()
+                            val commentsList = arrayListOf<CommentsModelDto>()
                             snapshot.child("promptsList").children.forEach {
                                 val child = it.getValue(PromptModelDto::class.java)!!
                                 promptsList.add(child)
+                            }
+                            snapshot.child("commentsList").children.forEach {
+                                val child = it.getValue(CommentsModelDto::class.java)!!
+                                commentsList.add(child)
                             }
                             document = DocumentModelDto(
                                 documentId = value.documentId,
@@ -272,6 +287,11 @@ class FirebaseManager @Inject constructor(
                                     }.sortedBy {
                                         it.timeStamp
                                     }
+                                ),
+                                commentsList = CommentsModelDto.listToArrayList(
+                                    commentsList.map {
+                                        it.toCommentsModel()
+                                    }.sortedBy { it.commentDateTime }
                                 )
                             )
                             if (value.content?.lastEditedBy != null) {
@@ -382,20 +402,24 @@ class FirebaseManager @Inject constructor(
                             object : GenericTypeIndicator<ArrayList<UserRecentDocsDto>>() {}
                         val documents: ArrayList<UserRecentDocsDto> =
                             snapshot.getValue(t) ?: arrayListOf()
-                        Log.d("gotDocToRecent",
-                            documents.toString())
+                        Log.d(
+                            "gotDocToRecent",
+                            documents.toString()
+                        )
                         GlobalScope.launch {
                             val listDocs = arrayListOf<DocumentModel>()
                             documents.forEach { document ->
-                                val documentData = getDocumentById(document.documentId?:"")
-                                if(documentData.createdBy.isEmpty() && documentData.creationDateTime.toInt() == 0) {
+                                val documentData = getDocumentById(document.documentId ?: "")
+                                if (documentData.createdBy.isEmpty() && documentData.creationDateTime.toInt() == 0) {
                                     listDocs.add(
-                                        DocumentModel(documentId = document.documentId,
-                                        documentName = "", content = null, liveCollaborators = listOf()
+                                        DocumentModel(
+                                            documentId = document.documentId,
+                                            documentName = "",
+                                            content = null,
+                                            liveCollaborators = listOf()
                                         )
                                     )
-                                }
-                                else {
+                                } else {
                                     listDocs.add(documentData)
                                 }
                             }
@@ -410,8 +434,9 @@ class FirebaseManager @Inject constructor(
 
             })
     }
+
     fun addToRecentDocuments(userId: String, documentId: String) {
-        Log.d("addedDocToRecentId",documentId)
+        Log.d("addedDocToRecentId", documentId)
         usersModelRef.child(userId).child("recentDocuments")
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -421,26 +446,25 @@ class FirebaseManager @Inject constructor(
                         val documents: ArrayList<UserRecentDocsDto> =
                             snapshot.getValue(t) ?: arrayListOf()
 
-                        documents.removeIf{
+                        documents.removeIf {
                             it.documentId == documentId
                         }
                         documents.add(UserRecentDocsDto(documentId))
                         usersModelRef.child(userId)
                             .child("recentDocuments")
                             .setValue(documents).addOnCompleteListener {
-                                if(it.isSuccessful) {
-                                    Log.d("addedDocToRecent","yes")
+                                if (it.isSuccessful) {
+                                    Log.d("addedDocToRecent", "yes")
                                 }
                             }
-                    }
-                    else {
+                    } else {
                         val listDocs = arrayListOf<UserRecentDocsDto>()
                         listDocs.add(UserRecentDocsDto(documentId))
                         usersModelRef.child(userId)
                             .child("recentDocuments")
                             .setValue(listDocs).addOnCompleteListener {
-                                if(it.isSuccessful) {
-                                    Log.d("addedDocToRecent","yes")
+                                if (it.isSuccessful) {
+                                    Log.d("addedDocToRecent", "yes")
                                 }
                             }
                     }
@@ -451,6 +475,7 @@ class FirebaseManager @Inject constructor(
 
             })
     }
+
     fun updateDocumentContent(documentId: String, content: String): Boolean {
         var flag = false
         documentRef.child(documentId).child("content")
@@ -626,5 +651,87 @@ class FirebaseManager @Inject constructor(
 
         return flag
     }
+
+    fun getDocumentComments(documentId: String) {
+        documentRef.child(documentId).child("commentsList")
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+
+                    snapshot.children.forEach { child ->
+                        val comment = child.getValue(CommentsModelDto::class.java)
+                        val commentsList = arrayListOf<CommentsModelDto>()
+                            .apply {
+                                comment?.let {
+                                    add(comment)
+                                }
+                            }
+                        documentDetails.value = documentDetails.value.apply {
+                            this.commentsList = CommentsModelDto.listToArrayList(
+                                commentsList.map {
+                                it.toCommentsModel()
+                            })
+                        }
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    error.toException().printStackTrace()
+                }
+
+            })
+    }
+
+    fun addCommentToDocument(documentId : String, comment : CommentsModel) {
+        val key = documentRef.push().key ?: ""
+        documentRef.child(documentId).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if(snapshot.exists()) {
+                    documentRef.child(documentId).child(key)
+                        .setValue(comment).addOnCompleteListener {
+                            if(it.isSuccessful) {
+                                comment.apply {
+                                    commentId = key
+                                }
+                                Log.d("FirebaseAddComment", "Successful")
+                                _documentDetails.value = _documentDetails.value.apply {
+                                    commentsList.add(comment)
+                                }
+                            }
+                        }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                error.toException().printStackTrace()
+            }
+
+        })
+    }
+
+    fun deleteComment(documentId : String, commentId : String) {
+        val key = documentRef.push().key ?: ""
+        documentRef.child(documentId).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if(snapshot.exists()) {
+                    documentRef.child(documentId).child(commentId)
+                        .removeValue().addOnCompleteListener{
+                            if(it.isSuccessful) {
+                                Log.d("FirebaseAddComment", "Successful")
+                                _documentDetails.value = _documentDetails.value.apply {
+                                    commentsList.removeIf{
+                                        it.commentId == commentId
+                                    }
+                                }
+                            }
+                        }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                error.toException().printStackTrace()
+            }
+        })
+    }
+
 
 }

@@ -3,7 +3,6 @@ package com.bhaskarblur.sync_realtimecontentwriting.presentation.document
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
@@ -72,6 +71,7 @@ import com.bhaskarblur.sync_realtimecontentwriting.core.utils.UIValuesConstant
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.buildAnnotatedStringWithColors
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.findFirstDifferenceIndex
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.UIEvents
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.utils.BottomSheetType
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets.ContributorsItems
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.AlertDialogComponent
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets.ColorPickerDialog
@@ -151,6 +151,9 @@ fun DocumentPage(
             }
         )
     )
+    val bottomSheetType  = remember {
+        mutableStateOf(BottomSheetType.AiChatBottomSheet)
+    }
 
     val showDialog = remember {
         mutableStateOf(false)
@@ -434,7 +437,6 @@ fun DocumentPage(
                             }
                         })
 
-
                     if (isFontDropDownExpanded.value) {
                         Column(
                             Modifier
@@ -589,58 +591,64 @@ fun DocumentPage(
 
         BottomSheetScaffold(
             sheetContent = {
-                AIBottomSheet(
-                    viewModel = viewModel,
-                    data = data,
-                    onAddMessage = { msg ->
-                        viewModel.handleUndoRedoStack(contentState.toHtml())
-                        val tempContent = content.value.text
-                            .substring(
-                                0,
-                                content.value.selection.start
-                            )
-                            .plus(msg)
-                            .plus(
-                                content.value.text.substring(
-                                    content.value.selection.start,
-                                    content.value.text.length
+
+                when(bottomSheetType.value) {
+                    BottomSheetType.AiChatBottomSheet -> {
+                        AIBottomSheet(
+                            viewModel = viewModel,
+                            data = data,
+                            onAddMessage = { msg ->
+                                viewModel.handleUndoRedoStack(contentState.toHtml())
+                                val tempContent = content.value.text
+                                    .substring(
+                                        0,
+                                        content.value.selection.start
+                                    )
+                                    .plus(msg)
+                                    .plus(
+                                        content.value.text.substring(
+                                            content.value.selection.start,
+                                            content.value.text.length
+                                        )
+                                    )
+                                // Need to test this msg whether it will affect UI
+                                contentState.setHtml(
+                                    contentState
+                                        .toHtml().plus(" $tempContent")
                                 )
-                            )
-                        // Need to test this msg whether it will affect UI
-                        contentState.setHtml(
-                            contentState
-                                .toHtml().plus(" $tempContent")
-                        )
-                        contentState.selection = TextRange(
-                            contentState.annotatedString.text.length
-                        )
-                        content.value =
-                            TextFieldValue(
-                                contentState.annotatedString.text,
-                                TextRange(
+                                contentState.selection = TextRange(
                                     contentState.annotatedString.text.length
                                 )
-                            )
-                        viewModel.updateContent(
-                            contentState.toHtml(),
-                            contentState.selection.end
-                        )
-                        Toast
-                            .makeText(
-                                context, "Text pasted to board",
-                                Toast.LENGTH_SHORT
-                            )
-                            .show()
-                        ctnScope.launch {
-                            sheetState.bottomSheetState.hide()
-                            TextFieldValue(
-                                content.value.text,
-                                content.value.selection
-                            )
+                                content.value =
+                                    TextFieldValue(
+                                        contentState.annotatedString.text,
+                                        TextRange(
+                                            contentState.annotatedString.text.length
+                                        )
+                                    )
+                                viewModel.updateContent(
+                                    contentState.toHtml(),
+                                    contentState.selection.end
+                                )
+
+                                viewModel.emitUIEvent(UIEvents.ShowSnackbar(
+                                    "Text pasted to board"
+                                ))
+                                ctnScope.launch {
+                                    sheetState.bottomSheetState.hide()
+                                    TextFieldValue(
+                                        content.value.text,
+                                        content.value.selection
+                                    )
+                                }
+                            }
+                        ) {
+                            showDialog.value = true
                         }
                     }
-                ) {
-                    showDialog.value = true
+                    BottomSheetType.CommentBottomSheet -> {
+
+                    }
                 }
 
             },
@@ -648,7 +656,6 @@ fun DocumentPage(
             sheetContainerColor = colorSecondary,
             scaffoldState = sheetState,
             content = {
-
                 Column(
                     Modifier
                         .fillMaxSize()
@@ -683,12 +690,12 @@ fun DocumentPage(
                                             RoundedCornerShape(90.dp)
                                         )
                                         .clickable {
-                                            Log.d("pressed", "yes")
                                             ctnScope.launch {
                                                 keyboardController?.hide()
                                                 if (sheetState.bottomSheetState.currentValue != SheetValue.Expanded) {
                                                     sheetState.bottomSheetState.expand()
                                                     sheetIsOpen.value = true
+                                                    bottomSheetType.value = BottomSheetType.AiChatBottomSheet
                                                 } else {
                                                     sheetState.bottomSheetState.hide()
                                                     sheetIsOpen.value = false
@@ -752,12 +759,17 @@ fun DocumentPage(
                                         modifier = Modifier
                                             .height(24.dp)
                                             .clickable {
-                                                Toast
-                                                    .makeText(
-                                                        context,
-                                                        "Comments coming soon", Toast.LENGTH_SHORT
-                                                    )
-                                                    .show()
+                                                ctnScope.launch {
+                                                    keyboardController?.hide()
+                                                    if (sheetState.bottomSheetState.currentValue != SheetValue.Expanded) {
+                                                        sheetState.bottomSheetState.expand()
+                                                        sheetIsOpen.value = true
+                                                        bottomSheetType.value = BottomSheetType.CommentBottomSheet
+                                                    } else {
+                                                        sheetState.bottomSheetState.hide()
+                                                        sheetIsOpen.value = false
+                                                    }
+                                                }
                                             }
                                     )
 

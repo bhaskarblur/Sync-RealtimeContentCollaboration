@@ -10,11 +10,14 @@ import com.bhaskarblur.sync_realtimecontentwriting.data.remote.ApiRoutes
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.FirebaseManager
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.utils.ApiClient
 import com.bhaskarblur.sync_realtimecontentwriting.data.repository.ChatGptRepositoryImpl
+import com.bhaskarblur.sync_realtimecontentwriting.data.repository.CommentsRepositoryImpl
 import com.bhaskarblur.sync_realtimecontentwriting.data.repository.DocumentRepositoryImpl
 import com.bhaskarblur.sync_realtimecontentwriting.data.repository.UserRepositoryImpl
 import com.bhaskarblur.sync_realtimecontentwriting.domain.repository.IChatGptRepo
+import com.bhaskarblur.sync_realtimecontentwriting.domain.repository.ICommentsRepo
 import com.bhaskarblur.sync_realtimecontentwriting.domain.repository.IDocumentRepository
 import com.bhaskarblur.sync_realtimecontentwriting.domain.repository.IUserRepository
+import com.bhaskarblur.sync_realtimecontentwriting.domain.use_case.CommentsUseCase
 import com.bhaskarblur.sync_realtimecontentwriting.domain.use_case.DocumentUseCase
 import com.bhaskarblur.sync_realtimecontentwriting.domain.use_case.GptUseCase
 import com.bhaskarblur.sync_realtimecontentwriting.domain.use_case.UserUseCase
@@ -121,9 +124,10 @@ class AppModules {
         documentUseCase: DocumentUseCase,
         userRepository: IUserRepository,
         gptUseCase: GptUseCase,
+        commentsUseCase: CommentsUseCase,
         appNetworkManager: AppNetworkManager
     ): DocumentViewModel {
-        return DocumentViewModel(documentUseCase, userRepository, gptUseCase, appNetworkManager)
+        return DocumentViewModel(documentUseCase, userRepository, gptUseCase,commentsUseCase, appNetworkManager)
     }
 
     @Provides
@@ -182,5 +186,17 @@ class AppModules {
     @Provides
     fun provideChatGptUseCase(chatGptRepo: IChatGptRepo): GptUseCase {
         return GptUseCase(chatGptRepo)
+    }
+
+    @Singleton
+    @Provides
+    fun providesCommentsRepo(firebaseManager: FirebaseManager): ICommentsRepo {
+        return CommentsRepositoryImpl(firebaseManager)
+    }
+
+    @Singleton
+    @Provides
+    fun providesCommentsUseCase(repo: ICommentsRepo): CommentsUseCase {
+        return CommentsUseCase(repo)
     }
 }

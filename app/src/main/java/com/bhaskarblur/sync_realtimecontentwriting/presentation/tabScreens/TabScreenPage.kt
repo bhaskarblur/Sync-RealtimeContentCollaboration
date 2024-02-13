@@ -56,9 +56,8 @@ fun TabScreenPage(
     val scaffoldState = remember { SnackbarHostState() }
     val navController = rememberNavController()
     val currentPage = rememberSaveable {
-        mutableStateOf<String>(TabScreens.HomePage.route)
+        mutableStateOf(TabScreens.HomePage.route)
     }
-
 
     val networkAvailable by userViewModel.isInternetAvailable
 
