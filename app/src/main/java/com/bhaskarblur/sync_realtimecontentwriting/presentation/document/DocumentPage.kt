@@ -647,7 +647,14 @@ fun DocumentPage(
                         }
                     }
                     BottomSheetType.CommentBottomSheet -> {
+                        CommentsBottomSheet(
+                            viewModel,
+                            data = data, onAddComment = { comment ->
 
+                            }, onDeleteComment = { id ->
+
+                            }
+                        )
                     }
                 }
 

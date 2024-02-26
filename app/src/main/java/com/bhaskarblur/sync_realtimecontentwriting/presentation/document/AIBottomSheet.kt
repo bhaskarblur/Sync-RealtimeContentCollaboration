@@ -53,7 +53,6 @@ fun AIBottomSheet(
 ) {
 
     val ctnScope = rememberCoroutineScope()
-
     val promptScrollState = rememberLazyListState()
     val promptFieldText = remember {
         mutableStateOf("")
@@ -219,7 +218,6 @@ fun AIBottomSheet(
                 .background(primaryColor, RoundedCornerShape(80.dp))
                 .fillMaxWidth()
         ) {
-
             Text(
                 text = "✨ Generate",
                 color = textColorPrimary,
