@@ -156,7 +156,7 @@ class DocumentViewModel @Inject constructor(
         redoStack.clear()
         hasDoneUndoRedo.value = false
         viewModelScope.launch(Dispatchers.IO) {
-            documentUseCase.getDocumentDetails(documentId, userDetails.value.id!!).collectLatest {
+            documentUseCase.getDocumentDetails(documentId, userDetails.value.id!!).collectLatest { it ->
                 when (it) {
                     is Resources.Success -> {
                         it.data?.let {
@@ -229,7 +229,8 @@ class DocumentViewModel @Inject constructor(
                     lastEditedBy = userDetails.value.id
                 ),
                 liveCollaborators = _documentData.value.liveCollaborators,
-                promptsList = _documentData.value.promptsList
+                promptsList = _documentData.value.promptsList,
+                commentsList = _documentData.value.commentsList
             )
             updateContent(undoStack.peek(), undoStack.peek().length - 1)
             redoStack.push(undoStack.peek())
@@ -250,7 +251,8 @@ class DocumentViewModel @Inject constructor(
                     content = redoStack.peek().toString(),
                     lastEditedBy = userDetails.value.id
                 ),
-                liveCollaborators = _documentData.value.liveCollaborators
+                liveCollaborators = _documentData.value.liveCollaborators,
+                commentsList = _documentData.value.commentsList
             )
             updateContent(redoStack.peek(), redoStack.peek().length - 1)
             undoStack.push(redoStack.peek())
@@ -335,7 +337,8 @@ class DocumentViewModel @Inject constructor(
                     .promptsList?.plus(
                         PromptModel(message, "user", userDetails.value, System.currentTimeMillis())
                     ) ?: listOf()
-            )
+            ),
+            commentsList = _documentData.value.commentsList
         )
         _documentData.value = tempMsg
         addMessageToPrompt(messageModel)
@@ -367,7 +370,8 @@ class DocumentViewModel @Inject constructor(
                             PromptModelDto.listToArrayList(
                                 documentData.value
                                     .promptsList?.plus(promptMessage) ?: listOf()
-                            )
+                            ),
+                            commentsList = _documentData.value.commentsList
                         )
                         _documentData.value = tempCnt
                         addMessageToPrompt(promptMessage)
@@ -404,13 +408,21 @@ class DocumentViewModel @Inject constructor(
 
     fun addComment(documentId : String, comment : CommentsModel) {
         viewModelScope.launch {
-            commentsUseCase.addComment(documentId, comment)
+//            commentsUseCase.addComment(documentId, comment)
+            _documentData.value = _documentData.value.apply {
+                commentsList = _documentData.value.commentsList.apply {
+                    add(comment)
+                }
+            }
         }
     }
 
     fun deleteComment(documentId : String, commentId : String) {
         viewModelScope.launch {
             commentsUseCase.deleteComment(documentId, commentId)
+            userDocuments.removeIf {
+                it.documentId == documentId
+            }
         }
     }
 

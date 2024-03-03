@@ -12,7 +12,7 @@ class CommentsRepositoryImpl @Inject constructor(
     private val firebaseManager : FirebaseManager
 ) : ICommentsRepo {
     override fun getDocumentComments() {
-
+        firebaseManager.getDocumentComments()
     }
     override fun addComment(documentId: String, comment: CommentsModel): Flow<Resources<Boolean>> {
         return try {

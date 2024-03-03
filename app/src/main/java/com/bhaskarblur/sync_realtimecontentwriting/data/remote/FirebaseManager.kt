@@ -209,6 +209,7 @@ class FirebaseManager @Inject constructor(
                             val child = it.getValue(PromptModelDto::class.java)!!
                             promptsList.add(child)
                         }
+                        Log.d("checkingCommentsList",snapshot.child("commentsList").toString())
                         snapshot.child("commentsList").children.forEach {
                             val child = it.getValue(CommentsModelDto::class.java)!!
                             commentsList.add(child)
@@ -300,12 +301,18 @@ class FirebaseManager @Inject constructor(
                                         _documentDetails.value.content?.content == null
                                     ) {
                                         _documentDetails.value = document.toDocumentModel()
+                                        Log.d("checkingCommentsList",
+                                            document.commentsList.toString())
                                     }
                                 } else {
                                     _documentDetails.value = document.toDocumentModel()
+                                    Log.d("checkingCommentsList",
+                                        document.commentsList.toString())
                                 }
                             } else {
                                 _documentDetails.value = document.toDocumentModel()
+                                Log.d("checkingCommentsList",
+                                    document.commentsList.toString())
                             }
                         }
                     }
@@ -652,8 +659,8 @@ class FirebaseManager @Inject constructor(
         return flag
     }
 
-    fun getDocumentComments(documentId: String) {
-        documentRef.child(documentId).child("commentsList")
+    fun getDocumentComments() {
+        documentRef.child(documentDetails.value.documentId ?:"").child("commentsList")
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
 
@@ -683,10 +690,13 @@ class FirebaseManager @Inject constructor(
 
     fun addCommentToDocument(documentId : String, comment : CommentsModel) {
         val key = documentRef.push().key ?: ""
+        comment.apply {
+            this.commentId = key
+        }
         documentRef.child(documentId).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if(snapshot.exists()) {
-                    documentRef.child(documentId).child(key)
+                    documentRef.child(documentId).child("commentsList").child(key)
                         .setValue(comment).addOnCompleteListener {
                             if(it.isSuccessful) {
                                 comment.apply {
@@ -696,6 +706,7 @@ class FirebaseManager @Inject constructor(
                                 _documentDetails.value = _documentDetails.value.apply {
                                     commentsList.add(comment)
                                 }
+                                updateLastEditedByStatus(userDetails.id ?: "", documentId)
                             }
                         }
                 }
@@ -713,7 +724,7 @@ class FirebaseManager @Inject constructor(
         documentRef.child(documentId).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if(snapshot.exists()) {
-                    documentRef.child(documentId).child(commentId)
+                    documentRef.child(documentId).child("commentsList").child(commentId)
                         .removeValue().addOnCompleteListener{
                             if(it.isSuccessful) {
                                 Log.d("FirebaseAddComment", "Successful")
@@ -722,6 +733,7 @@ class FirebaseManager @Inject constructor(
                                         it.commentId == commentId
                                     }
                                 }
+                                updateLastEditedByStatus(userDetails.id ?: "", documentId)
                             }
                         }
                 }

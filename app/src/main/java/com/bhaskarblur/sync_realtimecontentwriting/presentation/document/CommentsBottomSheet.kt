@@ -2,6 +2,7 @@ package com.bhaskarblur.sync_realtimecontentwriting.presentation.document
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +21,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -33,16 +35,14 @@ import androidx.compose.ui.unit.sp
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.CommentsModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.DocumentModel
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets.CommentItem
-import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets.PromptItem
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorSecondary
-import kotlinx.coroutines.launch
 
 @Composable
 fun CommentsBottomSheet(
-    viewModel: DocumentViewModel,data: DocumentModel, onAddComment: (comment: CommentsModel) -> Unit,
+    viewModel: DocumentViewModel, data: DocumentModel, onAddComment: () -> Unit,
     onDeleteComment: (id: String) -> Unit
 ) {
     val ctnScope = rememberCoroutineScope()
@@ -52,9 +52,10 @@ fun CommentsBottomSheet(
         mutableStateOf(viewModel.documentData.value.commentsList)
     }
 
-    LaunchedEffect(key1 = data.commentsList) {
-        Log.d("newCommentAdded","yes")
-        commentsList.value = data.commentsList
+    LaunchedEffect(key1 = viewModel.documentData.value.commentsList) {
+        Log.d("newCommentAdded",data.toString())
+
+        commentsList.value = viewModel.documentData.value.commentsList
     }
 
     val configuration = LocalConfiguration.current
@@ -66,11 +67,12 @@ fun CommentsBottomSheet(
             .padding(horizontal = 18.dp, vertical = 6.dp)
     ) {
         Row(
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
         )
         {
 
-            Column {
+            Column(Modifier.fillMaxWidth(0.6f)) {
                 Text(
                     text = "Comments", color = textColorPrimary,
                     style = TextStyle(
@@ -96,20 +98,23 @@ fun CommentsBottomSheet(
                 },
                 modifier = Modifier
                     .background(primaryColor, RoundedCornerShape(80.dp))
-                    .width(84.dp)
             ) {
                 Text(
                     text = "+ Add New",
                     color = textColorPrimary,
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.clickable {
+                        onAddComment()
+                    }
                 )
 
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
+        Text(text = commentsList.value.size.toString(), color = Color.White)
         LazyColumn(state = commentsScrollState,
             modifier = Modifier
                 .fillMaxWidth()

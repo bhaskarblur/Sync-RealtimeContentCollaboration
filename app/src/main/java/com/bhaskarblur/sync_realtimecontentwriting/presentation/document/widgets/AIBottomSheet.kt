@@ -1,4 +1,4 @@
-package com.bhaskarblur.sync_realtimecontentwriting.presentation.document
+package com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets
 
 import android.util.Log
 import androidx.compose.foundation.background
@@ -38,7 +38,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.DocumentModel
-import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets.PromptItem
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.DocumentViewModel
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.backgroundColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.colorSecondary
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
@@ -224,7 +224,6 @@ fun AIBottomSheet(
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold
             )
-
         }
 
         Spacer(modifier = Modifier.height(12.dp))

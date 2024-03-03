@@ -34,10 +34,12 @@ class DocumentActivity : ComponentActivity() {
                     finish()
                 } else {
                     documentViewModel.getDocumentData(documentId)
+                    documentViewModel.getAllComments()
                 }
             }
             else {
                 documentViewModel.getDocumentData(documentId)
+                documentViewModel.getAllComments()
             }
         }
 

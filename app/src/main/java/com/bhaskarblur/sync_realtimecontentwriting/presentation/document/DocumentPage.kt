@@ -3,6 +3,7 @@ package com.bhaskarblur.sync_realtimecontentwriting.presentation.document
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
@@ -46,6 +47,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -70,8 +72,11 @@ import com.bhaskarblur.sync_realtimecontentwriting.R
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.UIValuesConstant
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.buildAnnotatedStringWithColors
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.findFirstDifferenceIndex
+import com.bhaskarblur.sync_realtimecontentwriting.domain.model.CommentsModel
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.UIEvents
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.utils.BottomSheetType
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets.AIBottomSheet
+import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets.AddCommentDialog
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets.ContributorsItems
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.widgets.AlertDialogComponent
 import com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets.ColorPickerDialog
@@ -137,6 +142,9 @@ fun DocumentPage(
     val sheetIsOpen = remember {
         mutableStateOf(false)
     }
+
+    var isAddDialogVisible by remember { mutableStateOf(false) }
+
     val sheetState = rememberBottomSheetScaffoldState(
         bottomSheetState = SheetState(
             confirmValueChange = {
@@ -151,7 +159,7 @@ fun DocumentPage(
             }
         )
     )
-    val bottomSheetType  = remember {
+    val bottomSheetType = remember {
         mutableStateOf(BottomSheetType.AiChatBottomSheet)
     }
 
@@ -189,7 +197,7 @@ fun DocumentPage(
             delay(1200)
             dataGot.value = true
         }
-        Log.d("undoRedoDone", viewModel.hasDoneUndoRedo.value.toString() )
+        Log.d("undoRedoDone", viewModel.hasDoneUndoRedo.value.toString())
         if (contentState.annotatedString.text.isNotEmpty()) {
             if (!data.content?.lastEditedBy.equals(viewModel.userDetails.value.id) || viewModel.hasDoneUndoRedo.value) {
                 contentChangedFromType.value = false
@@ -202,14 +210,14 @@ fun DocumentPage(
                 }
             }
         } else {
-                contentChangedFromType.value = false
-                if (contentState.annotatedString.text != data.content?.content.toString()) {
-                    contentState.setHtml(data.content?.content.toString())
-                    content.value = TextFieldValue(
-                        text = contentState.annotatedString.text,
-                        selection = content.value.selection
-                    )
-                }
+            contentChangedFromType.value = false
+            if (contentState.annotatedString.text != data.content?.content.toString()) {
+                contentState.setHtml(data.content?.content.toString())
+                content.value = TextFieldValue(
+                    text = contentState.annotatedString.text,
+                    selection = content.value.selection
+                )
+            }
         }
         viewModel.hasDoneUndoRedo.value = false
     }
@@ -311,7 +319,7 @@ fun DocumentPage(
                         },
                         onUnderlineClick = {
                             viewModel.handleUndoRedoStack(contentState.toHtml())
-                                    contentState.toggleSpanStyle(
+                            contentState.toggleSpanStyle(
                                 SpanStyle(
                                     textDecoration = TextDecoration.Underline
                                 )
@@ -592,7 +600,7 @@ fun DocumentPage(
         BottomSheetScaffold(
             sheetContent = {
 
-                when(bottomSheetType.value) {
+                when (bottomSheetType.value) {
                     BottomSheetType.AiChatBottomSheet -> {
                         AIBottomSheet(
                             viewModel = viewModel,
@@ -631,9 +639,11 @@ fun DocumentPage(
                                     contentState.selection.end
                                 )
 
-                                viewModel.emitUIEvent(UIEvents.ShowSnackbar(
-                                    "Text pasted to board"
-                                ))
+                                viewModel.emitUIEvent(
+                                    UIEvents.ShowSnackbar(
+                                        "Text pasted to board"
+                                    )
+                                )
                                 ctnScope.launch {
                                     sheetState.bottomSheetState.hide()
                                     TextFieldValue(
@@ -646,13 +656,18 @@ fun DocumentPage(
                             showDialog.value = true
                         }
                     }
+
                     BottomSheetType.CommentBottomSheet -> {
+
                         CommentsBottomSheet(
                             viewModel,
-                            data = data, onAddComment = { comment ->
+                            data = data, onAddComment = {
+                                isAddDialogVisible = true
 
                             }, onDeleteComment = { id ->
-
+                                viewModel.deleteComment(
+                                    data.documentId ?: "", id
+                                )
                             }
                         )
                     }
@@ -663,12 +678,38 @@ fun DocumentPage(
             sheetContainerColor = colorSecondary,
             scaffoldState = sheetState,
             content = {
+
+                if (isAddDialogVisible) {
+                    AddCommentDialog(
+                        onDismiss = { isAddDialogVisible = false },
+                        onPostComment = { subject: String, description: String ->
+                            if (subject.isNotEmpty() && description.isNotEmpty()) {
+                                val commentModel = CommentsModel(
+                                    commentBy = viewModel.userDetails.value,
+                                    commentDateTime = System.currentTimeMillis(),
+                                    commentText = subject, description = description
+                                )
+                                viewModel.addComment(
+                                    data.documentId ?: "", commentModel
+                                )
+                                isAddDialogVisible = false
+                            }
+                            else {
+                                Toast.makeText(
+                                    context,
+                                    "Please enter the comment subject and description", Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    )
+                }
                 Column(
                     Modifier
                         .fillMaxSize()
                         .background(backgroundColor),
                     verticalArrangement = Arrangement.Top
                 ) {
+
 
                     if (!data.documentId.isNullOrEmpty() && dataGot.value) {
                         Column(
@@ -701,11 +742,18 @@ fun DocumentPage(
                                                 keyboardController?.hide()
                                                 if (sheetState.bottomSheetState.currentValue != SheetValue.Expanded) {
                                                     sheetState.bottomSheetState.expand()
+                                                    bottomSheetType.value =
+                                                        BottomSheetType.AiChatBottomSheet
                                                     sheetIsOpen.value = true
-                                                    bottomSheetType.value = BottomSheetType.AiChatBottomSheet
                                                 } else {
-                                                    sheetState.bottomSheetState.hide()
-                                                    sheetIsOpen.value = false
+                                                    if(bottomSheetType.value != BottomSheetType.AiChatBottomSheet) {
+                                                        bottomSheetType.value =
+                                                            BottomSheetType.AiChatBottomSheet
+                                                    }
+                                                    else {
+                                                        sheetState.bottomSheetState.hide()
+                                                        sheetIsOpen.value = false
+                                                    }
                                                 }
                                             }
                                         }
@@ -770,11 +818,18 @@ fun DocumentPage(
                                                     keyboardController?.hide()
                                                     if (sheetState.bottomSheetState.currentValue != SheetValue.Expanded) {
                                                         sheetState.bottomSheetState.expand()
+                                                        bottomSheetType.value =
+                                                            BottomSheetType.CommentBottomSheet
                                                         sheetIsOpen.value = true
-                                                        bottomSheetType.value = BottomSheetType.CommentBottomSheet
                                                     } else {
-                                                        sheetState.bottomSheetState.hide()
-                                                        sheetIsOpen.value = false
+                                                        if(bottomSheetType.value != BottomSheetType.CommentBottomSheet) {
+                                                            bottomSheetType.value =
+                                                                BottomSheetType.CommentBottomSheet
+                                                        }
+                                                        else {
+                                                            sheetState.bottomSheetState.hide()
+                                                            sheetIsOpen.value = false
+                                                        }
                                                     }
                                                 }
                                             }
@@ -800,73 +855,73 @@ fun DocumentPage(
                             }
 
                             Column {
-                                    Row(
-                                        Modifier
-                                            .fillMaxWidth()
-                                            .padding(end = 14.dp),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        TextField(
-                                            modifier = Modifier
-                                                .fillMaxWidth(0.6f),
-                                            singleLine = true,
-                                            value = title.value,
-                                            onValueChange = { value ->
-                                                title.value = value
-                                                viewModel.updateTitle(value)
-                                            },
-                                            placeholder = {
-                                                Text(
-                                                    "Title",
-                                                    fontSize = 20.sp,
-                                                    fontWeight = FontWeight.SemiBold,
-                                                    fontFamily = MaterialTheme.typography.bodyMedium.fontFamily
-                                                )
-                                            },
-                                            colors = TextFieldDefaults.colors(
-                                                focusedContainerColor = Color.Transparent,
-                                                unfocusedContainerColor = Color.Transparent,
-                                                unfocusedTextColor = textColorPrimary,
-                                                focusedTextColor = textColorPrimary,
-                                                unfocusedPlaceholderColor = textColorSecondary,
-                                                focusedPlaceholderColor = textColorSecondary,
-                                                focusedIndicatorColor = Color.Transparent,
-                                                unfocusedIndicatorColor = Color.Transparent,
-                                                cursorColor = Color.White
-                                            ),
-                                            textStyle = TextStyle(
-                                                fontWeight = FontWeight.Medium,
+                                Row(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(end = 14.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    TextField(
+                                        modifier = Modifier
+                                            .fillMaxWidth(0.6f),
+                                        singleLine = true,
+                                        value = title.value,
+                                        onValueChange = { value ->
+                                            title.value = value
+                                            viewModel.updateTitle(value)
+                                        },
+                                        placeholder = {
+                                            Text(
+                                                "Title",
                                                 fontSize = 20.sp,
-                                                fontFamily = MaterialTheme.typography.bodyMedium.fontFamily,
+                                                fontWeight = FontWeight.SemiBold,
+                                                fontFamily = MaterialTheme.typography.bodyMedium.fontFamily
                                             )
+                                        },
+                                        colors = TextFieldDefaults.colors(
+                                            focusedContainerColor = Color.Transparent,
+                                            unfocusedContainerColor = Color.Transparent,
+                                            unfocusedTextColor = textColorPrimary,
+                                            focusedTextColor = textColorPrimary,
+                                            unfocusedPlaceholderColor = textColorSecondary,
+                                            focusedPlaceholderColor = textColorSecondary,
+                                            focusedIndicatorColor = Color.Transparent,
+                                            unfocusedIndicatorColor = Color.Transparent,
+                                            cursorColor = Color.White
+                                        ),
+                                        textStyle = TextStyle(
+                                            fontWeight = FontWeight.Medium,
+                                            fontSize = 20.sp,
+                                            fontFamily = MaterialTheme.typography.bodyMedium.fontFamily,
                                         )
+                                    )
 
-                                        Column {
-                                            Spacer(modifier = Modifier.height(12.dp))
+                                    Column {
+                                        Spacer(modifier = Modifier.height(12.dp))
 
-                                            LazyRow(
-                                                modifier = Modifier
-                                                    .scrollable(
-                                                        contributorScrollState,
-                                                        Orientation.Horizontal
-                                                    )
-                                            ) {
-                                                items(
-                                                    key = { user ->
-                                                        user.userDetails?.id!!
-                                                    },
-                                                    items = data.liveCollaborators
-                                                        ?: listOf()
-                                                ) {model ->
-                                                    ContributorsItems(item = model, onClick = { pos ->
-                                                        if (pos != -1) {
-                                                            contentState.selection = TextRange(pos)
-                                                        }
-                                                    })
-                                                }
+                                        LazyRow(
+                                            modifier = Modifier
+                                                .scrollable(
+                                                    contributorScrollState,
+                                                    Orientation.Horizontal
+                                                )
+                                        ) {
+                                            items(
+                                                key = { user ->
+                                                    user.userDetails?.id!!
+                                                },
+                                                items = data.liveCollaborators
+                                                    ?: listOf()
+                                            ) { model ->
+                                                ContributorsItems(item = model, onClick = { pos ->
+                                                    if (pos != -1) {
+                                                        contentState.selection = TextRange(pos)
+                                                    }
+                                                })
                                             }
                                         }
                                     }
+                                }
 
                                 Box {
                                     TextField(
@@ -882,7 +937,7 @@ fun DocumentPage(
                                             try {
                                                 TransformedText(
                                                     buildAnnotatedStringWithColors(
-                                                        data.liveCollaborators?.filter {model ->
+                                                        data.liveCollaborators?.filter { model ->
                                                             model.userDetails?.id!! != viewModel.userDetails.value.id
                                                         } ?: listOf(),
                                                         text = content.value.text
@@ -892,7 +947,7 @@ fun DocumentPage(
                                             } catch (e: Exception) {
                                                 TransformedText(
                                                     buildAnnotatedStringWithColors(
-                                                        data.liveCollaborators?.filter {model ->
+                                                        data.liveCollaborators?.filter { model ->
                                                             model.userDetails?.id!! != viewModel.userDetails.value.id
                                                         } ?: listOf(),
                                                         text = content.value.text,

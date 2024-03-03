@@ -154,7 +154,7 @@ class AppModules {
     @Provides
     @Singleton
     fun returnApiRoutes(apiClient: Retrofit): ApiRoutes =
-        apiClient.create(ApiRoutes::class.java);
+        apiClient.create(ApiRoutes::class.java)
 
 
     @Singleton

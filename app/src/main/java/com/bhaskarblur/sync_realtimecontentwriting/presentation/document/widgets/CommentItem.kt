@@ -1,7 +1,6 @@
 package com.bhaskarblur.sync_realtimecontentwriting.presentation.document.widgets
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -28,9 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.UiUtils
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.CommentsModel
-import com.bhaskarblur.sync_realtimecontentwriting.domain.model.PromptModel
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.chatBoxColor
-import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.primaryColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
 
 @Composable
@@ -43,6 +39,7 @@ fun CommentItem(
 
         Column(
             modifier = Modifier
+                .fillMaxWidth()
                 .background(
                     chatBoxColor,
                     RoundedCornerShape(10.dp)
@@ -51,7 +48,8 @@ fun CommentItem(
             horizontalAlignment = Alignment.Start
         ) {
 
-            Row(horizontalArrangement = Arrangement.SpaceBetween) {
+            Row(horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()) {
                 Text(
                     comment.commentBy?.fullName ?: "User",
                     color = textColorPrimary,
@@ -73,7 +71,7 @@ fun CommentItem(
 
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                comment.comment, color = textColorPrimary, fontSize = 15.sp,
+                comment.commentText, color = textColorPrimary, fontSize = 15.sp,
                 fontWeight = FontWeight.Medium, fontFamily = FontFamily.Default,
                 lineHeight = 18.sp
             )

@@ -85,7 +85,7 @@ fun MyDocumentsPage(
                 modifier = Modifier.fillMaxWidth(1f)
             )
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             if (documentViewModel.eventFlow.collectAsState(null)
                     .value == UIEvents.ShowCreateLoading("1")
