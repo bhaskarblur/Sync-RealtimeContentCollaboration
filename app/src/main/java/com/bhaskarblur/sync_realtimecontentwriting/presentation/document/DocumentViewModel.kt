@@ -407,8 +407,9 @@ class DocumentViewModel @Inject constructor(
     }
 
     fun addComment(documentId : String, comment : CommentsModel) {
+        Log.d("requestedToAddComment", "ok")
         viewModelScope.launch {
-//            commentsUseCase.addComment(documentId, comment)
+            commentsUseCase.addComment(documentId, comment)
             _documentData.value = _documentData.value.apply {
                 commentsList = _documentData.value.commentsList.apply {
                     add(comment)

@@ -28,6 +28,7 @@ import com.bhaskarblur.sync_realtimecontentwriting.core.utils.UiUtils
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.CommentsModel
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.chatBoxColor
 import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorPrimary
+import com.bhaskarblur.sync_realtimecontentwriting.ui.theme.textColorSecondary
 
 @Composable
 fun CommentItem(
@@ -69,30 +70,36 @@ fun CommentItem(
                 )
             }
 
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                comment.commentText, color = textColorPrimary, fontSize = 15.sp,
-                fontWeight = FontWeight.Medium, fontFamily = FontFamily.Default,
-                lineHeight = 18.sp
-            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    comment.commentText, color = textColorPrimary, fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium, fontFamily = FontFamily.Default,
+                    lineHeight = 18.sp
+                )
+
+                if (canDeleteComment) {
+                    Icon(Icons.Filled.Delete,
+                        contentDescription = "Delete", tint = Color.Red,
+                        modifier = Modifier
+                            .size(22.dp)
+                            .clickable {
+                                onDelete(comment.commentId)
+                            })
+                }
+            }
 
             Spacer(modifier = Modifier.width(6.dp))
             Text(
-                comment.description, color = textColorPrimary, fontSize = 14.sp,
-                fontWeight = FontWeight.Normal, fontFamily = FontFamily.Default,
+                comment.description, color = textColorSecondary, fontSize = 14.sp,
+                fontWeight = FontWeight.W400, fontFamily = FontFamily.Default,
                 lineHeight = 16.sp
             )
             Spacer(Modifier.height(8.dp))
 
-            if (canDeleteComment) {
-                Icon(Icons.Filled.Delete,
-                    contentDescription = "Delete", tint = Color.Red,
-                    modifier = Modifier
-                        .size(22.dp)
-                        .clickable {
-                            onDelete(comment.commentId)
-                        })
-            }
+
 
         }
     }

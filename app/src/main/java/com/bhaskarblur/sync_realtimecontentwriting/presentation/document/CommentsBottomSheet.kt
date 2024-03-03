@@ -49,13 +49,12 @@ fun CommentsBottomSheet(
     val commentsScrollState = rememberLazyListState()
 
     val commentsList = remember {
-        mutableStateOf(viewModel.documentData.value.commentsList)
+        mutableStateOf(data.commentsList)
     }
 
-    LaunchedEffect(key1 = viewModel.documentData.value.commentsList) {
-        Log.d("newCommentAdded",data.toString())
-
-        commentsList.value = viewModel.documentData.value.commentsList
+    LaunchedEffect(key1 = data.commentsList) {
+        Log.d("newCommentAdded","yes")
+        commentsList.value = data.commentsList
     }
 
     val configuration = LocalConfiguration.current
@@ -113,8 +112,6 @@ fun CommentsBottomSheet(
         }
 
         Spacer(modifier = Modifier.height(12.dp))
-
-        Text(text = commentsList.value.size.toString(), color = Color.White)
         LazyColumn(state = commentsScrollState,
             modifier = Modifier
                 .fillMaxWidth()
