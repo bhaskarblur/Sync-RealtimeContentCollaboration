@@ -688,7 +688,7 @@ class FirebaseManager @Inject constructor(
             })
     }
 
-    fun addCommentToDocument(documentId : String, comment : CommentsModel) {
+     suspend fun addCommentToDocument(documentId : String, comment : CommentsModel) : CommentsModel {
         val key = documentRef.push().key ?: ""
         comment.apply {
             this.commentId = key
@@ -717,6 +717,8 @@ class FirebaseManager @Inject constructor(
             }
 
         })
+        delay(1500)
+        return comment
     }
 
     fun deleteComment(documentId : String, commentId : String) {

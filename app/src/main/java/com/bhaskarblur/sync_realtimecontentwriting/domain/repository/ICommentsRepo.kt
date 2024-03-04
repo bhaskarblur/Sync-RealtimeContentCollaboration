@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface ICommentsRepo {
     fun getDocumentComments()
-    fun addComment(documentId : String, comment : CommentsModel) : Flow<Resources<Boolean>>
+    fun addComment(documentId : String, comment : CommentsModel) :  Flow<Resources<CommentsModel>>
     fun deleteComment(documentId : String, commentId : String) : Flow<Resources<Boolean>>
 
 

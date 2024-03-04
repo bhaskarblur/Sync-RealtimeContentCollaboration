@@ -116,10 +116,7 @@ fun CommentsBottomSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .requiredHeightIn(max = configuration.screenHeightDp.dp / 2)) {
-            items(commentsList.value.reversed(),
-                key = {
-                    it.commentId
-                }) { comment ->
+            items(commentsList.value.reversed()) { comment ->
                 Column {
 
                     CommentItem(

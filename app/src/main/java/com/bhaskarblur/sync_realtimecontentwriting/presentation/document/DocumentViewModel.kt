@@ -408,18 +408,28 @@ class DocumentViewModel @Inject constructor(
     fun addComment(comment : CommentsModel) {
         viewModelScope.launch {
             Log.d("requestedToAddComment", comment.toString())
-//            commentsUseCase.addComment(_documentData.value.documentId ?: "", comment)
-            _documentData.value = documentData.value.apply {
-                commentsList.add(comment)
-            }
+            commentsUseCase.addComment(_documentData.value.documentId ?: "", comment)
+                .collectLatest { result ->
+                    Log.d("newCommentIsHere", result.data.toString())
+                    val tempList = _documentData.value.commentsList
+                    when(result) {
+                        is Resources.Success -> {
+                            result.data?.let { tempList.add(it) }
+                        }
+                        else -> {
+
+                        }
+                    }
+                }
+
         }
     }
 
     fun deleteComment(commentId : String) {
         viewModelScope.launch {
-//            commentsUseCase.deleteComment(
-//                _documentData.value.documentId ?: "", commentId
-//            )
+            commentsUseCase.deleteComment(
+                _documentData.value.documentId ?: "", commentId
+            )
             _documentData.value = documentData.value.apply {
                 commentsList.removeIf { cmm ->
                     cmm.commentId == commentId

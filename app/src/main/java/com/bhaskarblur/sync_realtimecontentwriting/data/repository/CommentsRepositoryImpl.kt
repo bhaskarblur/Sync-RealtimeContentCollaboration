@@ -14,21 +14,17 @@ class CommentsRepositoryImpl @Inject constructor(
     override fun getDocumentComments() {
         firebaseManager.getDocumentComments()
     }
-    override fun addComment(documentId: String, comment: CommentsModel): Flow<Resources<Boolean>> {
-        return try {
-            firebaseManager.addCommentToDocument(documentId,comment)
-            flow {
+    override fun addComment(documentId: String, comment: CommentsModel): Flow<Resources<CommentsModel>> = flow{
+        try {
+            val addedComment = firebaseManager.addCommentToDocument(documentId,comment)
                 emit(
-                    Resources.Success(true)
+                    Resources.Success(addedComment)
                 )
-            }
         } catch (e : Exception) {
             e.printStackTrace()
-            flow {
                 emit(
-                    Resources.Success(false)
+                    Resources.Error(comment, message = e.message.toString())
                 )
-            }
         }
     }
 
