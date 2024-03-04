@@ -12,7 +12,6 @@ import com.bhaskarblur.dictionaryapp.core.utils.Resources
 import com.bhaskarblur.gptbot.models.GptBody
 import com.bhaskarblur.sync_realtimecontentwriting.core.utils.AppNetworkManager
 import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.PromptModelDto
-import com.bhaskarblur.sync_realtimecontentwriting.data.remote.dto.UserRecentDocsDto
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.CommentsModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.ContentModel
 import com.bhaskarblur.sync_realtimecontentwriting.domain.model.DocumentModel
@@ -116,6 +115,7 @@ class DocumentViewModel @Inject constructor(
         var flag = false
         viewModelScope.launch {
         documentUseCase.getDocumentById(documentId).collectLatest {
+            Log.d("docDetails", it.toString())
             if (it.documentId!!.isNotEmpty()) {
                 flag = true
             }
@@ -195,7 +195,6 @@ class DocumentViewModel @Inject constructor(
     }
 
     private fun addMessageToPrompt(message: PromptModel) {
-
         viewModelScope.launch {
             documentUseCase.addMessageToPrompt(
                 documentId = documentData.value.documentId!!,
@@ -406,25 +405,26 @@ class DocumentViewModel @Inject constructor(
         }
     }
 
-    fun addComment(documentId : String, comment : CommentsModel) {
-        Log.d("requestedToAddComment", "ok")
+    fun addComment(comment : CommentsModel) {
         viewModelScope.launch {
-            commentsUseCase.addComment(documentId, comment)
-            _documentData.value = _documentData.value.apply {
-                commentsList = _documentData.value.commentsList.apply {
-                    add(comment)
+            Log.d("requestedToAddComment", comment.toString())
+//            commentsUseCase.addComment(_documentData.value.documentId ?: "", comment)
+            _documentData.value = documentData.value.apply {
+                commentsList.add(comment)
+            }
+        }
+    }
+
+    fun deleteComment(commentId : String) {
+        viewModelScope.launch {
+//            commentsUseCase.deleteComment(
+//                _documentData.value.documentId ?: "", commentId
+//            )
+            _documentData.value = documentData.value.apply {
+                commentsList.removeIf { cmm ->
+                    cmm.commentId == commentId
                 }
             }
         }
     }
-
-    fun deleteComment(documentId : String, commentId : String) {
-        viewModelScope.launch {
-            commentsUseCase.deleteComment(documentId, commentId)
-            userDocuments.removeIf {
-                it.documentId == documentId
-            }
-        }
-    }
-
 }

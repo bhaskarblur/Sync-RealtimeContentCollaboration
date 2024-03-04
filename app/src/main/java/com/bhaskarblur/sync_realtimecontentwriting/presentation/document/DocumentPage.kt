@@ -166,6 +166,14 @@ fun DocumentPage(
     val showDialog = remember {
         mutableStateOf(false)
     }
+    val showCommentDeleteDialog = remember {
+        mutableStateOf(false)
+    }
+
+    val selectedCommentId = remember {
+        mutableStateOf("")
+    }
+
     if (showDialog.value) {
         AlertDialogComponent(context,
             title = "Are you sure you want to clear history?",
@@ -180,6 +188,19 @@ fun DocumentPage(
             })
     }
 
+    if (showCommentDeleteDialog.value) {
+        AlertDialogComponent(context,
+            title = "Are you sure you want to delete comment?",
+            bodyMsg = "Your comment will no longer be visible to anyone.",
+            onYesPressed = {
+                viewModel.deleteComment(selectedCommentId.value)
+                showCommentDeleteDialog.value = false
+            },
+            yesLabel = "Yes",
+            onClose = {
+                showCommentDeleteDialog.value = false
+            })
+    }
     val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(data.documentId) {
@@ -658,16 +679,14 @@ fun DocumentPage(
                     }
 
                     BottomSheetType.CommentBottomSheet -> {
-
                         CommentsBottomSheet(
                             viewModel,
                             data = data, onAddComment = {
                                 isAddDialogVisible = true
 
                             }, onDeleteComment = { id ->
-                                viewModel.deleteComment(
-                                    data.documentId ?: "", id
-                                )
+                                showCommentDeleteDialog.value = true
+                                selectedCommentId.value = id
                             }
                         )
                     }
@@ -689,9 +708,7 @@ fun DocumentPage(
                                     commentDateTime = System.currentTimeMillis(),
                                     commentText = subject, description = description
                                 )
-                                viewModel.addComment(
-                                    data.documentId ?: "", commentModel
-                                )
+                                viewModel.addComment(commentModel)
                                 isAddDialogVisible = false
                             }
                             else {

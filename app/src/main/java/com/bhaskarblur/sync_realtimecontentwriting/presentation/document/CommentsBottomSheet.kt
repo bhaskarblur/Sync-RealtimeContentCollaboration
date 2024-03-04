@@ -116,14 +116,19 @@ fun CommentsBottomSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .requiredHeightIn(max = configuration.screenHeightDp.dp / 2)) {
-            items(commentsList.value,
+            items(commentsList.value.reversed(),
                 key = {
                     it.commentId
                 }) { comment ->
-                CommentItem(comment, canDeleteComment =
-                viewModel.userDetails.value.id == comment.commentBy?.id
-                ) { id ->
+                Column {
+
+                    CommentItem(
+                        comment, canDeleteComment =
+                        viewModel.userDetails.value.id == comment.commentBy?.id
+                    ) { id ->
                         onDeleteComment(id)
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
 
             }

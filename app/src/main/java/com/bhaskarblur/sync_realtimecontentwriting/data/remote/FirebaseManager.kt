@@ -672,12 +672,12 @@ class FirebaseManager @Inject constructor(
                                     add(comment)
                                 }
                             }
-                        documentDetails.value = documentDetails.value.apply {
-                            this.commentsList = CommentsModelDto.listToArrayList(
-                                commentsList.map {
-                                it.toCommentsModel()
-                            })
-                        }
+//                        documentDetails.value = documentDetails.value.apply {
+//                            this.commentsList = CommentsModelDto.listToArrayList(
+//                                commentsList.map {
+//                                it.toCommentsModel()
+//                            })
+//                        }
                     }
                 }
 

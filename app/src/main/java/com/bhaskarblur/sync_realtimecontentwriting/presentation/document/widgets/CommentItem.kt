@@ -36,8 +36,6 @@ fun CommentItem(
     canDeleteComment: Boolean,
     onDelete: (message: String) -> Unit
 ) {
-    Row {
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -45,7 +43,7 @@ fun CommentItem(
                     chatBoxColor,
                     RoundedCornerShape(10.dp)
                 )
-                .padding(12.dp),
+                .padding(14.dp),
             horizontalAlignment = Alignment.Start
         ) {
 
@@ -54,7 +52,7 @@ fun CommentItem(
                 Text(
                     comment.commentBy?.fullName ?: "User",
                     color = textColorPrimary,
-                    fontSize = 16.sp,
+                    fontSize = 17.sp,
                     fontWeight = FontWeight.SemiBold,
                     fontFamily = FontFamily.Default,
                     lineHeight = 18.sp
@@ -63,8 +61,8 @@ fun CommentItem(
                 Text(
                     UiUtils.getDateTime(comment.commentDateTime.toString()).toString(),
                     color = textColorPrimary,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium,
                     fontFamily = FontFamily.Default,
                     lineHeight = 18.sp
                 )
@@ -77,7 +75,7 @@ fun CommentItem(
                 Text(
                     comment.commentText, color = textColorPrimary, fontSize = 15.sp,
                     fontWeight = FontWeight.Medium, fontFamily = FontFamily.Default,
-                    lineHeight = 18.sp
+                    lineHeight = 16.sp
                 )
 
                 if (canDeleteComment) {
@@ -91,18 +89,15 @@ fun CommentItem(
                 }
             }
 
-            Spacer(modifier = Modifier.width(6.dp))
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
-                comment.description, color = textColorSecondary, fontSize = 14.sp,
+                comment.description, color = textColorSecondary, fontSize = 14.5.sp,
                 fontWeight = FontWeight.W400, fontFamily = FontFamily.Default,
-                lineHeight = 16.sp
+                lineHeight = 18.sp
             )
-            Spacer(Modifier.height(8.dp))
-
-
+            Spacer(Modifier.height(4.dp))
 
         }
-    }
 }
 
 

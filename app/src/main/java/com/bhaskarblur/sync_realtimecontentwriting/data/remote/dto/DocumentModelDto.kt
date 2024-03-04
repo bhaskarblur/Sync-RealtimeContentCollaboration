@@ -16,7 +16,7 @@ data class DocumentModelDto(
 
     fun toDocumentModel() : DocumentModel {
         return DocumentModel(documentId, documentName, content?.toContentModel(), createdBy?:"", creationDateTime?:0, liveCollaborators?.map {  it.toUserModelCursor()},
-            PromptModelDto.listToArrayList(promptsList))
+            PromptModelDto.listToArrayList(promptsList), commentsList)
     }
 }
 
