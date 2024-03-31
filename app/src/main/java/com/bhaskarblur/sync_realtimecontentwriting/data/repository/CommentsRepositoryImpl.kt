@@ -9,34 +9,38 @@ import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class CommentsRepositoryImpl @Inject constructor(
-    private val firebaseManager : FirebaseManager
+    private val firebaseManager: FirebaseManager
 ) : ICommentsRepo {
     override fun getDocumentComments() {
         firebaseManager.getDocumentComments()
     }
-    override fun addComment(documentId: String, comment: CommentsModel): Flow<Resources<CommentsModel>> = flow{
+
+    override fun addComment(
+        documentId: String,
+        comment: CommentsModel
+    ): Flow<Resources<CommentsModel>> = flow {
         try {
-            val addedComment = firebaseManager.addCommentToDocument(documentId,comment)
-                emit(
-                    Resources.Success(addedComment)
-                )
-        } catch (e : Exception) {
+            val addedComment = firebaseManager.addCommentToDocument(documentId, comment)
+            emit(
+                Resources.Success(addedComment)
+            )
+        } catch (e: Exception) {
             e.printStackTrace()
-                emit(
-                    Resources.Error(comment, message = e.message.toString())
-                )
+            emit(
+                Resources.Error(comment, message = e.message.toString())
+            )
         }
     }
 
     override fun deleteComment(documentId: String, commentId: String): Flow<Resources<Boolean>> {
         return try {
-            firebaseManager.deleteComment(documentId,commentId)
+            firebaseManager.deleteComment(documentId, commentId)
             flow {
                 emit(
                     Resources.Success(true)
                 )
             }
-        } catch (e : Exception) {
+        } catch (e: Exception) {
             e.printStackTrace()
             flow {
                 emit(

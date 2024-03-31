@@ -411,10 +411,11 @@ class DocumentViewModel @Inject constructor(
             commentsUseCase.addComment(_documentData.value.documentId ?: "", comment)
                 .collectLatest { result ->
                     Log.d("newCommentIsHere", result.data.toString())
-                    val tempList = _documentData.value.commentsList
+                    Log.d("newCommentIsHere", (result is Resources.Success).toString())
                     when(result) {
                         is Resources.Success -> {
-                            result.data?.let { tempList.add(it) }
+                            result.data?.let {cmModel ->
+                            }
                         }
                         else -> {
 

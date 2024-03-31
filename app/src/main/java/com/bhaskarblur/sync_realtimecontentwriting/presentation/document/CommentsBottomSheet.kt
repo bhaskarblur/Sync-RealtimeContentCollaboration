@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -21,9 +20,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,16 +41,10 @@ fun CommentsBottomSheet(
     viewModel: DocumentViewModel, data: DocumentModel, onAddComment: () -> Unit,
     onDeleteComment: (id: String) -> Unit
 ) {
-    val ctnScope = rememberCoroutineScope()
     val commentsScrollState = rememberLazyListState()
-
-    val commentsList = remember {
-        mutableStateOf(data.commentsList)
-    }
 
     LaunchedEffect(key1 = data.commentsList) {
         Log.d("newCommentAdded","yes")
-        commentsList.value = data.commentsList
     }
 
     val configuration = LocalConfiguration.current
@@ -116,7 +106,7 @@ fun CommentsBottomSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .requiredHeightIn(max = configuration.screenHeightDp.dp / 2)) {
-            items(commentsList.value.reversed()) { comment ->
+            items(data.commentsList.reversed()) { comment ->
                 Column {
 
                     CommentItem(

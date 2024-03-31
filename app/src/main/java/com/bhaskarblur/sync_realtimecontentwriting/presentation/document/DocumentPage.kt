@@ -620,7 +620,6 @@ fun DocumentPage(
 
         BottomSheetScaffold(
             sheetContent = {
-
                 when (bottomSheetType.value) {
                     BottomSheetType.AiChatBottomSheet -> {
                         AIBottomSheet(
@@ -710,6 +709,7 @@ fun DocumentPage(
                                 )
                                 viewModel.addComment(commentModel)
                                 isAddDialogVisible = false
+                                bottomSheetType.value = BottomSheetType.CommentBottomSheet
                             }
                             else {
                                 Toast.makeText(
@@ -726,7 +726,6 @@ fun DocumentPage(
                         .background(backgroundColor),
                     verticalArrangement = Arrangement.Top
                 ) {
-
 
                     if (!data.documentId.isNullOrEmpty() && dataGot.value) {
                         Column(

@@ -702,11 +702,11 @@ class FirebaseManager @Inject constructor(
                                 comment.apply {
                                     commentId = key
                                 }
+                                updateLastEditedByStatus(userDetails.id ?: "", documentId)
                                 Log.d("FirebaseAddComment", "Successful")
                                 _documentDetails.value = _documentDetails.value.apply {
                                     commentsList.add(comment)
                                 }
-                                updateLastEditedByStatus(userDetails.id ?: "", documentId)
                             }
                         }
                 }
